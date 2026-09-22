@@ -8,8 +8,6 @@ html {
 
 body {
   margin: 0;
-  background-color: rgb(162, 157, 157);
-  font-family: "roboto";
   line-height: 1.5;
   color: #212529;
   display: flex;

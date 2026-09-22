@@ -1,5 +1,5 @@
 const baseUrl = "https://pokeapi.co/api/v2";
-const pageSize = 1220; // so viele Pokémon kommen pro Klick auf "Mehr Pokémon" dazu
+const pageSize = 20; // so viele Pokémon kommen pro Klick auf "Mehr Pokémon" dazu
 const searchDebounceMilliseconds = 250; // erst suchen, wenn der Nutzer so lange nicht mehr getippt hat
 const maximumStatisticValue = 255; // bei diesem Wert ist der Balken einer Statistik voll
 const maximumTotalValue = 780; // bei diesem Wert ist der Total-Balken voll
