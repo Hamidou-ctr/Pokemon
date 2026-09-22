@@ -8,12 +8,45 @@ html {
 
 body {
   margin: 0;
-  background-color: rgb(162, 157, 157) !important;
-  font-family: "roboto" !important;
+  background-color: rgb(162, 157, 157);
+  font-family: "roboto";
+  line-height: 1.5;
+  color: #212529;
   display: flex;
   justify-content: center;
   flex-direction: column;
   min-height: 100vh;
+}
+
+h1 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+  font-size: calc(1.375rem + 1.5vw);
+}
+
+@media (min-width: 1200px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+img {
+  vertical-align: middle;
+}
+
+button,
+input {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 header {
@@ -65,6 +98,14 @@ header {
   align-items: center;
   flex-wrap: wrap;
   padding: 24px;
+}
+
+.pokedex-message {
+  flex-basis: 100%;
+  text-align: center;
+  color: white;
+  font-size: 20px;
+  margin: 0;
 }
 
 .button-div {
@@ -157,11 +198,13 @@ button:hover {
 
 .pokemon-type {
   margin-top: -5px;
+  padding: 4px;
   border-radius: 4px;
 }
 
 .border {
   display: flex;
+  width: 100%;
   max-width: 700px;
   max-height: 90vh;
   flex-direction: column;
@@ -216,7 +259,7 @@ button:hover {
   bottom: 60vh;
 }
 
-.ChartJsDiv {
+.InfoContentDiv {
   display: flex;
   flex-direction: column;
   background-color: white;
@@ -289,9 +332,47 @@ button:hover {
   justify-content: center;
 }
 
-canvas {
-  height: 30vh !important;
-  width: 100% !important;
+.bar-list {
+  display: grid;
+  align-content: start;
+  row-gap: 6px;
+  width: 100%;
+  height: 30vh;
+  overflow-y: auto;
+  padding: 4px 8px;
+  color: rgb(13, 15, 15);
+}
+
+.bar-caption {
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  color: rgb(66, 61, 61);
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 9rem 2.5rem 1fr;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.bar-value {
+  text-align: right;
+  font-weight: bold;
+}
+
+.bar-track {
+  height: 14px;
+  border-radius: 4px;
+  background-color: rgb(240, 240, 240);
+}
+
+.bar-fill {
+  height: 100%;
+  border: 1px solid;
+  border-radius: 4px;
 }
 
 /* .About {
@@ -372,56 +453,4 @@ footer {
 .Location:hover {
   cursor: pointer;
   text-transform: uppercase;
-}
-/*
-@media (max-width: 678px) {
-  .border {
-    width: 100%;
-  }
-}
-
-@media (max-width: 587px) {
-  .all-pokemon-div {
-    width: 50%;
-  }
-
-  .all-pokemon {
-    width: 90%;
-  }
-}
-
-@media only screen and (max-width: 400px) {
-  .all-pokemon-div {
-    width: 80%;
-    flex-shrink: calc(2);
-    flex-grow: calc(1);
-  }
-
-  .all-pokemon img {
-    margin-right: 20%;
-  }
-
-  .quickLink {
-    font-size: 15px;
-  }
-
-  .quickLink:hover {
-    font-size: 14px;
-  }
-}
-
-@media only screen and (max-width: 330px) {
-  .quickLink {
-    font-size: 14px;
-  }
-}
-
-@media only screen and (max-width: 320px) {
-  .all-pokemon-div {
-    width: 80%;
-  }
-
-  .quickLink {
-    font-size: 13px;
-  }
 }
