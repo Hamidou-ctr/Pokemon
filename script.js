@@ -1,5 +1,4 @@
 const baseUrl = "https://pokeapi.co/api/v2";
-const totalPokemon = 154; // so viele Pokémon enthält der Pokédex
 const pageSize = 20; // so viele Pokémon kommen pro Klick auf "Mehr Pokémon" dazu
 const searchDebounceMilliseconds = 250; // erst suchen, wenn der Nutzer so lange nicht mehr getippt hat
 const maximumStatisticValue = 255; // bei diesem Wert ist der Balken einer Statistik voll
@@ -90,8 +89,10 @@ let searchTimer;
 
 async function initialize() {
   try {
+    // erst die Gesamtzahl abfragen, damit wirklich alle Pokémon geladen werden, egal wie viele es gibt
+    let firstPage = await fetchJson(`${baseUrl}/pokemon?limit=1&offset=0`);
     let list = await fetchJson(
-      `${baseUrl}/pokemon?limit=${totalPokemon}&offset=0`,
+      `${baseUrl}/pokemon?limit=${firstPage.count}&offset=0`,
     );
     pokemonIndex = list.results.map((entry) => ({
       pokemonId: Number(entry.url.split("/").filter(Boolean).pop()),
