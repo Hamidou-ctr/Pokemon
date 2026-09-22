@@ -465,6 +465,11 @@ function showTab(activeTabName) {
   }
 }
 
+// schließt nur, wenn der Klick den Hintergrund trifft und nicht die Pokémon-Karte selbst
+function closePokemonIfBackgroundClicked(event) {
+  if (event.target === event.currentTarget) closePokemon();
+}
+
 function closePokemon() {
   informationRequest++; // eine noch laufende Anfrage darf die Ansicht nicht wieder öffnen
   currentPokemon = null;
