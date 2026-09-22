@@ -262,10 +262,15 @@ async function pokemonInformation(pokemonId) {
   }
 }
 
-// Vor dem ersten und nach dem letzten Pokémon geht es wieder von vorne los
+// Vor dem ersten und nach dem letzten Pokémon geht es wieder von vorne los.
+// Läuft über die Position im Index statt über die ID selbst, weil die IDs
+// ab den Alternativformen/Mega-Entwicklungen auf 10001+ springen und somit
+// nicht lückenlos von 1 bis pokemonIndex.length durchnummeriert sind.
 function neighbourPokemonId(pokemonId, step) {
   let total = pokemonIndex.length;
-  return ((pokemonId - 1 + step + total) % total) + 1;
+  let index = pokemonIndex.findIndex((entry) => entry.pokemonId === pokemonId);
+  if (index === -1) return pokemonId;
+  return pokemonIndex[(index + step + total) % total].pokemonId;
 }
 
 function pokemonInformationHtml(pokemon) {
