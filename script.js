@@ -1,17 +1,17 @@
 const baseUrl = "https://pokeapi.co/api/v2";
 const totalPokemon = 154; // so viele Pokémon enthält der Pokédex
 const pageSize = 20; // so viele Pokémon kommen pro Klick auf "Mehr Pokémon" dazu
-const searchDebounceMs = 250; // erst suchen, wenn der Nutzer so lange nicht mehr getippt hat
-const maxStatValue = 255; // bei diesem Wert ist der Balken eines Stats voll
-const maxTotalValue = 780; // bei diesem Wert ist der Total-Balken voll
+const searchDebounceMilliseconds = 250; // erst suchen, wenn der Nutzer so lange nicht mehr getippt hat
+const maximumStatisticValue = 255; // bei diesem Wert ist der Balken einer Statistik voll
+const maximumTotalValue = 780; // bei diesem Wert ist der Total-Balken voll
 const topMovesCount = 10;
 const defaultTypeColor = "blue"; // Fallback, falls ein Typ mal nicht in den Farbtabellen steht
 const pokemonCardClass = "all-pokemon-div";
 
-const tabAbout = "About";
-const tabBaseStats = "Base-Stats";
-const tabMoves = "Moves";
-const infoTabs = [tabAbout, tabBaseStats, tabMoves];
+const aboutTabName = "About";
+const baseStatisticsTabName = "Base-Stats";
+const movesTabName = "Moves";
+const tabNames = [aboutTabName, baseStatisticsTabName, movesTabName];
 
 const icons = {
   previous: "image./left.webp",
@@ -19,8 +19,8 @@ const icons = {
   close: "image./road-sign.webp",
 };
 
-// Rand- und Füllfarbe je Balken: erst die sechs Stats, zuletzt die Summe (Total)
-const statColors = [
+// Rand- und Füllfarbe je Balken: erst die sechs Statistiken, zuletzt die Summe (Total)
+const statisticColors = [
   { border: "#ff7793", fill: "#ffe1e6" }, // hp
   { border: "#ffc791", fill: "#ffecdb" }, // attack
   { border: "#ffd984", fill: "#fff4df" }, // defense
@@ -30,7 +30,7 @@ const statColors = [
   { border: "#ff4500", fill: "#ffc6b0" }, // total
 ];
 
-const typePokemonBackgroundColor = {
+const typePokemonPrimaryBackgroundColor = {
   grass: "rgb(0, 102, 0)",
   fire: "rgb(241,79,14)",
   water: "rgb(49,124,218)",
@@ -51,7 +51,7 @@ const typePokemonBackgroundColor = {
   dark: "rgb(78,68,69)",
 };
 
-const typePokemonBackgroundColorDiv = {
+const typePokemonSecondaryBackgroundColor = {
   grass: "rgb(14, 43, 14)",
   fire: "rgb(149, 46, 11)",
   water: "rgb(7, 70, 147)",
@@ -77,24 +77,24 @@ const searchInput = document.getElementById("search");
 const pokedexElement = document.getElementById("pokedex");
 const messageElement = document.getElementById("pokedex-message");
 const loadMoreButton = document.getElementById("button-loadPokemon");
-const infoContainer = document.getElementById("info-pokemon-Container");
+const informationContainer = document.getElementById("info-pokemon-Container");
 
 const cache = new Map(); // url -> Promise mit der Antwort, jede URL wird nur einmal geladen
-let pokemonIndex = []; // { id, name } aller Pokémon, wird einmal beim Start geladen
+let pokemonIndex = []; // { pokemonId, name } aller Pokémon, wird einmal beim Start geladen
 let matches = []; // der Teil von pokemonIndex, der zur aktuellen Suche passt
 let shownCount = 0; // wie viele der matches schon auf der Seite stehen
 let currentPokemon = null; // Pokémon der Detailansicht, null solange sie geschlossen ist
 let listRequest = 0; // Nummer der letzten Listen-Aktualisierung, ältere werden verworfen
-let infoRequest = 0; // dasselbe für die Detailansicht
+let informationRequest = 0; // dasselbe für die Detailansicht
 let searchTimer;
 
-async function init() {
+async function initialize() {
   try {
     let list = await fetchJson(
       `${baseUrl}/pokemon?limit=${totalPokemon}&offset=0`,
     );
     pokemonIndex = list.results.map((entry) => ({
-      id: Number(entry.url.split("/").filter(Boolean).pop()),
+      pokemonId: Number(entry.url.split("/").filter(Boolean).pop()),
       name: entry.name,
     }));
     await applySearch();
@@ -118,13 +118,13 @@ function fetchJson(url) {
   return cache.get(url);
 }
 
-function loadPokemon(id) {
-  return fetchJson(`${baseUrl}/pokemon/${id}`);
+function loadPokemon(pokemonId) {
+  return fetchJson(`${baseUrl}/pokemon/${pokemonId}`);
 }
 
 function startSearch() {
   clearTimeout(searchTimer);
-  searchTimer = setTimeout(applySearch, searchDebounceMs);
+  searchTimer = setTimeout(applySearch, searchDebounceMilliseconds);
 }
 
 async function applySearch() {
@@ -143,7 +143,7 @@ async function loadNextPokemon() {
   showMessage(matches.length ? "Loading Pokémon..." : "No Pokémon found.");
   try {
     let pokemons = await Promise.all(
-      batch.map((entry) => loadPokemon(entry.id)),
+      batch.map((entry) => loadPokemon(entry.pokemonId)),
     );
     if (request !== listRequest) return; // eine neuere Suche oder ein neuer Klick hat übernommen
     renderPokemonList(pokemons);
@@ -179,20 +179,20 @@ function updateLoadMoreButton() {
 }
 
 function pokemonHtml(pokemon) {
-  let backgroundColor = generateBackgroundColor(pokemon);
-  let typeColor = generateBackgroundColorTypeDiv(pokemon);
+  let primaryBackgroundColor = generatePrimaryBackgroundColor(pokemon);
+  let secondaryBackgroundColor = generateSecondaryBackgroundColor(pokemon);
   let name = formatName(pokemon.name);
   let types = pokemon.types
     .map(
       (entry) =>
-        `<p class="pokemon-type" style="background-color: ${typeColor};">${formatName(
+        `<p class="pokemon-type" style="background-color: ${secondaryBackgroundColor};">${formatName(
           entry.type.name,
         )}</p>`,
     )
     .join("");
   return /* html */ `
-    <div class="${pokemonCardClass}" onclick="pokemonInfo(${pokemon.id})">
-      <div class="all-pokemon" style="background-color: ${backgroundColor};">
+    <div class="${pokemonCardClass}" onclick="pokemonInformation(${pokemon.id})">
+      <div class="all-pokemon" style="background-color: ${primaryBackgroundColor};">
         <div class="name-and-id-div">
           <h1>${name}</h1>
           <h1>№ ${pokemon.id}</h1>
@@ -209,15 +209,16 @@ function pokemonHtml(pokemon) {
   `;
 }
 
-function generateBackgroundColor(pokemon) {
+function generatePrimaryBackgroundColor(pokemon) {
   return (
-    typePokemonBackgroundColor[pokemon.types[0].type.name] || defaultTypeColor
+    typePokemonPrimaryBackgroundColor[pokemon.types[0].type.name] ||
+    defaultTypeColor
   );
 }
 
-function generateBackgroundColorTypeDiv(pokemon) {
+function generateSecondaryBackgroundColor(pokemon) {
   return (
-    typePokemonBackgroundColorDiv[pokemon.types[0].type.name] ||
+    typePokemonSecondaryBackgroundColor[pokemon.types[0].type.name] ||
     defaultTypeColor
   );
 }
@@ -236,18 +237,18 @@ function detailImage(pokemon) {
   );
 }
 
-async function pokemonInfo(id) {
-  let request = ++infoRequest;
+async function pokemonInformation(pokemonId) {
+  let request = ++informationRequest;
   try {
-    let pokemon = await loadPokemon(id);
-    if (request !== infoRequest) return; // inzwischen wurde ein anderes Pokémon angeklickt oder alles geschlossen
+    let pokemon = await loadPokemon(pokemonId);
+    if (request !== informationRequest) return; // inzwischen wurde ein anderes Pokémon angeklickt oder alles geschlossen
     currentPokemon = pokemon;
-    infoContainer.innerHTML = pokemonInfoHtml(pokemon);
-    showInfoView();
+    informationContainer.innerHTML = pokemonInformationHtml(pokemon);
+    showInformationView();
     about();
     // Nachbarn schon laden, damit ein Klick auf die Pfeile sofort reagiert
     for (let step of [-1, 1]) {
-      loadPokemon(neighbourId(id, step)).catch(() => {});
+      loadPokemon(neighbourPokemonId(pokemonId, step)).catch(() => {});
     }
   } catch (error) {
     console.error(error);
@@ -255,17 +256,17 @@ async function pokemonInfo(id) {
 }
 
 // Vor dem ersten und nach dem letzten Pokémon geht es wieder von vorne los
-function neighbourId(id, step) {
+function neighbourPokemonId(pokemonId, step) {
   let total = pokemonIndex.length;
-  return ((id - 1 + step + total) % total) + 1;
+  return ((pokemonId - 1 + step + total) % total) + 1;
 }
 
-function pokemonInfoHtml(pokemon) {
-  let backgroundColor = generateBackgroundColor(pokemon);
+function pokemonInformationHtml(pokemon) {
+  let primaryBackgroundColor = generatePrimaryBackgroundColor(pokemon);
   let name = formatName(pokemon.name);
   return /* html */ `
     <div class="border">
-      <div class="AllPokemonInfoAllPokemonInfo" style="background-color: ${backgroundColor};">
+      <div class="AllPokemonInfoAllPokemonInfo" style="background-color: ${primaryBackgroundColor};">
         <div class="NameAndIdDivInfo">
           <div class="NameIdDivInfo">
             <h1>${name.toUpperCase()}</h1>
@@ -279,29 +280,29 @@ function pokemonInfoHtml(pokemon) {
       <div class="InfoContentDiv">
         <div class="navigationLinks">
           <div class="directionPointer-div">
-            <img class="directionPointer left" onclick="pokemonInfo(${neighbourId(
+            <img class="directionPointer left" onclick="pokemonInformation(${neighbourPokemonId(
               pokemon.id,
               -1,
             )})" src="${icons.previous}" alt="Previous Pokémon">
-            <img class="directionPointer right" onclick="pokemonInfo(${neighbourId(
+            <img class="directionPointer right" onclick="pokemonInformation(${neighbourPokemonId(
               pokemon.id,
               1,
             )})" src="${icons.next}" alt="Next Pokémon">
           </div>
           <div class="quickLink-div">
             <a class="quickLink" onclick="about(); return false;" href="#">About</a>
-            <a class="quickLink" onclick="baseStats(); return false;" href="#">Base Stats</a>
+            <a class="quickLink" onclick="baseStatistics(); return false;" href="#">Base Stats</a>
             <a class="quickLink" onclick="moves(); return false;" href="#">Moves</a>
           </div>
         </div>
 
-        <div class="${tabAbout}" id="${tabAbout}"></div>
+        <div class="${aboutTabName}" id="${aboutTabName}"></div>
 
-        <div class="${tabBaseStats} hidden" id="${tabBaseStats}">
-          ${baseStatsHtml(pokemon)}
+        <div class="${baseStatisticsTabName} hidden" id="${baseStatisticsTabName}">
+          ${baseStatisticsHtml(pokemon)}
         </div>
 
-        <div class="${tabMoves} hidden" id="${tabMoves}">
+        <div class="${movesTabName} hidden" id="${movesTabName}">
           ${movesHtml(pokemon)}
         </div>
         <img class="directionPointer back" onclick="closePokemon()" src="${icons.close}" alt="Close">
@@ -311,13 +312,13 @@ function pokemonInfoHtml(pokemon) {
 }
 
 async function about() {
-  showTab(tabAbout);
+  showTab(aboutTabName);
   let pokemon = currentPokemon;
-  let aboutElement = document.getElementById(tabAbout);
+  let aboutElement = document.getElementById(aboutTabName);
   aboutElement.innerHTML = aboutMessageHtml(pokemon, "Loading...");
   let html;
   try {
-    html = await detailedInfoHtml(pokemon);
+    html = await detailedInformationHtml(pokemon);
   } catch (error) {
     console.error(error);
     html = aboutMessageHtml(pokemon, "The details could not be loaded.");
@@ -325,8 +326,8 @@ async function about() {
   if (pokemon === currentPokemon) aboutElement.innerHTML = html; // nur, wenn es noch dasselbe Pokémon ist
 }
 
-async function detailedInfoHtml(pokemon) {
-  let color = generateBackgroundColorTypeDiv(pokemon);
+async function detailedInformationHtml(pokemon) {
+  let secondaryBackgroundColor = generateSecondaryBackgroundColor(pokemon);
   let [species, encounters] = await Promise.all([
     fetchJson(pokemon.species.url),
     fetchJson(pokemon.location_area_encounters),
@@ -352,25 +353,25 @@ async function detailedInfoHtml(pokemon) {
   ];
   return /* html */ `
     <div class="About-div">
-      ${rows.map(([label, value]) => aboutRowHtml(label, value, color)).join("")}
-      ${aboutRowHtml("Location Area Encounters", locations || "Unknown", color, "Location")}
+      ${rows.map(([label, value]) => aboutRowHtml(label, value, secondaryBackgroundColor)).join("")}
+      ${aboutRowHtml("Location Area Encounters", locations || "Unknown", secondaryBackgroundColor, "Location")}
     </div>
   `;
 }
 
-function aboutRowHtml(label, value, color, className = "") {
+function aboutRowHtml(label, value, backgroundColor, className = "") {
   return /* html */ `
-    <p class="${className}" style="background-color: ${color};">
+    <p class="${className}" style="background-color: ${backgroundColor};">
       <b>${label}</b> ${value}
     </p>
   `;
 }
 
 function aboutMessageHtml(pokemon, text) {
-  let color = generateBackgroundColorTypeDiv(pokemon);
+  let secondaryBackgroundColor = generateSecondaryBackgroundColor(pokemon);
   return /* html */ `
     <div class="About-div">
-      <p style="background-color: ${color};">${text}</p>
+      <p style="background-color: ${secondaryBackgroundColor};">${text}</p>
     </div>
   `;
 }
@@ -382,19 +383,24 @@ function genderText(genderRate) {
   return `♂️ ${100 - female}% / ♀️ ${female}%`;
 }
 
-function baseStatsHtml(pokemon) {
-  let stats = pokemon.stats.map((entry) => ({
+function baseStatisticsHtml(pokemon) {
+  let statistics = pokemon.stats.map((entry) => ({
     name: entry.stat.name === "hp" ? "HP" : formatName(entry.stat.name),
     value: entry.base_stat,
-    max: maxStatValue,
+    maximum: maximumStatisticValue,
   }));
-  let total = stats.reduce((sum, stat) => sum + stat.value, 0);
-  stats.push({ name: "Total", value: total, max: maxTotalValue });
+  let total = statistics.reduce((sum, statistic) => sum + statistic.value, 0);
+  statistics.push({ name: "Total", value: total, maximum: maximumTotalValue });
   return /* html */ `
     <div class="bar-list">
-      ${stats
-        .map((stat, index) =>
-          barRowHtml(stat.name, stat.value, stat.max, statColors[index]),
+      ${statistics
+        .map((statistic, index) =>
+          barRowHtml(
+            statistic.name,
+            statistic.value,
+            statistic.maximum,
+            statisticColors[index],
+          ),
         )
         .join("")}
     </div>
@@ -410,16 +416,19 @@ function movesHtml(pokemon) {
     }))
     .sort((a, b) => b.versions - a.versions)
     .slice(0, topMovesCount);
-  let max = Math.max(1, ...topMoves.map((move) => move.versions));
-  let color = generateBackgroundColor(pokemon);
+  let maximumVersionCount = Math.max(
+    1,
+    ...topMoves.map((move) => move.versions),
+  );
+  let moveBarColor = generatePrimaryBackgroundColor(pokemon);
   return /* html */ `
     <div class="bar-list">
       <p class="bar-caption">Top ${topMovesCount} moves by number of game versions</p>
       ${topMoves
         .map((move) =>
-          barRowHtml(move.name, move.versions, max, {
-            border: color,
-            fill: color,
+          barRowHtml(move.name, move.versions, maximumVersionCount, {
+            border: moveBarColor,
+            fill: moveBarColor,
           }),
         )
         .join("")}
@@ -427,45 +436,47 @@ function movesHtml(pokemon) {
   `;
 }
 
-function barRowHtml(label, value, max, color) {
-  let percent = Math.min(100, (value / max) * 100).toFixed(1);
+function barRowHtml(label, value, maximumValue, barColors) {
+  let percent = Math.min(100, (value / maximumValue) * 100).toFixed(1);
   return /* html */ `
     <div class="bar-row">
       <span class="bar-label">${label}</span>
       <span class="bar-value">${value}</span>
       <div class="bar-track">
-        <div class="bar-fill" style="width: ${percent}%; background-color: ${color.fill}; border-color: ${color.border};"></div>
+        <div class="bar-fill" style="width: ${percent}%; background-color: ${barColors.fill}; border-color: ${barColors.border};"></div>
       </div>
     </div>
   `;
 }
 
-function baseStats() {
-  showTab(tabBaseStats);
+function baseStatistics() {
+  showTab(baseStatisticsTabName);
 }
 
 function moves() {
-  showTab(tabMoves);
+  showTab(movesTabName);
 }
 
-function showTab(name) {
-  for (let tab of infoTabs) {
-    document.getElementById(tab).classList.toggle("hidden", tab !== name);
+function showTab(activeTabName) {
+  for (let tabName of tabNames) {
+    document
+      .getElementById(tabName)
+      .classList.toggle("hidden", tabName !== activeTabName);
   }
 }
 
 function closePokemon() {
-  infoRequest++; // eine noch laufende Anfrage darf die Ansicht nicht wieder öffnen
+  informationRequest++; // eine noch laufende Anfrage darf die Ansicht nicht wieder öffnen
   currentPokemon = null;
-  infoContainer.innerHTML = "";
-  infoContainer.classList.add("hidden");
+  informationContainer.innerHTML = "";
+  informationContainer.classList.add("hidden");
   pokedexElement.classList.remove("pokedex-opacity");
   updateLoadMoreButton();
 }
 
-function showInfoView() {
+function showInformationView() {
   pokedexElement.classList.add("pokedex-opacity");
-  infoContainer.classList.remove("hidden");
+  informationContainer.classList.remove("hidden");
   updateLoadMoreButton();
 }
 
