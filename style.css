@@ -1,3 +1,101 @@
+@font-face {
+  font-family: 'Diplomata';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/diplomata-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Elsie';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/elsie-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('fonts/lora-400-700-italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('fonts/lora-400-700-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Pacifico';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/pacifico-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Raleway';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('fonts/raleway-100-900-italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('fonts/raleway-100-900-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('fonts/roboto-100-900-italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('fonts/roboto-100-900-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Tangerine';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/tangerine-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Tangerine';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/tangerine-700-normal.woff2') format('woff2');
+}
+
+:root {
+  --font-tangerine: "Tangerine", cursive;
+  --font-elsie: "Elsie", serif;
+  --font-lora: "Lora", serif;
+  --font-diplomata: "Diplomata", system-ui;
+  --font-pacifico: "Pacifico", cursive;
+  --font-raleway: "Raleway", sans-serif;
+  --font-roboto: "Roboto", sans-serif;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -8,6 +106,7 @@ html {
 
 body {
   margin: 0;
+  font-family: var(--font-roboto);
   line-height: 1.5;
   color: #212529;
   display: flex;
