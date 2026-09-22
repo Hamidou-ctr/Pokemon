@@ -13,9 +13,9 @@ const movesTabName = "Moves";
 const tabNames = [aboutTabName, baseStatisticsTabName, movesTabName];
 
 const icons = {
-  previous: "image./left.webp",
-  next: "image./right.webp",
-  close: "image./road-sign.webp",
+  previous: /* html */ `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"></polyline></svg>`,
+  next: /* html */ `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>`,
+  close: /* html */ `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>`,
 };
 
 // Rand- und Füllfarbe je Balken: erst die sechs Statistiken, zuletzt die Summe (Total)
@@ -287,14 +287,14 @@ function pokemonInformationHtml(pokemon) {
       <div class="InfoContentDiv">
         <div class="navigationLinks">
           <div class="directionPointer-div">
-            <img class="directionPointer left" onclick="pokemonInformation(${neighbourPokemonId(
+            <button type="button" class="directionPointer left" onclick="pokemonInformation(${neighbourPokemonId(
               pokemon.id,
               -1,
-            )})" src="${icons.previous}" alt="Previous Pokémon">
-            <img class="directionPointer right" onclick="pokemonInformation(${neighbourPokemonId(
+            )})" aria-label="Previous Pokémon">${icons.previous}</button>
+            <button type="button" class="directionPointer right" onclick="pokemonInformation(${neighbourPokemonId(
               pokemon.id,
               1,
-            )})" src="${icons.next}" alt="Next Pokémon">
+            )})" aria-label="Next Pokémon">${icons.next}</button>
           </div>
           <div class="quickLink-div">
             <a class="quickLink" onclick="about(); return false;" href="#">About</a>
@@ -312,7 +312,7 @@ function pokemonInformationHtml(pokemon) {
         <div class="${movesTabName} hidden" id="${movesTabName}">
           ${movesHtml(pokemon)}
         </div>
-        <img class="directionPointer back" onclick="closePokemon()" src="${icons.close}" alt="Close">
+        <button type="button" class="directionPointer back" onclick="closePokemon()" aria-label="Close">${icons.close}</button>
       </div>
     </div>
   `;

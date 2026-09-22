@@ -430,12 +430,37 @@ button:hover {
   justify-content: space-between;
 }
 
-.directionPointer {
-  height: 30px;
+.directionPointer,
+.back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #eef1f4;
+  color: #333d47;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  transition:
+    scale 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
-.directionPointer:hover {
-  scale: 1.3;
+.directionPointer svg,
+.back svg {
+  width: 18px;
+  height: 18px;
+}
+
+.directionPointer:hover,
+.back:hover {
+  scale: 1.15;
+  background: #dfe4e9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .quickLink-div {
@@ -460,7 +485,6 @@ button:hover {
 }
 
 .back {
-  width: 30px;
   margin-left: 47%;
   margin-top: 28px;
 }
