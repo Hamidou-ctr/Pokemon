@@ -204,7 +204,9 @@ function pokemonHtml(pokemon) {
             ${types}
           </div>
           <div class="pokemon-image-wrap">
-            <img src="${listImage(pokemon)}" alt="${name}">
+            <img class="pokemon-sprite pokemon-sprite-default" src="${listImage(pokemon)}" alt="${name}">
+            <img class="pokemon-sprite pokemon-sprite-shiny" src="${listShinyImage(pokemon)}" alt="${name} (shiny)">
+            <span class="shiny-badge">✨</span>
           </div>
         </div>
       </div>
@@ -233,6 +235,15 @@ function generateSecondaryBackgroundColor(pokemon) {
 function listImage(pokemon) {
   let sprites = pokemon.sprites;
   return sprites.other.showdown.front_default || sprites.front_default;
+}
+
+function listShinyImage(pokemon) {
+  let sprites = pokemon.sprites;
+  return (
+    sprites.other.showdown.front_shiny ||
+    sprites.front_shiny ||
+    listImage(pokemon)
+  );
 }
 
 function detailImage(pokemon) {

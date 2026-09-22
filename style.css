@@ -270,25 +270,6 @@ button:hover {
     box-shadow 0.4s ease;
 }
 
-/* Pokéball-Wasserzeichen in der Ecke *
-.all-pokemon::before {
-  content: "";
-  position: absolute;
-  top: -34px;
-  right: -34px;
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle, transparent 0 36%, rgba(255, 255, 255, 0.16) 36% 41%, transparent 41%),
-    radial-gradient(circle, rgba(255, 255, 255, 0.16) 0 7%, transparent 7%),
-    linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12)) center / 100% 9% no-repeat;
-  transform: rotate(70deg);
-  transition: transform 0.6s ease;
-  pointer-events: none;
-  z-index: 0;
-}
-
 /* Glanz-Streifen, der beim Hover über die Karte läuft */
 .all-pokemon::after {
   content: "";
@@ -356,17 +337,51 @@ button:hover {
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3);
 }
 
-.all-pokemon img {
-  position: relative;
+.pokemon-sprite {
+  position: absolute;
   width: 92px;
   height: 92px;
   object-fit: contain;
   filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.35));
-  transition: transform 0.35s ease;
+  transition:
+    transform 0.35s ease,
+    opacity 0.5s ease;
 }
 
-.all-pokemon:hover img {
+.pokemon-sprite-shiny {
+  opacity: 0;
+}
+
+.all-pokemon:hover .pokemon-sprite-default {
+  opacity: 0;
+}
+
+.all-pokemon:hover .pokemon-sprite-shiny {
+  opacity: 1;
+}
+
+.all-pokemon:hover .pokemon-sprite {
   transform: scale(1.16);
+}
+
+.shiny-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  font-size: 50px;
+  line-height: 1;
+  opacity: 0;
+  transform: scale(0.4) rotate(-20deg);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+  pointer-events: none;
+}
+
+.all-pokemon:hover .shiny-badge {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
 }
 
 .pokemon-type-and-image-div {
