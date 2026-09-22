@@ -1,10 +1,23 @@
 const baseUrl = "https://pokeapi.co/api/v2";
 const totalPokemon = 154; // so viele Pokémon enthält der Pokédex
 const pageSize = 20; // so viele Pokémon kommen pro Klick auf "Mehr Pokémon" dazu
-const infoTabs = ["About", "Base-Stats", "Moves"];
+const searchDebounceMs = 250; // erst suchen, wenn der Nutzer so lange nicht mehr getippt hat
 const maxStatValue = 255; // bei diesem Wert ist der Balken eines Stats voll
 const maxTotalValue = 780; // bei diesem Wert ist der Total-Balken voll
 const topMovesCount = 10;
+const defaultTypeColor = "blue"; // Fallback, falls ein Typ mal nicht in den Farbtabellen steht
+const pokemonCardClass = "all-pokemon-div";
+
+const tabAbout = "About";
+const tabBaseStats = "Base-Stats";
+const tabMoves = "Moves";
+const infoTabs = [tabAbout, tabBaseStats, tabMoves];
+
+const icons = {
+  previous: "image./left.webp",
+  next: "image./right.webp",
+  close: "image./road-sign.webp",
+};
 
 // Rand- und Füllfarbe je Balken: erst die sechs Stats, zuletzt die Summe (Total)
 const statColors = [
@@ -59,6 +72,13 @@ const typePokemonBackgroundColorDiv = {
   dark: "rgb(77, 51, 53)",
 };
 
+// Feste Elemente aus dem HTML, die von Anfang an existieren
+const searchInput = document.getElementById("search");
+const pokedexElement = document.getElementById("pokedex");
+const messageElement = document.getElementById("pokedex-message");
+const loadMoreButton = document.getElementById("button-loadPokemon");
+const infoContainer = document.getElementById("info-pokemon-Container");
+
 const cache = new Map(); // url -> Promise mit der Antwort, jede URL wird nur einmal geladen
 let pokemonIndex = []; // { id, name } aller Pokémon, wird einmal beim Start geladen
 let matches = []; // der Teil von pokemonIndex, der zur aktuellen Suche passt
@@ -71,7 +91,7 @@ let searchTimer;
 async function init() {
   try {
     let list = await fetchJson(
-      `${baseUrl}/pokemon?limit=${totalPokemon}&offset=0`
+      `${baseUrl}/pokemon?limit=${totalPokemon}&offset=0`,
     );
     pokemonIndex = list.results.map((entry) => ({
       id: Number(entry.url.split("/").filter(Boolean).pop()),
@@ -104,14 +124,16 @@ function loadPokemon(id) {
 
 function startSearch() {
   clearTimeout(searchTimer);
-  searchTimer = setTimeout(applySearch, 250); // erst suchen, wenn der Nutzer kurz aufhört zu tippen
+  searchTimer = setTimeout(applySearch, searchDebounceMs);
 }
 
 async function applySearch() {
-  let search = document.getElementById("search").value.trim().toLowerCase();
+  let search = searchInput.value.trim().toLowerCase();
   matches = pokemonIndex.filter((entry) => entry.name.includes(search));
   shownCount = 0;
-  document.querySelectorAll(".all-pokemon-div").forEach((card) => card.remove());
+  document
+    .querySelectorAll(`.${pokemonCardClass}`)
+    .forEach((card) => card.remove());
   await loadNextPokemon();
 }
 
@@ -121,7 +143,7 @@ async function loadNextPokemon() {
   showMessage(matches.length ? "Loading Pokémon..." : "No Pokémon found.");
   try {
     let pokemons = await Promise.all(
-      batch.map((entry) => loadPokemon(entry.id))
+      batch.map((entry) => loadPokemon(entry.id)),
     );
     if (request !== listRequest) return; // eine neuere Suche oder ein neuer Klick hat übernommen
     renderPokemonList(pokemons);
@@ -137,22 +159,23 @@ async function loadNextPokemon() {
 
 // Die Meldung ist das letzte Element im Pokédex, die Karten kommen immer davor
 function renderPokemonList(pokemons) {
-  document
-    .getElementById("pokedex-message")
-    .insertAdjacentHTML("beforebegin", pokemons.map(pokemonHtml).join(""));
+  messageElement.insertAdjacentHTML(
+    "beforebegin",
+    pokemons.map(pokemonHtml).join(""),
+  );
 }
 
 function showMessage(text) {
-  let message = document.getElementById("pokedex-message");
-  message.textContent = text;
-  message.classList.toggle("hidden", !text);
+  messageElement.textContent = text;
+  messageElement.classList.toggle("hidden", !text);
 }
 
 function updateLoadMoreButton() {
   let hasMore = shownCount < matches.length;
-  document
-    .getElementById("button-loadPokemon")
-    .classList.toggle("hidden", !hasMore || currentPokemon !== null);
+  loadMoreButton.classList.toggle(
+    "hidden",
+    !hasMore || currentPokemon !== null,
+  );
 }
 
 function pokemonHtml(pokemon) {
@@ -163,12 +186,12 @@ function pokemonHtml(pokemon) {
     .map(
       (entry) =>
         `<p class="pokemon-type" style="background-color: ${typeColor};">${formatName(
-          entry.type.name
-        )}</p>`
+          entry.type.name,
+        )}</p>`,
     )
     .join("");
   return /* html */ `
-    <div class="all-pokemon-div" onclick="pokemonInfo(${pokemon.id})">
+    <div class="${pokemonCardClass}" onclick="pokemonInfo(${pokemon.id})">
       <div class="all-pokemon" style="background-color: ${backgroundColor};">
         <div class="name-and-id-div">
           <h1>${name}</h1>
@@ -187,11 +210,16 @@ function pokemonHtml(pokemon) {
 }
 
 function generateBackgroundColor(pokemon) {
-  return typePokemonBackgroundColor[pokemon.types[0].type.name] || "blue";
+  return (
+    typePokemonBackgroundColor[pokemon.types[0].type.name] || defaultTypeColor
+  );
 }
 
 function generateBackgroundColorTypeDiv(pokemon) {
-  return typePokemonBackgroundColorDiv[pokemon.types[0].type.name] || "blue";
+  return (
+    typePokemonBackgroundColorDiv[pokemon.types[0].type.name] ||
+    defaultTypeColor
+  );
 }
 
 function listImage(pokemon) {
@@ -214,8 +242,7 @@ async function pokemonInfo(id) {
     let pokemon = await loadPokemon(id);
     if (request !== infoRequest) return; // inzwischen wurde ein anderes Pokémon angeklickt oder alles geschlossen
     currentPokemon = pokemon;
-    document.getElementById("info-pokemon-Container").innerHTML =
-      pokemonInfoHtml(pokemon);
+    infoContainer.innerHTML = pokemonInfoHtml(pokemon);
     showInfoView();
     about();
     // Nachbarn schon laden, damit ein Klick auf die Pfeile sofort reagiert
@@ -254,12 +281,12 @@ function pokemonInfoHtml(pokemon) {
           <div class="directionPointer-div">
             <img class="directionPointer left" onclick="pokemonInfo(${neighbourId(
               pokemon.id,
-              -1
-            )})" src="image./left.webp" alt="Previous Pokémon">
+              -1,
+            )})" src="${icons.previous}" alt="Previous Pokémon">
             <img class="directionPointer right" onclick="pokemonInfo(${neighbourId(
               pokemon.id,
-              1
-            )})" src="image./right.webp" alt="Next Pokémon">
+              1,
+            )})" src="${icons.next}" alt="Next Pokémon">
           </div>
           <div class="quickLink-div">
             <a class="quickLink" onclick="about(); return false;" href="#">About</a>
@@ -268,25 +295,25 @@ function pokemonInfoHtml(pokemon) {
           </div>
         </div>
 
-        <div class="About" id="About"></div>
+        <div class="${tabAbout}" id="${tabAbout}"></div>
 
-        <div class="Base-Stats hidden" id="Base-Stats">
+        <div class="${tabBaseStats} hidden" id="${tabBaseStats}">
           ${baseStatsHtml(pokemon)}
         </div>
 
-        <div class="Moves hidden" id="Moves">
+        <div class="${tabMoves} hidden" id="${tabMoves}">
           ${movesHtml(pokemon)}
         </div>
-        <img class="directionPointer back" onclick="closePokemon()" src="image./road-sign.webp" alt="Close">
+        <img class="directionPointer back" onclick="closePokemon()" src="${icons.close}" alt="Close">
       </div>
     </div>
   `;
 }
 
 async function about() {
-  showTab("About");
+  showTab(tabAbout);
   let pokemon = currentPokemon;
-  let aboutElement = document.getElementById("About");
+  let aboutElement = document.getElementById(tabAbout);
   aboutElement.innerHTML = aboutMessageHtml(pokemon, "Loading...");
   let html;
   try {
@@ -367,7 +394,7 @@ function baseStatsHtml(pokemon) {
     <div class="bar-list">
       ${stats
         .map((stat, index) =>
-          barRowHtml(stat.name, stat.value, stat.max, statColors[index])
+          barRowHtml(stat.name, stat.value, stat.max, statColors[index]),
         )
         .join("")}
     </div>
@@ -390,7 +417,10 @@ function movesHtml(pokemon) {
       <p class="bar-caption">Top ${topMovesCount} moves by number of game versions</p>
       ${topMoves
         .map((move) =>
-          barRowHtml(move.name, move.versions, max, { border: color, fill: color })
+          barRowHtml(move.name, move.versions, max, {
+            border: color,
+            fill: color,
+          }),
         )
         .join("")}
     </div>
@@ -411,11 +441,11 @@ function barRowHtml(label, value, max, color) {
 }
 
 function baseStats() {
-  showTab("Base-Stats");
+  showTab(tabBaseStats);
 }
 
 function moves() {
-  showTab("Moves");
+  showTab(tabMoves);
 }
 
 function showTab(name) {
@@ -427,16 +457,15 @@ function showTab(name) {
 function closePokemon() {
   infoRequest++; // eine noch laufende Anfrage darf die Ansicht nicht wieder öffnen
   currentPokemon = null;
-  let container = document.getElementById("info-pokemon-Container");
-  container.innerHTML = "";
-  container.classList.add("hidden");
-  document.getElementById("pokedex").classList.remove("pokedex-opacity");
+  infoContainer.innerHTML = "";
+  infoContainer.classList.add("hidden");
+  pokedexElement.classList.remove("pokedex-opacity");
   updateLoadMoreButton();
 }
 
 function showInfoView() {
-  document.getElementById("pokedex").classList.add("pokedex-opacity");
-  document.getElementById("info-pokemon-Container").classList.remove("hidden");
+  pokedexElement.classList.add("pokedex-opacity");
+  infoContainer.classList.remove("hidden");
   updateLoadMoreButton();
 }
 
