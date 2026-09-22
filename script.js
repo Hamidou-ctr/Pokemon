@@ -185,28 +185,34 @@ function pokemonHtml(pokemon) {
   let types = pokemon.types
     .map(
       (entry) =>
-        `<p class="pokemon-type" style="background-color: ${secondaryBackgroundColor};">${formatName(
-          entry.type.name,
-        )}</p>`,
+        `<span class="pokemon-type" style="--type-color: ${
+          typePokemonPrimaryBackgroundColor[entry.type.name] ||
+          defaultTypeColor
+        };">${formatName(entry.type.name)}</span>`,
     )
     .join("");
   return /* html */ `
     <div class="${pokemonCardClass}" onclick="pokemonInformation(${pokemon.id})">
-      <div class="all-pokemon" style="background-color: ${primaryBackgroundColor};">
+      <div class="all-pokemon" style="--primary: ${primaryBackgroundColor}; --secondary: ${secondaryBackgroundColor};">
         <div class="name-and-id-div">
-          <h1>${name}</h1>
-          <h1>№ ${pokemon.id}</h1>
+          <p class="pokemon-name">${name}</p>
+          <span class="pokemon-id">${formatId(pokemon.id)}</span>
         </div>
         <div class="pokemon-type-and-image-div">
           <div class="pokemon-type-div">
-            <p>Type:</p>
             ${types}
           </div>
-          <img src="${listImage(pokemon)}" alt="${name}">
+          <div class="pokemon-image-wrap">
+            <img src="${listImage(pokemon)}" alt="${name}">
+          </div>
         </div>
       </div>
     </div>
   `;
+}
+
+function formatId(id) {
+  return `${String(id)}`;
 }
 
 function generatePrimaryBackgroundColor(pokemon) {
