@@ -1,5 +1,6 @@
 const baseUrl = "https://pokeapi.co/api/v2";
 const pageSize = 20; // so viele Pokémon kommen pro Klick auf "Mehr Pokémon" dazu
+const loadAllChunkSize = 50; // "Alle anzeigen" holt die Pokémon in Blöcken dieser Größe, damit die Seite nach und nach wächst
 const searchDebounceMilliseconds = 250; // erst suchen, wenn der Nutzer so lange nicht mehr getippt hat
 const maximumStatisticValue = 255; // bei diesem Wert ist der Balken einer Statistik voll
 const maximumTotalValue = 780; // bei diesem Wert ist der Total-Balken voll
@@ -76,6 +77,8 @@ const searchInput = document.getElementById("search");
 const pokedexElement = document.getElementById("pokedex");
 const messageElement = document.getElementById("pokedex-message");
 const loadMoreButton = document.getElementById("button-loadPokemon");
+const loadAllLabel = document.getElementById("load-all-label");
+const loadAllLabelText = loadAllLabel.textContent;
 const informationContainer = document.getElementById("info-pokemon-Container");
 
 const cache = new Map(); // url -> Promise mit der Antwort, jede URL wird nur einmal geladen
@@ -158,6 +161,40 @@ async function loadNextPokemon() {
   updateLoadMoreButton();
 }
 
+// Lädt alle noch fehlenden Treffer blockweise nach; jeder Block erscheint sofort, der Knopf zeigt den Fortschritt
+async function loadAllPokemon() {
+  let request = ++listRequest;
+  setLoadButtonsDisabled(true);
+  try {
+    while (shownCount < matches.length) {
+      showLoadAllProgress();
+      let batch = matches.slice(shownCount, shownCount + loadAllChunkSize);
+      let pokemons = await Promise.all(
+        batch.map((entry) => loadPokemon(entry.pokemonId)),
+      );
+      if (request !== listRequest) return; // eine neuere Suche oder ein neuer Klick hat übernommen
+      renderPokemonList(pokemons);
+      shownCount += batch.length;
+    }
+    showMessage("");
+  } catch (error) {
+    if (request !== listRequest) return;
+    console.error(error);
+    showMessage("Some Pokémon could not be loaded. Please try again.");
+  }
+  updateLoadMoreButton();
+}
+
+function showLoadAllProgress() {
+  loadAllLabel.textContent = `Lade ${shownCount} / ${matches.length}`;
+}
+
+function setLoadButtonsDisabled(disabled) {
+  loadMoreButton
+    .querySelectorAll("button")
+    .forEach((button) => (button.disabled = disabled));
+}
+
 // Die Meldung ist das letzte Element im Pokédex, die Karten kommen immer davor
 function renderPokemonList(pokemons) {
   messageElement.insertAdjacentHTML(
@@ -172,6 +209,8 @@ function showMessage(text) {
 }
 
 function updateLoadMoreButton() {
+  setLoadButtonsDisabled(false);
+  loadAllLabel.textContent = loadAllLabelText;
   let hasMore = shownCount < matches.length;
   loadMoreButton.classList.toggle(
     "hidden",
@@ -204,8 +243,8 @@ function pokemonHtml(pokemon) {
             ${types}
           </div>
           <div class="pokemon-image-wrap">
-            <img class="pokemon-sprite pokemon-sprite-default" src="${listImage(pokemon)}" alt="${name}">
-            <img class="pokemon-sprite pokemon-sprite-shiny" src="${listShinyImage(pokemon)}" alt="${name} (shiny)">
+            <img class="pokemon-sprite pokemon-sprite-default" loading="lazy" src="${listImage(pokemon)}" alt="${name}">
+            <img class="pokemon-sprite pokemon-sprite-shiny" loading="lazy" src="${listShinyImage(pokemon)}" alt="${name} (shiny)">
             <span class="shiny-badge">✨</span>
           </div>
         </div>

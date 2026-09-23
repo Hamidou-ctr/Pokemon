@@ -294,11 +294,16 @@ header {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
   padding: 0 24px 24px;
 }
 
 /* Pokéball-roter "Drück mich"-Button mit dickem Boden, der beim Klick eingedrückt wird */
 .load-more {
+  --button-top: #ee4a26;
+  --button-bottom: #cf2a0c;
+  --button-edge: var(--button-edge);
   position: relative;
   overflow: hidden;
   display: inline-flex;
@@ -314,12 +319,16 @@ header {
   text-transform: uppercase;
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.28);
   cursor: pointer;
-  background: #ee4a26;
-  background: linear-gradient(180deg, #ee4a26 0%, #cf2a0c 100%);
+  background: var(--button-top);
+  background: linear-gradient(
+    180deg,
+    var(--button-top) 0%,
+    var(--button-bottom) 100%
+  );
   border: 3px solid #2b2b2b;
   border-radius: 999px;
   box-shadow:
-    0 6px 0 #8f1a06,
+    0 6px 0 var(--button-edge),
     0 12px 20px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transition:
@@ -357,7 +366,7 @@ header {
   transform: translateY(-2px);
   filter: brightness(1.08);
   box-shadow:
-    0 8px 0 #8f1a06,
+    0 8px 0 var(--button-edge),
     0 16px 24px rgba(0, 0, 0, 0.32),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
@@ -373,7 +382,7 @@ header {
 .load-more:active {
   transform: translateY(4px);
   box-shadow:
-    0 2px 0 #8f1a06,
+    0 2px 0 var(--button-edge),
     0 4px 8px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
@@ -382,8 +391,41 @@ header {
   outline: none;
   box-shadow:
     0 0 0 4px rgba(255, 203, 5, 0.6),
-    0 6px 0 #8f1a06,
+    0 6px 0 var(--button-edge),
     0 12px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Blaue Variante für "Alle anzeigen" */
+.load-all {
+  --button-top: #5468e0;
+  --button-bottom: #2f3fae;
+  --button-edge: #1b2570;
+}
+
+/* Icon ist hier ein SVG statt eines Bildes */
+svg.load-more-icon {
+  padding: 9px;
+  color: var(--button-bottom);
+}
+
+/* Während "Alle anzeigen" lädt: Knopf bleibt sichtbar, reagiert aber nicht */
+.load-more:disabled,
+.load-more:disabled:hover {
+  transform: none;
+  filter: grayscale(0.35) brightness(0.95);
+  cursor: progress;
+  box-shadow:
+    0 6px 0 var(--button-edge),
+    0 12px 20px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.load-more:disabled:hover::after {
+  transform: translateX(-130%);
+}
+
+.load-more:disabled:hover .load-more-icon {
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
