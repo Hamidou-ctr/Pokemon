@@ -1,0 +1,153 @@
+.evolution-tree {
+  overflow-x: auto;
+  padding: 8px 0;
+}
+
+/* max-content statt zentrieren: passt die Kette nicht in die Breite, lässt sie sich scrollen statt links abgeschnitten zu werden */
+.evolution-tree > .evolution-stage {
+  width: max-content;
+  margin: 0 auto;
+}
+
+.evolution-stage {
+  display: flex;
+  align-items: center;
+}
+
+.evolution-branches {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.evolution-branch {
+  display: flex;
+  align-items: center;
+}
+
+/* Bedingung über dem Pfeil, z. B. "Level 16" */
+.evolution-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px;
+  max-width: 130px;
+  padding: 0 6px;
+  color: #59626b;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.evolution-link::after {
+  content: "→";
+  color: #212529;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.evolution-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 104px;
+  padding: 8px 6px;
+  color: #212529;
+  background: #f4f5f7;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition:
+    translate 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.evolution-node:hover {
+  translate: 0 -2px;
+  border-color: var(--primary);
+}
+
+.evolution-node img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.evolution-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.evolution-node small {
+  color: #59626b;
+  font-size: 11px;
+}
+
+/* Das Pokémon, dessen Popup gerade offen ist */
+.evolution-node.current {
+  cursor: default;
+  background: #ffffff;
+  border-color: var(--primary);
+}
+
+.evolution-node.current:hover {
+  translate: none;
+}
+
+/* Senkrecht bei vielen Zweigen (.wide, z. B. Evoli): die Zweige umbrechen als Raster unter dem Pokémon */
+.evolution-tree > .evolution-stage.wide {
+  width: auto;
+}
+
+.evolution-stage.wide {
+  flex-direction: column;
+}
+
+.evolution-stage.wide > .evolution-branches {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.evolution-stage.wide > .evolution-branches > .evolution-branch {
+  flex-direction: column;
+}
+
+.evolution-stage.wide > .evolution-branches > .evolution-branch > .evolution-link {
+  min-width: 0;
+  max-width: 104px;
+  padding: 6px 0;
+}
+
+.evolution-stage.wide > .evolution-branches > .evolution-branch > .evolution-link::after {
+  content: "↓";
+}
+
+/* Auf schmalen Bildschirmen steht jede Kette senkrecht, sonst ist sie abgeschnitten */
+@media (max-width: 520px) {
+  .evolution-tree > .evolution-stage {
+    width: auto;
+  }
+
+  .evolution-stage,
+  .evolution-branch {
+    flex-direction: column;
+  }
+
+  .evolution-branches {
+    align-items: center;
+  }
+
+  .evolution-link {
+    min-width: 0;
+    max-width: 220px;
+    padding: 6px 0;
+  }
+
+  .evolution-link::after {
+    content: "↓";
+  }
+}

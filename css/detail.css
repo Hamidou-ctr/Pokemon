@@ -9,95 +9,111 @@
   width: 100%;
   top: 0;
   bottom: 0;
+  padding: 12px;
 }
 
-.border {
+/* Feste Höhe, damit das Popup beim Tab-Wechsel nicht springt: nur .info-body scrollt */
+.info-card {
+  position: relative;
   display: flex;
+  flex-direction: column;
   width: 100%;
   max-width: 700px;
-  max-height: 90vh;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border-width: 5px;
-  border: solid rgb(11, 174, 219);
+  height: 87vh;
+  overflow: hidden;
+  color: #212529;
+  background: white;
+  border: 3px solid rgb(32, 199, 246);
   border-radius: 16px;
-  box-sizing: border-box;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
 }
 
-.AllPokemonInfoAllPokemonInfo {
+/* --primary und --secondary setzt das JS je nach Typ des Pokémon */
+.info-header {
+  position: relative;
+  flex: none;
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
-  box-sizing: border-box;
-  padding-top: 52px;
-  width: 100%;
-  height: 32.7vh;
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-}
-
-.NameAndIdDivInfo {
-  display: flex;
-  width: 100%;
-  justify-content: center;
   align-items: center;
+  gap: 10px;
+  padding: 16px 64px 18px;
   color: white;
-  margin: -100px 0px 150px 0px;
+  background: var(--primary);
+  background: linear-gradient(150deg, var(--primary) 0%, var(--secondary) 100%);
 }
 
-.NameIdDivInfo {
+.info-title {
   display: flex;
-  justify-content: space-around;
-  width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 4px 14px;
+  text-align: center;
+}
+
+.info-title h1 {
+  margin: 0;
+  font-size: clamp(22px, 4.5vw, 32px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.info-number {
+  font-size: clamp(18px, 3.5vw, 24px);
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.info-types {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
 }
 
-.OnPokemonImage-div {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  max-width: 50%;
+.info-type {
+  padding: 4px 14px;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
 }
 
-.OnPokemonImage {
-  display: flex;
+button.info-type {
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    translate 0.15s ease;
+}
+
+button.info-type:hover {
+  background: rgba(255, 255, 255, 0.35);
+  translate: 0 -1px;
+}
+
+.info-image {
+  height: clamp(110px, 22vh, 190px);
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.35));
+}
+
+.info-tools {
   position: absolute;
-  height: 230px;
-  bottom: 60vh;
-}
-
-.InfoContentDiv {
+  right: 12px;
+  bottom: 10px;
   display: flex;
-  flex-direction: column;
-  background-color: white;
-  padding: 16px;
-  gap: 16px;
-  box-sizing: border-box;
-  margin-left: 15%;
-  margin-right: 15%;
-  width: 100%;
-  margin-top: -12px;
-  border-radius: 16px;
+  gap: 8px;
 }
 
-.navigationLinks {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  gap: 32px;
-  margin-top: 0;
-  font-size: 20px;
-}
-
-.directionPointer-div {
-  display: flex;
-  justify-content: space-between;
-}
-
-.directionPointer,
-.back {
+/* Runde Knöpfe: Pfeile, Schließen, Shiny, Schrei */
+.info-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -108,6 +124,7 @@
   border-radius: 50%;
   background: #eef1f4;
   color: #333d47;
+  font-size: 18px;
   cursor: pointer;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
   transition:
@@ -116,41 +133,98 @@
     box-shadow 0.15s ease;
 }
 
-.directionPointer svg,
-.back svg {
+.info-button svg {
   width: 18px;
   height: 18px;
 }
 
-.directionPointer:hover,
-.back:hover {
+.info-button:hover {
   scale: 1.15;
   background: #dfe4e9;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.quickLink-div {
+.info-button[aria-pressed="true"] {
+  background: #ffe27a;
+}
+
+.info-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  transform: translateY(-50%);
+}
+
+.info-arrow.left {
+  left: 12px;
+}
+
+.info-arrow.right {
+  right: 12px;
+}
+
+.info-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+.info-tabs {
+  flex: none;
   display: flex;
-  justify-content: space-around;
+  overflow-x: auto;
+  padding: 0 8px;
+  background: white;
+  border-bottom: 1px solid #e3e6ea;
 }
 
-.quickLink {
-  color: rgb(13, 15, 15);
-  background-color: beige;
-  text-decoration: none;
-  border: solid rgb(228, 233, 237);
-  border-radius: 4px;
-  margin: 8px;
-  padding: 2px;
+.info-tab {
+  flex: 1 0 auto;
+  padding: 12px 14px;
+  color: #59626b;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  border-bottom: 4px solid transparent;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 
-.quickLink:hover {
-  background-color: rgb(176, 190, 120);
-  text-decoration: underline;
-  font-size: 18px;
+.info-tab:hover {
+  color: #212529;
+  background: #f4f5f7;
 }
 
-.back {
-  margin-left: 47%;
-  margin-top: 28px;
+/* Die Unterstreichung hat die Farbe des Typs, die Schrift bleibt dunkel, damit sie auf jedem Typ lesbar ist */
+.info-tab.active {
+  color: #212529;
+  font-weight: 800;
+  border-bottom-color: var(--primary);
+}
+
+.info-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 20px 24px;
+}
+
+@media (max-width: 520px) {
+  .info-header {
+    padding: 14px 52px 16px;
+  }
+
+  .info-tab {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .info-body {
+    padding: 14px;
+  }
 }

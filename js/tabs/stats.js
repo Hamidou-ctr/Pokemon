@@ -1,6 +1,6 @@
 registerTab({
   name: "Base-Stats",
-  label: "Base Stats",
+  label: "Stats",
   render: baseStatisticsHtml,
 });
 

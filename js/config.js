@@ -1,4 +1,6 @@
 const baseUrl = "https://pokeapi.co/api/v2";
+const spriteBaseUrl =
+  "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon";
 const pageSize = 20; // so viele Pokémon kommen pro Klick auf "Mehr Pokémon" dazu
 const loadAllChunkSize = 50; // "Alle anzeigen" holt die Pokémon in Blöcken dieser Größe, damit die Seite nach und nach wächst
 const searchDebounceMilliseconds = 250; // erst suchen, wenn der Nutzer so lange nicht mehr getippt hat

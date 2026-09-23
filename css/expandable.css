@@ -1,0 +1,81 @@
+/* Aufklappbare Zeilen (Fähigkeiten, Attacken): <details> mit Pfeil rechts */
+.expandable-list {
+  display: grid;
+  gap: 6px;
+}
+
+.expandable {
+  overflow: hidden;
+  background: #f6f7f9;
+  border: 1px solid #e3e6ea;
+  border-radius: 10px;
+}
+
+.expandable > summary {
+  position: relative;
+  display: block;
+  padding: 10px 38px 10px 14px;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.expandable > summary::-webkit-details-marker {
+  display: none;
+}
+
+.expandable > summary:hover {
+  background: #eceef1;
+}
+
+.expandable > summary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.expandable > summary::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid #59626b;
+  border-bottom: 2px solid #59626b;
+  transform: translateY(-70%) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.expandable[open] > summary::after {
+  transform: translateY(-30%) rotate(225deg);
+}
+
+/* Eine aufklappbare Zeile mit Balken: die drei Balken-Zellen liegen im summary */
+.expandable > summary.bar-row {
+  display: grid;
+}
+
+.expand-body {
+  padding: 4px 14px 14px;
+  color: #3a4148;
+  font-size: 14px;
+}
+
+.expand-body p {
+  margin: 8px 0 0;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+}
+
+.fact b {
+  margin-right: 2px;
+}
+
+.expand-body .pokemon-type:hover {
+  transform: none;
+}

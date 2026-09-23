@@ -1,0 +1,50 @@
+.matchup-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eceef1;
+}
+
+.matchup-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex: 0 0 170px;
+  font-weight: 600;
+}
+
+.matchup-multiplier {
+  min-width: 34px;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.matchup-weak .matchup-multiplier {
+  color: #c62828;
+}
+
+.matchup-resist .matchup-multiplier {
+  color: #2e7d32;
+}
+
+.matchup-immune .matchup-multiplier {
+  color: #59626b;
+}
+
+.matchup-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.matchup-types .pokemon-type:hover {
+  transform: none;
+}
+
+.matchup-note {
+  margin: 14px 0 0;
+  color: #59626b;
+  font-size: 13px;
+}

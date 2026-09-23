@@ -16,7 +16,7 @@ async function initialize() {
       `${baseUrl}/pokemon?limit=${firstPage.count}&offset=0`,
     );
     pokemonIndex = list.results.map((entry) => ({
-      pokemonId: Number(entry.url.split("/").filter(Boolean).pop()),
+      pokemonId: idFromUrl(entry.url),
       name: entry.name,
     }));
     await applySearch();
@@ -123,13 +123,7 @@ function pokemonHtml(pokemon) {
   let secondaryBackgroundColor = generateSecondaryBackgroundColor(pokemon);
   let name = formatName(pokemon.name);
   let types = pokemon.types
-    .map(
-      (entry) =>
-        `<span class="pokemon-type" style="--type-color: ${
-          typePokemonPrimaryBackgroundColor[entry.type.name] ||
-          defaultTypeColor
-        };">${formatName(entry.type.name)}</span>`,
-    )
+    .map((entry) => typeBadgeHtml(entry.type.name))
     .join("");
   return /* html */ `
     <div class="${pokemonCardClass}" onclick="pokemonInformation(${pokemon.id})">

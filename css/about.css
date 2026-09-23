@@ -1,38 +1,56 @@
-.About-div {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  flex-direction: column;
-  height: 30vh;
-  box-sizing: border-box;
-  padding: 230px 0px 0px 0px;
-  overflow: scroll;
+/* Zeilen im Stil der Karten: Farbe des Typs mit weißer Schrift */
+.info-rows {
+  display: grid;
+  gap: 6px;
 }
 
-.About p {
+.info-row {
   display: flex;
   justify-content: space-between;
-  width: 90%;
-  border-radius: 8px;
-  padding: 16px;
-  margin: 2px;
-}
-
-.Location {
-  display: flex;
-  gap: 30px;
+  align-items: baseline;
+  gap: 16px;
+  padding: 12px 16px;
   color: white;
-  overflow: scroll;
-  min-height: 70px;
+  background: var(--secondary);
+  border-radius: 8px;
 }
 
-.Location:hover {
-  cursor: pointer;
+.info-row b {
+  flex: none;
+}
+
+.info-row span {
+  text-align: right;
+}
+
+.info-row-stack span {
+  max-height: 120px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.info-heading {
+  margin: 20px 0 8px;
+  color: #59626b;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.tab-message {
+  margin: 40px 0;
+  text-align: center;
+  color: #59626b;
+}
+
+.tag {
+  margin-left: 8px;
+  padding: 1px 8px;
+  color: #59626b;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #e5e8ec;
+  border-radius: 999px;
 }

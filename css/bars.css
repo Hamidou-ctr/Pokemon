@@ -1,26 +1,13 @@
-.Base-Stats {
-  display: flex;
-  justify-content: center;
-}
-
-.Moves {
-  display: flex;
-  justify-content: center;
-}
-
 .bar-list {
   display: grid;
   align-content: start;
   row-gap: 6px;
   width: 100%;
-  height: 30vh;
-  overflow-y: auto;
-  padding: 4px 8px;
   color: rgb(13, 15, 15);
 }
 
 .bar-caption {
-  margin: 0;
+  margin: 0 0 6px;
   text-align: center;
   font-size: 14px;
   color: rgb(66, 61, 61);
