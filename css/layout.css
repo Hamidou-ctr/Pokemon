@@ -1,0 +1,167 @@
+header {
+  height: 76px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+  padding-inline: max(24px, calc((100% - 1400px) / 2 + 24px));
+  background: #e3350d;
+  background: linear-gradient(180deg, #ee4a26 0%, #cf2a0c 100%);
+  border-bottom: 4px solid #2b2b2b;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.header-content {
+  position: fixed;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  width: 90%;
+  max-width: 1400px;
+  height: 76px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 14px;
+  color: white;
+  text-decoration: none;
+}
+
+.pokedex-logo {
+  width: 46px;
+  height: 46px;
+  margin-left: 5px; /* Platz für den Ring, damit er mit dem Kartenrand fluchtet */
+  border-radius: 50%;
+  background: white;
+  box-shadow:
+    0 0 0 3px white,
+    0 0 0 5px #2b2b2b,
+    0 4px 10px rgba(0, 0, 0, 0.35);
+  transition: transform 0.6s cubic-bezier(0.22, 0.9, 0.32, 1.1);
+}
+
+.header-brand:hover .pokedex-logo {
+  transform: rotate(360deg) scale(1.06);
+}
+
+.header-title {
+  font-family: var(--font-raleway);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.28);
+}
+
+.icon-search {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 380px;
+  height: 42px;
+  padding: 0 16px 0 44px;
+  color: #212529;
+  background: white url("../image./search.svg") no-repeat 15px center / 18px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.25),
+    inset 0 1px 2px rgba(0, 0, 0, 0.12);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.icon-search::placeholder {
+  color: #7a7f85;
+}
+
+.icon-search:focus {
+  border-color: #ffcb05;
+  box-shadow:
+    0 0 0 4px rgba(255, 203, 5, 0.45),
+    0 3px 8px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 520px) {
+  header {
+    gap: 12px;
+  }
+
+  .header-brand {
+    gap: 0;
+  }
+
+  .header-title {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-brand:hover .pokedex-logo {
+    transform: none;
+  }
+}
+
+.pokedex {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  align-items: stretch;
+  gap: 28px;
+  padding: 32px 24px 40px;
+  max-width: 1400px;
+  width: 100%;
+  box-sizing: border-box;
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: auto;
+  margin: 76px auto 0;
+}
+
+.pokedex-opacity {
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.pokedex-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: white;
+  font-size: 20px;
+  margin: 0;
+}
+
+footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 100px;
+  background-color: rgb(66, 61, 61);
+  margin-top: 5vh;
+  color: rgb(20, 20, 20);
+  height: 6vh;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: auto;
+}
+
+.datenschutzt {
+  color: white;
+  text-decoration: none;
+}
+
+.datenschutzt:hover {
+  font-size: 24px;
+  text-decoration: underline;
+}

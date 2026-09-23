@@ -1,0 +1,147 @@
+.button-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 0 24px 24px;
+}
+
+/* Pokéball-roter "Drück mich"-Button mit dickem Boden, der beim Klick eingedrückt wird */
+.load-more {
+  --button-top: #ee4a26;
+  --button-bottom: #cf2a0c;
+  --button-edge: var(--button-edge);
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  padding: 0 34px 0 9px;
+  color: white;
+  font-family: var(--font-raleway);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  background: var(--button-top);
+  background: linear-gradient(
+    180deg,
+    var(--button-top) 0%,
+    var(--button-bottom) 100%
+  );
+  border: 3px solid #2b2b2b;
+  border-radius: 999px;
+  box-shadow:
+    0 6px 0 var(--button-edge),
+    0 12px 20px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.2s ease;
+}
+
+/* Glanz-Streifen wie bei den Karten */
+.load-more::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.35) 48%,
+    transparent 60%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+
+.load-more-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  transition: transform 0.6s cubic-bezier(0.22, 0.9, 0.32, 1.1);
+}
+
+.load-more:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow:
+    0 8px 0 var(--button-edge),
+    0 16px 24px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.load-more:hover::after {
+  transform: translateX(130%);
+}
+
+.load-more:hover .load-more-icon {
+  transform: rotate(360deg);
+}
+
+.load-more:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px 0 var(--button-edge),
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.load-more:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 4px rgba(255, 203, 5, 0.6),
+    0 6px 0 var(--button-edge),
+    0 12px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Blaue Variante für "Alle anzeigen" */
+.load-all {
+  --button-top: #5468e0;
+  --button-bottom: #2f3fae;
+  --button-edge: #1b2570;
+}
+
+/* Icon ist hier ein SVG statt eines Bildes */
+svg.load-more-icon {
+  padding: 9px;
+  color: var(--button-bottom);
+}
+
+/* Während "Alle anzeigen" lädt: Knopf bleibt sichtbar, reagiert aber nicht */
+.load-more:disabled,
+.load-more:disabled:hover {
+  transform: none;
+  filter: grayscale(0.35) brightness(0.95);
+  cursor: progress;
+  box-shadow:
+    0 6px 0 var(--button-edge),
+    0 12px 20px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.load-more:disabled:hover::after {
+  transform: translateX(-130%);
+}
+
+.load-more:disabled:hover .load-more-icon {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .load-more:hover .load-more-icon {
+    transform: none;
+  }
+
+  .load-more::after {
+    display: none;
+  }
+}

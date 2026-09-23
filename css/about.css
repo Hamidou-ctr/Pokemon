@@ -1,0 +1,38 @@
+.About-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  flex-direction: column;
+  height: 30vh;
+  box-sizing: border-box;
+  padding: 230px 0px 0px 0px;
+  overflow: scroll;
+}
+
+.About p {
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 2px;
+}
+
+.Location {
+  display: flex;
+  gap: 30px;
+  color: white;
+  overflow: scroll;
+  min-height: 70px;
+}
+
+.Location:hover {
+  cursor: pointer;
+  text-transform: uppercase;
+}

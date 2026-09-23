@@ -7,9 +7,28 @@
 
     <link rel="icon" type="image/x-icon" href="image./pokemon.webp" />
 
-    <link rel="stylesheet" href="style.css" />
+    <!-- Reihenfolge wichtig: spätere Regeln überschreiben frühere (utilities zuletzt) -->
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/buttons.css" />
+    <link rel="stylesheet" href="css/cards.css" />
+    <link rel="stylesheet" href="css/detail.css" />
+    <link rel="stylesheet" href="css/bars.css" />
+    <link rel="stylesheet" href="css/about.css" />
+    <link rel="stylesheet" href="css/utilities.css" />
 
-    <script defer src="script.js"></script>
+    <!-- Reihenfolge wichtig: alles baut auf den Dateien darüber auf.
+         Die Tabs erscheinen im Popup in der Reihenfolge, in der sie hier stehen. -->
+    <script defer src="js/config.js"></script>
+    <script defer src="js/state.js"></script>
+    <script defer src="js/utils.js"></script>
+    <script defer src="js/api.js"></script>
+    <script defer src="js/components.js"></script>
+    <script defer src="js/list.js"></script>
+    <script defer src="js/detail.js"></script>
+    <script defer src="js/tabs/about.js"></script>
+    <script defer src="js/tabs/stats.js"></script>
+    <script defer src="js/tabs/moves.js"></script>
   </head>
 
   <body onload="initialize()">
