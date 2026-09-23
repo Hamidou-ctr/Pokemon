@@ -14,15 +14,20 @@
 
   <body onload="initialize()">
     <header>
-      <img class="pokedex-logo" src="image./pokemon.webp" alt="Pokémon" />
-      <input
-        class="icon-search"
-        type="search"
-        placeholder="Search"
-        aria-label="Search Pokémon"
-        id="search"
-        oninput="startSearch()"
-      />
+      <div class="header-content">
+        <a class="header-brand" href="./" aria-label="Pokédex – Startseite">
+          <img class="pokedex-logo" src="image./pokemon.webp" alt="" />
+          <span class="header-title">Pokédex</span>
+        </a>
+        <input
+          class="icon-search"
+          type="search"
+          placeholder="Search"
+          aria-label="Search Pokémon"
+          id="search"
+          oninput="startSearch()"
+        />
+      </div>
     </header>
 
     <div class="pokedex" id="pokedex">
