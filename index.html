@@ -1,42 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pokemon</title>
 
-    <link rel="icon" type="image/x-icon" href="image./pokemon.webp">
+    <link rel="icon" type="image/x-icon" href="image./pokemon.webp" />
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
 
     <script defer src="script.js"></script>
-</head>
+  </head>
 
-<body onload="initialize()">
-
+  <body onload="initialize()">
     <header>
-        <img class="pokedex-logo" src="image./pokemon.webp" alt="Pokémon">
-        <input class="icon-search" type="search" placeholder="Search" aria-label="Search Pokémon" id="search"
-            oninput="startSearch()">
+      <img class="pokedex-logo" src="image./pokemon.webp" alt="Pokémon" />
+      <input
+        class="icon-search"
+        type="search"
+        placeholder="Search"
+        aria-label="Search Pokémon"
+        id="search"
+        oninput="startSearch()"
+      />
     </header>
 
     <div class="pokedex" id="pokedex">
-        <p class="pokedex-message hidden" id="pokedex-message" role="status"></p>
+      <p class="pokedex-message hidden" id="pokedex-message" role="status"></p>
     </div>
 
     <div class="button-div hidden" id="button-loadPokemon">
-        <button type="button" onclick="loadNextPokemon()">Mehr Pokémon</button>
+      <button type="button" onclick="loadNextPokemon()">Mehr Pokémon</button>
     </div>
 
-    <div class="info-container hidden" id="info-pokemon-Container" onclick="closePokemonIfBackgroundClicked(event)">
-    </div>
+    <div
+      class="info-container hidden"
+      id="info-pokemon-Container"
+      onclick="closePokemonIfBackgroundClicked(event)"
+    ></div>
 
     <footer>
-        <a target="_blank" class="datenschutzt" href="datenschutzt.html"> Datenschutzt</a>
-        <a target="_blank" class="datenschutzt" href="Impressum.html">Impressum</a>
+      <a target="_blank" class="datenschutzt" href="datenschutzt.html">
+        Datenschutzt</a
+      >
+      <a target="_blank" class="datenschutzt" href="Impressum.html"
+        >Impressum</a
+      >
     </footer>
-
-</body>
-
+  </body>
 </html>
