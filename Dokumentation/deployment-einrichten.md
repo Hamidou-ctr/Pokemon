@@ -45,15 +45,23 @@ ls -l /usr/bin/rrsync
 Fehlt es, `rsync` aktualisieren (`apt install --only-upgrade rsync`). Bei älteren Versionen
 liegt das Skript unter `/usr/share/doc/rsync/scripts/rrsync.gz`.
 
-Dann den Key mit Einschränkung eintragen (eine einzige Zeile in `authorized_keys`):
+Dann den Key mit Einschränkung eintragen (eine einzige Zeile in `authorized_keys2`):
 
 ```bash
-cat >> /home/<SITE-USER>/.ssh/authorized_keys <<'EOF'
+cat >> /home/<SITE-USER>/.ssh/authorized_keys2 <<'EOF'
 command="/usr/bin/rrsync -wo <DOCROOT>",restrict ssh-ed25519 AAAA... github-actions-pokemon
 EOF
-chown -R <SITE-USER>:<SITE-USER> /home/<SITE-USER>/.ssh
-chmod 700 /home/<SITE-USER>/.ssh && chmod 600 /home/<SITE-USER>/.ssh/authorized_keys
+chown <SITE-USER>:<SITE-USER> /home/<SITE-USER>/.ssh/authorized_keys2
+chmod 600 /home/<SITE-USER>/.ssh/authorized_keys2
+ssh-keygen -lf /home/<SITE-USER>/.ssh/authorized_keys2   # Fingerprint muss zum Mac passen
+sshd -T | grep authorizedkeysfile                        # muss authorized_keys2 enthalten
 ```
+
+> **Nicht `authorized_keys` verwenden.** CloudPanel verwaltet diese Datei selbst und schreibt
+> sie neu, sobald in den SSH-Einstellungen der Site etwas geändert wird (z. B. das Passwort).
+> Ein dort von Hand eingetragener Key wird dabei gelöscht, und der Login schlägt danach mit
+> `Permission denied (publickey,password)` fehl. `authorized_keys2` liest `sshd` ebenfalls
+> (Standardeinstellung von Ubuntu), CloudPanel fasst sie nicht an.
 
 `AAAA... github-actions-pokemon` ist der Inhalt von `pokemon_deploy.pub`.
 `<DOCROOT>` ist das Web-Verzeichnis der Seite, z. B. `/home/<SITE-USER>/htdocs/<DOMAIN>`.
@@ -106,6 +114,10 @@ Push auf `main` oder im Repo unter **Actions → Deploy → Run workflow**.
 
 ## Fehlersuche
 
+- **`Permission denied (publickey,password)`**: Der Server kennt den Key nicht (mehr).
+  Auf dem Server `ssh-keygen -lf /home/<SITE-USER>/.ssh/authorized_keys2` ausführen. Der
+  Fingerprint muss zu `ssh-keygen -lf ~/.ssh/pokemon_deploy.pub` auf dem Mac passen. Steht
+  der Key nur in `authorized_keys`, hat CloudPanel ihn eventuell überschrieben (siehe Schritt 2).
 - **Meldung von `rrsync` über eine abgelehnte Option**: rrsync erlaubt nur bestimmte
   rsync-Optionen. Die Meldung steht im Log des Schritts „Dateien hochladen". Die
   betroffene Option im Workflow entfernen oder ersetzen.
@@ -118,7 +130,7 @@ Push auf `main` oder im Repo unter **Actions → Deploy → Run workflow**.
 
 Wenn der Verdacht besteht, dass der Key oder das GitHub-Konto kompromittiert ist:
 
-1. Die Zeile in `/home/<SITE-USER>/.ssh/authorized_keys` löschen. Damit ist der Zugang sofort tot.
+1. Die Zeile in `/home/<SITE-USER>/.ssh/authorized_keys2` löschen. Damit ist der Zugang sofort tot.
 2. Secrets im Environment löschen.
 3. Neuen Key erzeugen und ab Schritt 1 wiederholen.
 
