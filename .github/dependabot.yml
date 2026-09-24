@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # Hält die per SHA gepinnten GitHub Actions aktuell (Pull Requests statt stiller Updates)
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

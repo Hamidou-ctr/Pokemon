@@ -1,0 +1,12 @@
+.DS_Store
+.vscode/
+
+# Nie Schlüssel oder Zugangsdaten committen (das Repo ist öffentlich)
+.env
+.env.*
+*.pem
+*.key
+*_deploy
+*_deploy.pub
+id_ed25519*
+id_rsa*

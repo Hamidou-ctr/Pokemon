@@ -1,0 +1,83 @@
+name: Deploy
+
+# Jeder Push auf main lädt die Seite per rsync auf den Server.
+# Einrichtung (Key, Environment, Secrets): Dokumentation/deployment-einrichten.md
+#
+# Sicherheitsregeln für diese Datei (das Repo ist öffentlich):
+#  - Kein pull_request / pull_request_target-Trigger, sonst könnten Forks Code mit Zugriff
+#    auf die Secrets ausführen.
+#  - Keine Zugangsdaten oder Server-Details im Klartext, alles kommt aus dem Environment "production".
+#  - Actions nur mit voller Commit-SHA pinnen (Dependabot hält sie aktuell).
+#  - Nie ${{ github.event.* }} oder andere fremde Eingaben direkt in "run:" einsetzen.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Nie zwei Deployments gleichzeitig
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+# Standard: keine Rechte. Der Job fordert unten nur das Nötigste an.
+permissions: {}
+
+env:
+  SITE_URL: https://pokemon.hamidoudiallo.de/
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Secrets liegen im Environment "production", das nur für den Branch main freigegeben ist.
+    environment: production
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Schutz vor einem leeren Checkout: --delete würde sonst die Live-Seite leeren.
+      - name: Vollständigkeit prüfen
+        run: test -f index.html && test -d css && test -d js
+
+      - name: SSH einrichten
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      # Das Ziel ist "/", weil der Key serverseitig per rrsync auf das Web-Verzeichnis
+      # eingeschränkt ist (siehe Doku). Der Pfad steht bewusst nicht in diesem Repo.
+      # --delete entfernt Dateien, die im Repo nicht mehr existieren. Excludes bleiben dabei
+      # unangetastet: .well-known/ (Let's Encrypt) wird nicht gelöscht.
+      - name: Dateien hochladen
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          rsync -rltzv --delete \
+            --chmod=D755,F644 \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.vscode/' \
+            --exclude='.well-known/' \
+            --exclude='.DS_Store' \
+            --exclude='.gitignore' \
+            --exclude='Dokumentation/' \
+            --exclude='plan.drawio' \
+            --exclude='up.sh' \
+            -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes" \
+            ./ "$SSH_USER@$SSH_HOST:/"
+
+      - name: SSH-Key entfernen
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
+
+      - name: Seite prüfen
+        run: curl --fail --silent --show-error --retry 3 --retry-delay 5 --output /dev/null "$SITE_URL"
