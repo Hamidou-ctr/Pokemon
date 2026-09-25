@@ -6,41 +6,41 @@ registerTab({
   afterRender: observeMoveCards,
 });
 
-// Alle Spielversionen in der Reihenfolge ihres Erscheinens, mit Anzeigenamen. Die IDs der API taugen
+// Alle Spielversionen in der Reihenfolge ihres Erscheinens, mit Anzeigenamen und Generation (für die Gruppen der Liste). Die IDs der API taugen
 // dafür nicht (die japanischen Fassungen haben späte IDs). Unbekannte, neuere Einträge kommen ans Ende.
 const versionGroups = [
-  ["red-green-japan", "Red / Green (JP)"],
-  ["blue-japan", "Blue (JP)"],
-  ["red-blue", "Red / Blue"],
-  ["yellow", "Yellow"],
-  ["gold-silver", "Gold / Silver"],
-  ["crystal", "Crystal"],
-  ["ruby-sapphire", "Ruby / Sapphire"],
-  ["colosseum", "Colosseum"],
-  ["firered-leafgreen", "FireRed / LeafGreen"],
-  ["emerald", "Emerald"],
-  ["xd", "XD"],
-  ["diamond-pearl", "Diamond / Pearl"],
-  ["platinum", "Platinum"],
-  ["heartgold-soulsilver", "HeartGold / SoulSilver"],
-  ["black-white", "Black / White"],
-  ["black-2-white-2", "Black 2 / White 2"],
-  ["x-y", "X / Y"],
-  ["omega-ruby-alpha-sapphire", "Omega Ruby / Alpha Sapphire"],
-  ["sun-moon", "Sun / Moon"],
-  ["ultra-sun-ultra-moon", "Ultra Sun / Ultra Moon"],
-  ["lets-go-pikachu-lets-go-eevee", "Let's Go Pikachu / Eevee"],
-  ["sword-shield", "Sword / Shield"],
-  ["the-isle-of-armor", "Isle of Armor"],
-  ["the-crown-tundra", "Crown Tundra"],
-  ["brilliant-diamond-shining-pearl", "Brilliant Diamond / Shining Pearl"],
-  ["legends-arceus", "Legends: Arceus"],
-  ["scarlet-violet", "Scarlet / Violet"],
-  ["the-teal-mask", "The Teal Mask"],
-  ["the-indigo-disk", "The Indigo Disk"],
-  ["legends-za", "Legends: Z-A"],
-  ["mega-dimension", "Mega Dimension"],
-  ["champions", "Champions"],
+  ["red-green-japan", "Red / Green (JP)", "I"],
+  ["blue-japan", "Blue (JP)", "I"],
+  ["red-blue", "Red / Blue", "I"],
+  ["yellow", "Yellow", "I"],
+  ["gold-silver", "Gold / Silver", "II"],
+  ["crystal", "Crystal", "II"],
+  ["ruby-sapphire", "Ruby / Sapphire", "III"],
+  ["colosseum", "Colosseum", "III"],
+  ["firered-leafgreen", "FireRed / LeafGreen", "III"],
+  ["emerald", "Emerald", "III"],
+  ["xd", "XD", "III"],
+  ["diamond-pearl", "Diamond / Pearl", "IV"],
+  ["platinum", "Platinum", "IV"],
+  ["heartgold-soulsilver", "HeartGold / SoulSilver", "IV"],
+  ["black-white", "Black / White", "V"],
+  ["black-2-white-2", "Black 2 / White 2", "V"],
+  ["x-y", "X / Y", "VI"],
+  ["omega-ruby-alpha-sapphire", "Omega Ruby / Alpha Sapphire", "VI"],
+  ["sun-moon", "Sun / Moon", "VII"],
+  ["ultra-sun-ultra-moon", "Ultra Sun / Ultra Moon", "VII"],
+  ["lets-go-pikachu-lets-go-eevee", "Let's Go Pikachu / Eevee", "VII"],
+  ["sword-shield", "Sword / Shield", "VIII"],
+  ["the-isle-of-armor", "Isle of Armor", "VIII"],
+  ["the-crown-tundra", "Crown Tundra", "VIII"],
+  ["brilliant-diamond-shining-pearl", "Brilliant Diamond / Shining Pearl", "VIII"],
+  ["legends-arceus", "Legends: Arceus", "VIII"],
+  ["scarlet-violet", "Scarlet / Violet", "IX"],
+  ["the-teal-mask", "The Teal Mask", "IX"],
+  ["the-indigo-disk", "The Indigo Disk", "IX"],
+  ["legends-za", "Legends: Z-A", "IX"],
+  ["mega-dimension", "Mega Dimension", "IX"],
+  ["champions", "Champions", "IX"],
 ];
 
 // Wie ein Pokémon eine Attacke lernt, in der Reihenfolge der Filter. Alles Seltene (Sonderfälle einzelner
@@ -78,19 +78,7 @@ function movesHtml(pokemon) {
   let newest = learnset.find((group) => group.methods["level-up"]) || learnset[0];
   movesView = { game: newest.name, method: "" };
   return /* html */ `
-    <div class="moves-header">
-      <label class="game-select">
-        <span class="tile-label">Game</span>
-        <select onchange="selectMovesGame(this.value)" aria-label="Game">
-          ${learnset
-            .map(
-              (group) =>
-                `<option value="${group.name}"${group === newest ? " selected" : ""}>${versionGroupLabel(group.name)}</option>`,
-            )
-            .join("")}
-        </select>
-      </label>
-    </div>
+    <div class="moves-header">${gameSelectHtml(newest)}</div>
     <div id="moves-view">${movesViewHtml()}</div>
   `;
 }
@@ -98,6 +86,12 @@ function movesHtml(pokemon) {
 function versionGroupLabel(name) {
   let known = versionGroups.find(([key]) => key === name);
   return known ? known[1] : formatName(name);
+}
+
+// "" bei Spielen, die noch nicht in der Tabelle stehen
+function versionGeneration(name) {
+  let known = versionGroups.find(([key]) => key === name);
+  return known ? known[2] : "";
 }
 
 // Ordnet die Attacken nach Spielversion und Lernmethode: neueste Version zuerst
@@ -171,8 +165,145 @@ function moveCardHtml(move, method) {
   `;
 }
 
+// ---------- Spiel-Auswahl ----------
+// Eine eigene Liste statt <select>: die Liste des Browsers zeichnet das Betriebssystem, sie lässt sich nicht
+// gestalten. Der Knopf behält den Fokus, die Liste folgt dem Muster "Listbox mit aria-activedescendant".
+
+// Die Spiele stehen nach Generation gruppiert, neueste zuerst; bei jedem steht, wie viele Attacken es dort gibt
+function gameSelectHtml(current) {
+  let items = "";
+  let lastGeneration = null;
+  for (let group of learnset) {
+    let generation = versionGeneration(group.name);
+    if (generation !== lastGeneration) {
+      items += `<li class="game-group" role="presentation">${generation ? `Generation ${generation}` : "Newer games"}</li>`;
+      lastGeneration = generation;
+    }
+    items += gameOptionHtml(group, group === current);
+  }
+  return /* html */ `
+    <div class="game-select" data-game="${current.name}" onkeydown="handleGameKeys(event)">
+      <span class="tile-label" id="game-label">Game</span>
+      <button type="button" class="game-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="game-label game-current" onclick="toggleGameList()">
+        <span id="game-current">${versionGroupLabel(current.name)}</span>
+        ${icons.chevronDown}
+      </button>
+      <ul class="game-list" id="game-list" role="listbox" aria-labelledby="game-label" hidden>${items}</ul>
+    </div>
+  `;
+}
+
+function gameOptionHtml(group, isSelected) {
+  let total = Object.values(group.methods).reduce((sum, list) => sum + list.length, 0);
+  return /* html */ `
+    <li class="game-option${isSelected ? " active" : ""}" id="game-option-${group.name}" role="option" data-game="${group.name}" aria-selected="${isSelected}" onclick="selectMovesGame('${group.name}')" onmouseover="setActiveGameOption(this)">
+      ${icons.check}
+      <span class="game-name">${versionGroupLabel(group.name)}</span>
+      <span class="game-count">${total} moves</span>
+    </li>
+  `;
+}
+
+function gameOptions() {
+  return Array.from(document.querySelectorAll("#game-list .game-option"));
+}
+
+function isGameListOpen() {
+  let list = document.getElementById("game-list");
+  return Boolean(list) && !list.hidden;
+}
+
+function toggleGameList() {
+  if (isGameListOpen()) closeGameList();
+  else openGameList();
+}
+
+function openGameList() {
+  let list = document.getElementById("game-list");
+  let button = document.querySelector(".game-button");
+  list.hidden = false;
+  button.setAttribute("aria-expanded", "true");
+  button.focus(); // Safari fokussiert Knöpfe beim Mausklick nicht, ohne Fokus kämen die Pfeiltasten nicht an
+  // Die Liste bekommt nur so viel Höhe, wie unter dem Knopf im sichtbaren Bereich frei ist,
+  // damit sie nicht über den Rand des Panels ragt und das Panel nicht mitgeschoben werden muss
+  let free = document.querySelector(".info-body").getBoundingClientRect().bottom - list.getBoundingClientRect().top - 24;
+  list.style.maxHeight = `${Math.max(180, Math.min(340, free))}px`;
+  let selected = list.querySelector('[aria-selected="true"]');
+  setActiveGameOption(selected);
+  // Das gewählte Spiel in die Mitte der Liste rücken
+  list.scrollTop = selected.offsetTop - (list.clientHeight - selected.offsetHeight) / 2;
+  if (free < 180) list.scrollIntoView({ block: "nearest", behavior: "smooth" }); // Knopf ganz unten: dann muss das Panel nachrücken
+}
+
+function closeGameList() {
+  let list = document.getElementById("game-list");
+  if (!list) return;
+  list.hidden = true;
+  let button = document.querySelector(".game-button");
+  button.setAttribute("aria-expanded", "false");
+  button.removeAttribute("aria-activedescendant");
+}
+
+// Hebt eine Option hervor (Maus oder Pfeiltasten) und scrollt sie bei Bedarf in der Liste ins Bild
+function setActiveGameOption(option) {
+  let list = document.getElementById("game-list");
+  gameOptions().forEach((entry) => entry.classList.toggle("active", entry === option));
+  document.querySelector(".game-button").setAttribute("aria-activedescendant", option.id);
+  if (option.offsetTop < list.scrollTop) {
+    list.scrollTop = option.offsetTop - 8;
+  } else if (option.offsetTop + option.offsetHeight > list.scrollTop + list.clientHeight) {
+    list.scrollTop = option.offsetTop + option.offsetHeight - list.clientHeight + 8;
+  }
+}
+
+// Bei offener Liste gehören Esc und die Pfeiltasten der Liste: stopPropagation hält sie vom
+// Popup fern, das sonst bei Esc schließen und bei links/rechts das Pokémon wechseln würde
+function handleGameKeys(event) {
+  let isOpen = isGameListOpen();
+  let options = gameOptions();
+  let index = options.findIndex((option) => option.classList.contains("active"));
+  let claim = () => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    claim();
+    if (!isOpen) return openGameList();
+    let step = event.key === "ArrowDown" ? 1 : -1;
+    setActiveGameOption(options[(index + step + options.length) % options.length]);
+  } else if (event.key === "Home" || event.key === "End") {
+    if (!isOpen) return;
+    claim();
+    setActiveGameOption(options[event.key === "Home" ? 0 : options.length - 1]);
+  } else if (event.key === "Enter" || event.key === " ") {
+    if (!isOpen) return; // bei geschlossener Liste öffnet der Klick sie
+    claim();
+    selectMovesGame(options[index].dataset.game);
+  } else if (event.key === "Escape") {
+    if (!isOpen) return; // dann darf das Popup schließen
+    claim();
+    closeGameList();
+  } else if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+    if (isOpen) claim();
+  } else if (event.key === "Tab") {
+    closeGameList();
+  }
+}
+
+// Ein Klick außerhalb schließt die Liste
+document.addEventListener("click", (event) => {
+  if (isGameListOpen() && !event.target.closest(".game-select")) closeGameList();
+});
+
 function selectMovesGame(name) {
   movesView.game = name;
+  document.querySelector(".game-select").dataset.game = name;
+  document.getElementById("game-current").textContent = versionGroupLabel(name);
+  gameOptions().forEach((option) =>
+    option.setAttribute("aria-selected", String(option.dataset.game === name)),
+  );
+  closeGameList();
+  document.querySelector(".game-button").focus();
   renderMovesView();
 }
 
