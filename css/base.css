@@ -141,11 +141,3 @@ p {
 img {
   vertical-align: middle;
 }
-
-button,
-input {
-  margin: 0;
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-}
