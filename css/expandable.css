@@ -59,16 +59,6 @@
   transform: translateY(-30%) rotate(225deg);
 }
 
-/* Eine aufklappbare Zeile mit Balken: die drei Balken-Zellen liegen im summary */
-.expandable > summary.bar-row {
-  display: grid;
-}
-
-.expandable .bar-label {
-  color: var(--text);
-  font-weight: 600;
-}
-
 .expand-body {
   padding: 2px 16px 16px;
   color: #c9d1ea;
@@ -85,18 +75,6 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 14px;
-}
-
-.fact {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.fact b {
-  margin-right: 4px;
-  color: var(--text);
-  font-family: var(--font-raleway);
-  font-weight: 800;
 }
 
 .category {

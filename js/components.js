@@ -2,11 +2,12 @@
 
 // Die drei Zellen einer Balkenzeile: Beschriftung, Wert, Balken.
 // barColors sind zwei beliebige CSS-Farben: der Balken läuft von border nach fill.
-function barCellsHtml(label, value, maximumValue, barColors) {
+// displayValue ersetzt die Zahl neben dem Balken, z. B. "100%" oder "–" (der Balken nutzt value).
+function barCellsHtml(label, value, maximumValue, barColors, displayValue = value) {
   let percent = Math.min(100, (value / maximumValue) * 100).toFixed(1);
   return /* html */ `
     <span class="bar-label">${label}</span>
-    <span class="bar-value">${value}</span>
+    <span class="bar-value">${displayValue}</span>
     <div class="bar-track">
       <div class="bar-fill" style="width: ${percent}%; --bar-from: ${barColors.border}; --bar-to: ${barColors.fill};"></div>
     </div>
@@ -24,11 +25,6 @@ function typeBadgeHtml(typeName) {
   return `<span class="pokemon-type" style="--type-color: ${color};">${formatName(typeName)}</span>`;
 }
 
-// Kleine Kennzahl wie "Power 120"
-function factHtml(label, value) {
-  return `<span class="fact"><b>${label}</b> ${value}</span>`;
-}
-
 // Statusmeldung ("Loading...", Fehler) für einen Tab
 function tabMessageHtml(text) {
   return `<p class="tab-message">${text}</p>`;
@@ -36,10 +32,10 @@ function tabMessageHtml(text) {
 
 // Aufklappbare Zeile. Beim ersten Aufklappen wird loader(name) aufgerufen und
 // dessen HTML in die Zeile geschrieben. loader muss eine benannte Funktion sein,
-// weil der Aufruf als Text in den ontoggle-Handler geschrieben wird.
-function expandableHtml(summaryHtml, loader, name, summaryClass = "") {
+// weil der Aufruf als Text in den ontoggle-Handler geschrieben wird. name steht auch als data-name am Element.
+function expandableHtml(summaryHtml, loader, name, summaryClass = "", className = "") {
   return /* html */ `
-    <details class="expandable" ontoggle="loadDetails(this, ${loader.name}, '${name}')">
+    <details class="expandable ${className}" data-name="${name}" ontoggle="loadDetails(this, ${loader.name}, '${name}')">
       <summary class="${summaryClass}">${summaryHtml}</summary>
       <div class="expand-body"></div>
     </details>

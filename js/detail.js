@@ -5,8 +5,9 @@
 const informationContainer = document.getElementById("info-pokemon-Container");
 const matchupsTabName = "Matchups"; // dorthin führt ein Klick auf einen Typ im Kopf des Popups
 
-// Ein Tab ist { name, label, icon, render(pokemon) }. render liefert das HTML als
-// Text oder als Promise, wenn erst noch Daten nachgeladen werden müssen.
+// Ein Tab ist { name, label, icon, render(pokemon), afterRender(element) }. render liefert das HTML
+// als Text oder als Promise, wenn erst noch Daten nachgeladen werden müssen. afterRender ist
+// optional und läuft, sobald das HTML im Popup steht (z. B. um Beobachter zu starten).
 // name dient als id des Tab-Containers im Popup, icon ist ein SVG (siehe icons in config.js).
 const tabs = [];
 
@@ -141,12 +142,15 @@ async function showTab(tabName) {
   element.dataset.rendered = "true";
   let pokemon = currentPokemon;
   try {
-    let content = tabs.find((tab) => tab.name === tabName).render(pokemon);
+    let tab = tabs.find((entry) => entry.name === tabName);
+    let content = tab.render(pokemon);
     if (content instanceof Promise) {
       element.innerHTML = tabMessageHtml("Loading...");
       content = await content;
     }
-    if (pokemon === currentPokemon) element.innerHTML = content; // nur, wenn es noch dasselbe Pokémon ist
+    if (pokemon !== currentPokemon) return; // nur, wenn es noch dasselbe Pokémon ist
+    element.innerHTML = content;
+    if (tab.afterRender) tab.afterRender(element);
   } catch (error) {
     console.error(error);
     if (pokemon !== currentPokemon) return;

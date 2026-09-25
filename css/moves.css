@@ -1,0 +1,269 @@
+/* ---------- Auswahl: Spiel und Lernart ---------- */
+.moves-header {
+  margin-bottom: 0;
+}
+
+.game-select {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.game-select select {
+  width: 100%;
+  padding: 11px 44px 11px 16px;
+  color: var(--text);
+  font-family: var(--font-raleway);
+  font-size: 15px;
+  font-weight: 700;
+  background-color: var(--surface-strong);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa5c8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.2s ease;
+}
+
+.game-select select:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+}
+
+.game-select select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.game-select option {
+  color: var(--text);
+  background: var(--panel);
+}
+
+/* Die Filter bleiben beim Scrollen oben stehen, damit man bei langen Listen (über 60 TMs) nicht zurückscrollen muss.
+   Die Leiste reicht über die ganze Breite des Panels (negativer Rand gegen das Padding) und ist Milchglas. */
+.moves-methods {
+  position: sticky;
+  top: -34px; /* das obere Padding von .info-body (34px), sonst bleibt die Leiste darunter stehen */
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 -20px 6px;
+  padding: 12px 20px;
+  background: color-mix(in srgb, var(--primary) 14%, rgba(21, 27, 49, 0.86));
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 14px -12px rgba(0, 0, 0, 0.6);
+}
+
+.moves-method {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 8px 14px;
+  color: var(--muted);
+  font-family: var(--font-raleway);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.moves-method:hover {
+  color: var(--text);
+  background: var(--surface-strong);
+}
+
+.moves-method:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Der aktive Filter leuchtet im hellen Ton des Typs */
+.moves-method.active {
+  color: #1a2040;
+  background: var(--accent);
+  border-color: transparent;
+  box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--accent) 80%, transparent);
+}
+
+.moves-method .count {
+  min-width: 24px;
+  padding: 1px 7px;
+  font-size: 11px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+
+.moves-method.active .count {
+  background: rgba(0, 0, 0, 0.16);
+}
+
+/* ---------- Zeilen: Level, Name, Typ ---------- */
+.move-row {
+  border-left: 4px solid var(--line);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Sobald der Typ geladen ist, färbt sich die Zeile in seiner Farbe (--move-color setzt das JS) */
+.move-row.typed {
+  border-left-color: color-mix(in srgb, var(--move-color) 70%, white);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--move-color) 20%, transparent),
+    var(--surface) 62%
+  );
+}
+
+.move-row.typed[open] {
+  border-left-color: color-mix(in srgb, var(--move-color) 70%, white);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--move-color) 26%, transparent),
+    var(--surface-strong) 70%
+  );
+}
+
+.expandable > summary.move-summary {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.move-tag {
+  justify-self: start;
+  min-width: 50px;
+  padding: 3px 9px;
+  color: var(--accent);
+  font-family: var(--font-raleway);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+  border-radius: 999px;
+}
+
+.move-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.move-type-slot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 72px;
+  min-height: 22px;
+}
+
+/* Platzhalter, bis Typ und Power da sind */
+.move-type-slot:empty::before {
+  content: "";
+  width: 68px;
+  height: 22px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0.05)
+  );
+  background-size: 200% 100%;
+  border-radius: 999px;
+  animation: move-shimmer 1.4s linear infinite;
+}
+
+.move-type-slot.failed:empty::before {
+  display: none;
+}
+
+.move-type-slot .pokemon-type {
+  animation: move-type-in 0.35s ease both;
+}
+
+.move-type-slot .pokemon-type:hover {
+  transform: none;
+}
+
+.move-power {
+  color: var(--muted);
+  font-family: var(--font-raleway);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* ---------- Aufgeklappt: Balken für Power, Genauigkeit und AP ---------- */
+.move-meters {
+  row-gap: 9px;
+  margin-top: 14px;
+}
+
+.move-meters .bar-row {
+  grid-template-columns: 5.4rem 3.2rem 1fr;
+  font-size: 13px;
+}
+
+.move-meters .bar-fill {
+  animation-duration: 0.7s;
+}
+
+@keyframes move-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes move-type-in {
+  from {
+    opacity: 0;
+    transform: translateX(6px);
+  }
+}
+
+@media (max-width: 520px) {
+  .moves-methods {
+    top: -32px; /* das obere Padding von .info-body ist hier 32px */
+    margin-inline: -14px;
+    padding-inline: 14px;
+  }
+
+  .expandable > summary.move-summary {
+    grid-template-columns: 54px minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+
+  .move-power {
+    display: none;
+  }
+
+  .move-type-slot {
+    min-width: 0;
+  }
+
+  .moves-method {
+    padding: 7px 10px 7px 12px;
+  }
+}
