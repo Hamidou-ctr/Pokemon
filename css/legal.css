@@ -5,6 +5,7 @@
   margin: 76px auto 0;
   padding: 40px 24px;
   flex-grow: 1;
+  overflow-wrap: break-word;
 }
 
 .legal h1 {
@@ -27,7 +28,22 @@
 }
 
 .legal address {
+  margin-bottom: 1rem;
   font-style: normal;
+}
+
+.legal ul {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+}
+
+.legal li {
+  margin-bottom: 0.4rem;
+}
+
+.legal-meta {
+  color: #b8c0d6;
+  font-size: 0.9rem;
 }
 
 .legal a {
