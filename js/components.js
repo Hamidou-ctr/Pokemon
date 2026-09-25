@@ -26,6 +26,11 @@ function barRowHtml(label, value, maximumValue, barColors) {
   `;
 }
 
+// Die zwei Farben, aus denen Karte und Popup ihren Farbverlauf zeichnen (als Wert für ein style-Attribut)
+function pokemonColorStyle(pokemon) {
+  return `--pokemon-main-color: ${getMainColorOfPokemon(pokemon)}; --pokemon-gradient-end-color: ${getGradientEndColorOfPokemon(pokemon)};`;
+}
+
 function typeBadgeHtml(typeName) {
   let typeColor = mainColorByTypeName[typeName] || fallbackTypeColor;
   return `<span class="type-badge" style="--type-color: ${typeColor};">${formatNameForDisplay(typeName)}</span>`;

@@ -6,6 +6,7 @@ const pokemonPerLoadAllBatch = 50; // "Alle anzeigen" holt die Pokémon in Blöc
 const searchDelayMilliseconds = 250; // erst suchen, wenn der Nutzer so lange nicht mehr getippt hat
 const fallbackTypeColor = "blue"; // Fallback, falls ein Typ mal nicht in den Farbtabellen steht
 const pokemonCardWrapperClassName = "pokemon-card-wrapper";
+const noDescriptionText = "No description available.";
 
 // Kleine Strichsymbole (24x24), die Farbe kommt vom umgebenden Text
 function strokeIconSvg(shapesMarkup) {

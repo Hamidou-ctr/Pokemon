@@ -74,61 +74,36 @@ let moveCardVisibilityObserver; // lädt die Details einer Karte erst nach, wenn
 
 function movesHtml(pokemon) {
   learnsetPerGame = buildLearnsetPerGame(pokemon);
-  if (!learnsetPerGame.length) {
-    return tabMessageHtml(`${formatNameForDisplay(pokemon.name)} does not learn any moves.`);
-  }
-  // Vorausgewählt ist das neueste Spiel, in dem es Attacken durch Level-up gibt: Kampfspiele
-  // wie "Champions" kennen nur TMs, dort würde die wichtigste Liste fehlen
-  let newestGameWithLevelUpMoves =
-    learnsetPerGame.find((game) => game.movesByLearnMethod["level-up"]) || learnsetPerGame[0];
-  movesSelection = { versionGroupName: newestGameWithLevelUpMoves.versionGroupName, learnMethodApiName: "" };
+  if (!learnsetPerGame.length) return tabMessageHtml(`${formatNameForDisplay(pokemon.name)} does not learn any moves.`);
+  let preselectedGame = findNewestGameWithLevelUpMoves();
+  movesSelection = { versionGroupName: preselectedGame.versionGroupName, learnMethodApiName: "" };
   return /* html */ `
-    <div class="moves-header">${gameSelectHtml(newestGameWithLevelUpMoves)}</div>
+    <div class="moves-header">${gameSelectHtml(preselectedGame)}</div>
     <div id="moves-view">${movesViewHtml()}</div>
   `;
 }
 
+// Vorausgewählt ist das neueste Spiel, in dem es Attacken durch Level-up gibt: Kampfspiele
+// wie "Champions" kennen nur TMs, dort würde die wichtigste Liste fehlen
+function findNewestGameWithLevelUpMoves() {
+  return learnsetPerGame.find((game) => game.movesByLearnMethod["level-up"]) || learnsetPerGame[0];
+}
+
+// ---------- Spiele: Namen und Reihenfolge ----------
+
 function getGameDisplayName(versionGroupName) {
-  let knownGame = knownGameVersionGroups.find((game) => game.apiName === versionGroupName);
+  let knownGame = findKnownGame(versionGroupName);
   return knownGame ? knownGame.displayName : formatNameForDisplay(versionGroupName);
 }
 
 // "" bei Spielen, die noch nicht in der Tabelle stehen
 function getGameGeneration(versionGroupName) {
-  let knownGame = knownGameVersionGroups.find((game) => game.apiName === versionGroupName);
+  let knownGame = findKnownGame(versionGroupName);
   return knownGame ? knownGame.generation : "";
 }
 
-// Ordnet die Attacken nach Spielversion und Lernmethode: neueste Version zuerst
-function buildLearnsetPerGame(pokemon) {
-  let gamesByVersionGroupName = new Map();
-  for (let moveEntry of pokemon.moves) {
-    for (let versionGroupDetail of moveEntry.version_group_details) {
-      let versionGroupName = versionGroupDetail.version_group.name;
-      if (!gamesByVersionGroupName.has(versionGroupName)) {
-        gamesByVersionGroupName.set(versionGroupName, {
-          versionGroupName,
-          versionGroupId: extractIdFromUrl(versionGroupDetail.version_group.url),
-          movesByLearnMethod: {},
-        });
-      }
-      let learnMethodApiName = learnMethods.some(
-        (learnMethod) => learnMethod.apiName === versionGroupDetail.move_learn_method.name,
-      )
-        ? versionGroupDetail.move_learn_method.name
-        : "other";
-      let movesByLearnMethod = gamesByVersionGroupName.get(versionGroupName).movesByLearnMethod;
-      if (!movesByLearnMethod[learnMethodApiName]) movesByLearnMethod[learnMethodApiName] = [];
-      movesByLearnMethod[learnMethodApiName].push({
-        apiName: moveEntry.move.name,
-        displayName: formatNameForDisplay(moveEntry.move.name),
-        levelLearnedAt: versionGroupDetail.level_learned_at,
-      });
-    }
-  }
-  return [...gamesByVersionGroupName.values()].sort(
-    (firstGame, secondGame) => getGameReleaseRank(secondGame) - getGameReleaseRank(firstGame),
-  );
+function findKnownGame(versionGroupName) {
+  return knownGameVersionGroups.find((knownGame) => knownGame.apiName === versionGroupName);
 }
 
 // Bekannte Spiele nach ihrer Position in der Tabelle, unbekannte (neuere) dahinter nach ID
@@ -139,200 +114,116 @@ function getGameReleaseRank(game) {
   return positionInTable === -1 ? knownGameVersionGroups.length + game.versionGroupId : positionInTable;
 }
 
+function compareGamesNewestFirst(firstGame, secondGame) {
+  return getGameReleaseRank(secondGame) - getGameReleaseRank(firstGame);
+}
+
+// ---------- Die Attacken eines Pokémon nach Spiel und Lernmethode ordnen ----------
+
+// Neueste Version zuerst
+function buildLearnsetPerGame(pokemon) {
+  let gamesByVersionGroupName = new Map();
+  for (let moveEntry of pokemon.moves) {
+    for (let versionGroupDetail of moveEntry.version_group_details) {
+      addMoveToLearnset(gamesByVersionGroupName, moveEntry.move, versionGroupDetail);
+    }
+  }
+  return [...gamesByVersionGroupName.values()].sort(compareGamesNewestFirst);
+}
+
+function addMoveToLearnset(gamesByVersionGroupName, move, versionGroupDetail) {
+  let game = getOrCreateGame(gamesByVersionGroupName, versionGroupDetail.version_group);
+  let learnMethodApiName = toKnownLearnMethodApiName(versionGroupDetail.move_learn_method.name);
+  if (!game.movesByLearnMethod[learnMethodApiName]) game.movesByLearnMethod[learnMethodApiName] = [];
+  game.movesByLearnMethod[learnMethodApiName].push(createLearnedMove(move, versionGroupDetail));
+}
+
+function getOrCreateGame(gamesByVersionGroupName, versionGroup) {
+  if (!gamesByVersionGroupName.has(versionGroup.name)) {
+    gamesByVersionGroupName.set(versionGroup.name, createGame(versionGroup));
+  }
+  return gamesByVersionGroupName.get(versionGroup.name);
+}
+
+function createGame(versionGroup) {
+  return {
+    versionGroupName: versionGroup.name,
+    versionGroupId: extractIdFromUrl(versionGroup.url),
+    movesByLearnMethod: {},
+  };
+}
+
+// Seltene Lernmethoden werden unter "other" zusammengefasst
+function toKnownLearnMethodApiName(learnMethodApiName) {
+  let isKnown = learnMethods.some((learnMethod) => learnMethod.apiName === learnMethodApiName);
+  return isKnown ? learnMethodApiName : "other";
+}
+
+function createLearnedMove(move, versionGroupDetail) {
+  return {
+    apiName: move.name,
+    displayName: formatNameForDisplay(move.name),
+    levelLearnedAt: versionGroupDetail.level_learned_at,
+  };
+}
+
+// ---------- Filter und Liste für das gewählte Spiel ----------
+
 // Filter (mit Anzahl) und Liste für das gewählte Spiel
 function movesViewHtml() {
-  let selectedGame = learnsetPerGame.find((game) => game.versionGroupName === movesSelection.versionGroupName);
+  let selectedGame = findSelectedGame();
   let learnMethodsWithMoves = learnMethods.filter((learnMethod) => selectedGame.movesByLearnMethod[learnMethod.apiName]);
-  if (!learnMethodsWithMoves.some((learnMethod) => learnMethod.apiName === movesSelection.learnMethodApiName)) {
-    movesSelection.learnMethodApiName = learnMethodsWithMoves[0].apiName;
-  }
-  let selectedLearnMethod = learnMethodsWithMoves.find(
+  ensureValidLearnMethodSelection(learnMethodsWithMoves);
+  let selectedLearnMethod = learnMethodsWithMoves.find((learnMethod) => learnMethod.apiName === movesSelection.learnMethodApiName);
+  return /* html */ `
+    ${learnMethodFiltersHtml(selectedGame, learnMethodsWithMoves, selectedLearnMethod)}
+    ${moveCardListHtml(selectedGame, selectedLearnMethod)}
+  `;
+}
+
+function findSelectedGame() {
+  return learnsetPerGame.find((game) => game.versionGroupName === movesSelection.versionGroupName);
+}
+
+// Hat das gewählte Spiel keine Attacken für die gewählte Lernmethode, gilt die erste vorhandene
+function ensureValidLearnMethodSelection(learnMethodsWithMoves) {
+  let isSelectionAvailable = learnMethodsWithMoves.some(
     (learnMethod) => learnMethod.apiName === movesSelection.learnMethodApiName,
   );
-  let sortedMoves = [...selectedGame.movesByLearnMethod[selectedLearnMethod.apiName]].sort(
-    (firstMove, secondMove) =>
-      firstMove.levelLearnedAt - secondMove.levelLearnedAt ||
-      firstMove.displayName.localeCompare(secondMove.displayName),
-  );
+  if (!isSelectionAvailable) movesSelection.learnMethodApiName = learnMethodsWithMoves[0].apiName;
+}
+
+function learnMethodFiltersHtml(selectedGame, learnMethodsWithMoves, selectedLearnMethod) {
+  let buttonsHtml = learnMethodsWithMoves
+    .map((learnMethod) => learnMethodFilterButtonHtml(learnMethod, selectedGame, selectedLearnMethod))
+    .join("");
+  return `<div class="learn-method-filters" role="group" aria-label="How the moves are learned">${buttonsHtml}</div>`;
+}
+
+function learnMethodFilterButtonHtml(learnMethod, selectedGame, selectedLearnMethod) {
+  let isActive = learnMethod.apiName === selectedLearnMethod.apiName;
+  let moveCount = selectedGame.movesByLearnMethod[learnMethod.apiName].length;
+  return `<button type="button" class="learn-method-filter${isActive ? " active" : ""}" aria-pressed="${isActive}" onclick="selectLearnMethod('${learnMethod.apiName}')">${learnMethod.label}<span class="learn-method-count">${moveCount}</span></button>`;
+}
+
+function moveCardListHtml(selectedGame, selectedLearnMethod) {
+  let sortedMoves = sortMovesForDisplay(selectedGame.movesByLearnMethod[selectedLearnMethod.apiName]);
   return /* html */ `
-    <div class="learn-method-filters" role="group" aria-label="How the moves are learned">
-      ${learnMethodsWithMoves
-        .map((learnMethod) => {
-          let isActive = learnMethod.apiName === selectedLearnMethod.apiName;
-          return `<button type="button" class="learn-method-filter${isActive ? " active" : ""}" aria-pressed="${isActive}" onclick="selectLearnMethod('${learnMethod.apiName}')">${learnMethod.label}<span class="learn-method-count">${selectedGame.movesByLearnMethod[learnMethod.apiName].length}</span></button>`;
-        })
-        .join("")}
-    </div>
     <div class="card-list" id="moves-list">
       ${sortedMoves.map((move) => moveCardHtml(move, selectedLearnMethod)).join("")}
     </div>
   `;
 }
 
-// Eine Karte: Level (oder Lernart) und Name stehen sofort da. (Kein <header>-Element für die Kopfzeile:
-// layout.css gibt jedem <header> der Seite den Stil des roten Seitenkopfes.) Alles Weitere (Typ, Kategorie, Werte,
-// Beschreibung) kommt aus dem Netz, sobald die Karte fast im Bild ist. Der Platzhalter hat schon
-// ungefähr die Höhe des fertigen Inhalts, damit beim Nachladen nichts springt.
-function moveCardHtml(move, learnMethod) {
-  return /* html */ `
-    <article class="move-card" data-move-api-name="${move.apiName}">
-      <div class="move-heading">
-        <span class="move-learn-tag">${learnMethod.tagText(move)}</span>
-        <h4 class="move-name">${move.displayName}</h4>
-        <span class="move-badges"></span>
-      </div>
-      <div class="move-body"></div>
-    </article>
-  `;
+function sortMovesForDisplay(moves) {
+  return [...moves].sort(compareMovesByLevelThenName);
 }
 
-// ---------- Spiel-Auswahl ----------
-// Eine eigene Liste statt <select>: die Liste des Browsers zeichnet das Betriebssystem, sie lässt sich nicht
-// gestalten. Der Knopf behält den Fokus, die Liste folgt dem Muster "Listbox mit aria-activedescendant".
-
-// Die Spiele stehen nach Generation gruppiert, neueste zuerst; bei jedem steht, wie viele Attacken es dort gibt
-function gameSelectHtml(selectedGame) {
-  let listItemsHtml = "";
-  let previousGeneration = null;
-  for (let game of learnsetPerGame) {
-    let generation = getGameGeneration(game.versionGroupName);
-    if (generation !== previousGeneration) {
-      listItemsHtml += `<li class="game-generation-heading" role="presentation">${generation ? `Generation ${generation}` : "Newer games"}</li>`;
-      previousGeneration = generation;
-    }
-    listItemsHtml += gameOptionHtml(game, game === selectedGame);
-  }
-  return /* html */ `
-    <div class="game-select" data-game="${selectedGame.versionGroupName}" onkeydown="handleGameSelectKeyDown(event)">
-      <span class="tile-label" id="game-label">Game</span>
-      <button type="button" class="game-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="game-label game-current" onclick="toggleGameList()">
-        <span id="game-current">${getGameDisplayName(selectedGame.versionGroupName)}</span>
-        ${icons.chevronDown}
-      </button>
-      <ul class="game-list" id="game-list" role="listbox" aria-labelledby="game-label" hidden>${listItemsHtml}</ul>
-    </div>
-  `;
-}
-
-function gameOptionHtml(game, isSelected) {
-  let totalMoveCount = Object.values(game.movesByLearnMethod).reduce(
-    (sum, movesOfLearnMethod) => sum + movesOfLearnMethod.length,
-    0,
+function compareMovesByLevelThenName(firstMove, secondMove) {
+  return (
+    firstMove.levelLearnedAt - secondMove.levelLearnedAt ||
+    firstMove.displayName.localeCompare(secondMove.displayName)
   );
-  return /* html */ `
-    <li class="game-option${isSelected ? " active" : ""}" id="game-option-${game.versionGroupName}" role="option" data-game="${game.versionGroupName}" aria-selected="${isSelected}" onclick="selectGame('${game.versionGroupName}')" onmouseover="setActiveGameOption(this)">
-      ${icons.check}
-      <span class="game-name">${getGameDisplayName(game.versionGroupName)}</span>
-      <span class="game-move-count">${totalMoveCount} moves</span>
-    </li>
-  `;
-}
-
-function getGameOptionElements() {
-  return Array.from(document.querySelectorAll("#game-list .game-option"));
-}
-
-function isGameListOpen() {
-  let gameListElement = document.getElementById("game-list");
-  return Boolean(gameListElement) && !gameListElement.hidden;
-}
-
-function toggleGameList() {
-  if (isGameListOpen()) closeGameList();
-  else openGameList();
-}
-
-function openGameList() {
-  let gameListElement = document.getElementById("game-list");
-  let gameButton = document.querySelector(".game-button");
-  gameListElement.hidden = false;
-  gameButton.setAttribute("aria-expanded", "true");
-  gameButton.focus(); // Safari fokussiert Knöpfe beim Mausklick nicht, ohne Fokus kämen die Pfeiltasten nicht an
-  // Die Liste bekommt nur so viel Höhe, wie unter dem Knopf im sichtbaren Bereich frei ist,
-  // damit sie nicht über den Rand des Panels ragt und das Panel nicht mitgeschoben werden muss
-  let freeSpaceBelowButton =
-    document.querySelector(".detail-body").getBoundingClientRect().bottom -
-    gameListElement.getBoundingClientRect().top -
-    24;
-  gameListElement.style.maxHeight = `${Math.max(180, Math.min(340, freeSpaceBelowButton))}px`;
-  let selectedOption = gameListElement.querySelector('[aria-selected="true"]');
-  setActiveGameOption(selectedOption);
-  // Das gewählte Spiel in die Mitte der Liste rücken
-  gameListElement.scrollTop =
-    selectedOption.offsetTop - (gameListElement.clientHeight - selectedOption.offsetHeight) / 2;
-  if (freeSpaceBelowButton < 180) gameListElement.scrollIntoView({ block: "nearest", behavior: "smooth" }); // Knopf ganz unten: dann muss das Panel nachrücken
-}
-
-function closeGameList() {
-  let gameListElement = document.getElementById("game-list");
-  if (!gameListElement) return;
-  gameListElement.hidden = true;
-  let gameButton = document.querySelector(".game-button");
-  gameButton.setAttribute("aria-expanded", "false");
-  gameButton.removeAttribute("aria-activedescendant");
-}
-
-// Hebt eine Option hervor (Maus oder Pfeiltasten) und scrollt sie bei Bedarf in der Liste ins Bild
-function setActiveGameOption(optionElement) {
-  let gameListElement = document.getElementById("game-list");
-  getGameOptionElements().forEach((gameOption) => gameOption.classList.toggle("active", gameOption === optionElement));
-  document.querySelector(".game-button").setAttribute("aria-activedescendant", optionElement.id);
-  if (optionElement.offsetTop < gameListElement.scrollTop) {
-    gameListElement.scrollTop = optionElement.offsetTop - 8;
-  } else if (optionElement.offsetTop + optionElement.offsetHeight > gameListElement.scrollTop + gameListElement.clientHeight) {
-    gameListElement.scrollTop = optionElement.offsetTop + optionElement.offsetHeight - gameListElement.clientHeight + 8;
-  }
-}
-
-// Bei offener Liste gehören Esc und die Pfeiltasten der Liste: stopPropagation hält sie vom
-// Popup fern, das sonst bei Esc schließen und bei links/rechts das Pokémon wechseln würde
-function handleGameSelectKeyDown(keyEvent) {
-  let isListOpen = isGameListOpen();
-  let gameOptionElements = getGameOptionElements();
-  let activeOptionIndex = gameOptionElements.findIndex((gameOption) => gameOption.classList.contains("active"));
-  let keepKeyAwayFromPopup = () => {
-    keyEvent.preventDefault();
-    keyEvent.stopPropagation();
-  };
-  if (keyEvent.key === "ArrowDown" || keyEvent.key === "ArrowUp") {
-    keepKeyAwayFromPopup();
-    if (!isListOpen) return openGameList();
-    let stepDirection = keyEvent.key === "ArrowDown" ? 1 : -1;
-    setActiveGameOption(gameOptionElements[(activeOptionIndex + stepDirection + gameOptionElements.length) % gameOptionElements.length]);
-  } else if (keyEvent.key === "Home" || keyEvent.key === "End") {
-    if (!isListOpen) return;
-    keepKeyAwayFromPopup();
-    setActiveGameOption(gameOptionElements[keyEvent.key === "Home" ? 0 : gameOptionElements.length - 1]);
-  } else if (keyEvent.key === "Enter" || keyEvent.key === " ") {
-    if (!isListOpen) return; // bei geschlossener Liste öffnet der Klick sie
-    keepKeyAwayFromPopup();
-    selectGame(gameOptionElements[activeOptionIndex].dataset.game);
-  } else if (keyEvent.key === "Escape") {
-    if (!isListOpen) return; // dann darf das Popup schließen
-    keepKeyAwayFromPopup();
-    closeGameList();
-  } else if (keyEvent.key === "ArrowLeft" || keyEvent.key === "ArrowRight") {
-    if (isListOpen) keepKeyAwayFromPopup();
-  } else if (keyEvent.key === "Tab") {
-    closeGameList();
-  }
-}
-
-// Ein Klick außerhalb schließt die Liste
-document.addEventListener("click", (clickEvent) => {
-  if (isGameListOpen() && !clickEvent.target.closest(".game-select")) closeGameList();
-});
-
-function selectGame(versionGroupName) {
-  movesSelection.versionGroupName = versionGroupName;
-  document.querySelector(".game-select").dataset.game = versionGroupName;
-  document.getElementById("game-current").textContent = getGameDisplayName(versionGroupName);
-  getGameOptionElements().forEach((gameOption) =>
-    gameOption.setAttribute("aria-selected", String(gameOption.dataset.game === versionGroupName)),
-  );
-  closeGameList();
-  document.querySelector(".game-button").focus();
-  renderMovesView();
 }
 
 function selectLearnMethod(learnMethodApiName) {
@@ -345,64 +236,109 @@ function renderMovesView() {
   observeMoveCards();
 }
 
+// ---------- Eine Attacken-Karte ----------
+
+// Level (oder Lernart) und Name stehen sofort da. Alles Weitere (Typ, Kategorie, Werte, Beschreibung)
+// kommt aus dem Netz, sobald die Karte fast im Bild ist. Der Platzhalter hat schon ungefähr die Höhe
+// des fertigen Inhalts, damit beim Nachladen nichts springt. Die leeren Elemente müssen wirklich leer
+// sein (kein Leerraum darin), denn das CSS zeigt den Platzhalter mit :empty.
+function moveCardHtml(move, learnMethod) {
+  return /* html */ `
+    <article class="move-card" data-move-api-name="${move.apiName}">
+      ${moveHeadingHtml(move, learnMethod)}
+      <div class="move-body"></div>
+    </article>
+  `;
+}
+
+// Kein <header>-Element für die Kopfzeile: layout.css gibt jedem <header> der Seite den Stil des roten Seitenkopfes
+function moveHeadingHtml(move, learnMethod) {
+  return /* html */ `
+    <div class="move-heading">
+      <span class="move-learn-tag">${learnMethod.tagText(move)}</span>
+      <h4 class="move-name">${move.displayName}</h4>
+      <span class="move-badges"></span>
+    </div>
+  `;
+}
+
+// ---------- Details der Karten erst nachladen, wenn sie sichtbar werden ----------
+
 // Lädt die Details einer Karte erst, wenn sie fast im Bild ist: bei über hundert Attacken
-// wären das sonst über hundert Anfragen auf einmal. Der Vorlauf ist großzügig, damit beim
-// Scrollen kaum Platzhalter zu sehen sind.
+// wären das sonst über hundert Anfragen auf einmal.
 function observeMoveCards() {
   if (moveCardVisibilityObserver) moveCardVisibilityObserver.disconnect();
-  moveCardVisibilityObserver = new IntersectionObserver(
-    (intersectionEntries) => {
-      for (let intersectionEntry of intersectionEntries) {
-        if (!intersectionEntry.isIntersecting) continue;
-        moveCardVisibilityObserver.unobserve(intersectionEntry.target);
-        fillMoveCard(intersectionEntry.target);
-      }
-    },
-    { root: document.querySelector(".detail-body"), rootMargin: "600px 0px" },
-  );
+  moveCardVisibilityObserver = createMoveCardObserver();
   document
     .querySelectorAll("#moves-list .move-card")
     .forEach((moveCard) => moveCardVisibilityObserver.observe(moveCard));
 }
 
-// Die Karte färbt sich in der Farbe des Attacken-Typs
+// Der Vorlauf ist großzügig, damit beim Scrollen kaum Platzhalter zu sehen sind
+function createMoveCardObserver() {
+  return new IntersectionObserver(fillMoveCardsThatBecameVisible, {
+    root: document.querySelector(".detail-body"),
+    rootMargin: "600px 0px",
+  });
+}
+
+function fillMoveCardsThatBecameVisible(intersectionEntries) {
+  for (let intersectionEntry of intersectionEntries) {
+    if (!intersectionEntry.isIntersecting) continue;
+    moveCardVisibilityObserver.unobserve(intersectionEntry.target);
+    fillMoveCard(intersectionEntry.target);
+  }
+}
+
 async function fillMoveCard(moveCard) {
   try {
     let moveDetails = await fetchJsonWithCache(`${pokeApiBaseUrl}/move/${moveCard.dataset.moveApiName}`);
     if (!moveCard.isConnected) return; // inzwischen ist eine andere Liste oder ein anderes Pokémon zu sehen
-    moveCard.style.setProperty(
-      "--move-color",
-      mainColorByTypeName[moveDetails.type.name] || fallbackTypeColor,
-    );
-    moveCard.querySelector(".move-badges").innerHTML =
-      `${typeBadgeHtml(moveDetails.type.name)}<span class="move-category move-category-${moveDetails.damage_class.name}">${formatNameForDisplay(moveDetails.damage_class.name)}</span>`;
-    moveCard.querySelector(".move-body").innerHTML = moveBodyHtml(moveDetails);
-    moveCard.classList.add("loaded");
+    showMoveDetails(moveCard, moveDetails);
   } catch (error) {
     console.error(error);
-    moveCard.classList.add("failed"); // nimmt die Platzhalter weg, Level und Name bleiben stehen
-    moveCard.querySelector(".move-body").innerHTML =
-      `<p class="move-description">The details could not be loaded.</p>`;
+    showMoveDetailsError(moveCard);
   }
 }
 
+// Die Karte färbt sich in der Farbe des Attacken-Typs
+function showMoveDetails(moveCard, moveDetails) {
+  moveCard.style.setProperty("--move-color", mainColorByTypeName[moveDetails.type.name] || fallbackTypeColor);
+  moveCard.querySelector(".move-badges").innerHTML = moveBadgesHtml(moveDetails);
+  moveCard.querySelector(".move-body").innerHTML = moveBodyHtml(moveDetails);
+  moveCard.classList.add("loaded");
+}
+
+function showMoveDetailsError(moveCard) {
+  moveCard.classList.add("failed"); // nimmt die Platzhalter weg, Level und Name bleiben stehen
+  moveCard.querySelector(".move-body").innerHTML =
+    `<p class="move-description">The details could not be loaded.</p>`;
+}
+
+// Typ und Kategorie (physisch, speziell, Status)
+function moveBadgesHtml(moveDetails) {
+  let damageClassName = moveDetails.damage_class.name;
+  return `${typeBadgeHtml(moveDetails.type.name)}<span class="move-category move-category-${damageClassName}">${formatNameForDisplay(damageClassName)}</span>`;
+}
+
+// ---------- Werte und Beschreibung einer Attacke ----------
+
 // Power, Genauigkeit und AP als drei Balken nebeneinander, darunter die Beschreibung
 function moveBodyHtml(moveDetails) {
-  let effectDescription =
-    findLatestEnglishText(moveDetails.effect_entries, "short_effect").replaceAll(
-      "$effect_chance",
-      moveDetails.effect_chance,
-    ) ||
-    findLatestEnglishText(moveDetails.flavor_text_entries, "flavor_text") ||
-    "No description available.";
   return /* html */ `
     <div class="move-meters">
       ${moveMeterHtml("Power", moveDetails.power, maximumMovePower)}
       ${moveMeterHtml("Accuracy", moveDetails.accuracy, maximumMoveAccuracy, "%")}
       ${moveMeterHtml("PP", moveDetails.pp, maximumMovePowerPoints)}
     </div>
-    <p class="move-description">${effectDescription}</p>
+    <p class="move-description">${moveEffectDescription(moveDetails)}</p>
   `;
+}
+
+function moveEffectDescription(moveDetails) {
+  let shortEffect = findLatestEnglishText(moveDetails.effect_entries, "short_effect")
+    .replaceAll("$effect_chance", moveDetails.effect_chance);
+  return shortEffect || findLatestEnglishText(moveDetails.flavor_text_entries, "flavor_text") || noDescriptionText;
 }
 
 // Statusattacken haben keine Power, manche keine Genauigkeit (sie treffen immer): dann "–" und ein leerer Balken
@@ -410,11 +346,17 @@ function moveMeterHtml(label, value, maximumValue, unitSuffix = "") {
   let hasValue = value !== null && value !== undefined;
   return /* html */ `
     <div class="meter">
-      <div class="meter-label-row">
-        <span class="meter-label">${label}</span>
-        <span class="meter-value">${hasValue ? `${value}${unitSuffix}` : "–"}</span>
-      </div>
+      ${meterLabelRowHtml(label, hasValue ? `${value}${unitSuffix}` : "–")}
       ${barTrackHtml(hasValue ? value : 0, maximumValue, moveMeterColors)}
+    </div>
+  `;
+}
+
+function meterLabelRowHtml(label, valueText) {
+  return /* html */ `
+    <div class="meter-label-row">
+      <span class="meter-label">${label}</span>
+      <span class="meter-value">${valueText}</span>
     </div>
   `;
 }

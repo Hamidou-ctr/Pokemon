@@ -8,23 +8,37 @@ const loadButtonsContainer = document.getElementById("load-buttons");
 const loadAllButtonLabel = document.getElementById("load-all-label");
 const loadAllButtonDefaultText = loadAllButtonLabel.textContent;
 
+// ---------- Start ----------
+
 async function initializePokedex() {
   try {
-    // erst die Gesamtzahl abfragen, damit wirklich alle Pokémon geladen werden, egal wie viele es gibt
-    let countResponse = await fetchJsonWithCache(`${pokeApiBaseUrl}/pokemon?limit=1&offset=0`);
-    let fullListResponse = await fetchJsonWithCache(
-      `${pokeApiBaseUrl}/pokemon?limit=${countResponse.count}&offset=0`,
-    );
-    allPokemonNamesAndIds = fullListResponse.results.map((listEntry) => ({
-      pokemonId: extractIdFromUrl(listEntry.url),
-      name: listEntry.name,
-    }));
+    allPokemonNamesAndIds = await fetchAllPokemonNamesAndIds();
     await runSearch();
   } catch (error) {
     console.error(error);
     showPokedexMessage("The Pokémon could not be loaded. Please reload the page.");
   }
 }
+
+async function fetchAllPokemonNamesAndIds() {
+  let totalPokemonCount = await fetchTotalPokemonCount();
+  let fullListResponse = await fetchJsonWithCache(
+    `${pokeApiBaseUrl}/pokemon?limit=${totalPokemonCount}&offset=0`,
+  );
+  return fullListResponse.results.map(toPokemonNameAndId);
+}
+
+// Erst die Gesamtzahl abfragen, damit wirklich alle Pokémon geladen werden, egal wie viele es gibt
+async function fetchTotalPokemonCount() {
+  let countResponse = await fetchJsonWithCache(`${pokeApiBaseUrl}/pokemon?limit=1&offset=0`);
+  return countResponse.count;
+}
+
+function toPokemonNameAndId(listEntry) {
+  return { pokemonId: extractIdFromUrl(listEntry.url), name: listEntry.name };
+}
+
+// ---------- Suche ----------
 
 // Sucht erst, wenn eine kurze Zeit lang nichts mehr getippt wurde
 function scheduleSearch() {
@@ -34,58 +48,87 @@ function scheduleSearch() {
 
 // Leert die Übersicht und zeigt die erste Seite der Treffer
 async function runSearch() {
-  let searchText = searchInput.value.trim().toLowerCase();
-  searchResults = allPokemonNamesAndIds.filter((listEntry) => listEntry.name.includes(searchText));
+  searchResults = findPokemonMatchingSearchText(searchInput.value);
   displayedPokemonCount = 0;
-  document
-    .querySelectorAll(`.${pokemonCardWrapperClassName}`)
-    .forEach((pokemonCard) => pokemonCard.remove());
+  removeAllPokemonCards();
   await loadNextPokemonPage();
 }
 
+function findPokemonMatchingSearchText(rawSearchText) {
+  let searchText = rawSearchText.trim().toLowerCase();
+  return allPokemonNamesAndIds.filter((listEntry) => listEntry.name.includes(searchText));
+}
+
+function removeAllPokemonCards() {
+  document
+    .querySelectorAll(`.${pokemonCardWrapperClassName}`)
+    .forEach((pokemonCard) => pokemonCard.remove());
+}
+
+// ---------- Nachladen: "Mehr fangen" und "Alle anzeigen" ----------
+
 async function loadNextPokemonPage() {
   let thisRequestNumber = ++latestListRequestNumber;
-  let listEntriesToLoad = searchResults.slice(displayedPokemonCount, displayedPokemonCount + pokemonPerPage);
   showPokedexMessage(searchResults.length ? "Loading Pokémon..." : "No Pokémon found.");
-  try {
-    let loadedPokemon = await Promise.all(
-      listEntriesToLoad.map((listEntry) => fetchPokemonById(listEntry.pokemonId)),
-    );
-    if (thisRequestNumber !== latestListRequestNumber) return; // eine neuere Suche oder ein neuer Klick hat übernommen
-    appendPokemonCards(loadedPokemon);
-    displayedPokemonCount += listEntriesToLoad.length;
-    if (searchResults.length) showPokedexMessage("");
-  } catch (error) {
-    if (thisRequestNumber !== latestListRequestNumber) return;
-    console.error(error);
-    showPokedexMessage("Some Pokémon could not be loaded. Please try again.");
-  }
-  updateLoadButtonsVisibility();
+  await runListLoading(thisRequestNumber, () => appendNextPage(thisRequestNumber));
 }
 
 // Lädt alle noch fehlenden Treffer blockweise nach; jeder Block erscheint sofort, der Knopf zeigt den Fortschritt
 async function loadAllRemainingPokemon() {
   let thisRequestNumber = ++latestListRequestNumber;
   setLoadButtonsDisabled(true);
-  try {
-    while (displayedPokemonCount < searchResults.length) {
-      showLoadAllProgress();
-      let listEntriesToLoad = searchResults.slice(displayedPokemonCount, displayedPokemonCount + pokemonPerLoadAllBatch);
-      let loadedPokemon = await Promise.all(
-        listEntriesToLoad.map((listEntry) => fetchPokemonById(listEntry.pokemonId)),
-      );
-      if (thisRequestNumber !== latestListRequestNumber) return; // eine neuere Suche oder ein neuer Klick hat übernommen
-      appendPokemonCards(loadedPokemon);
-      displayedPokemonCount += listEntriesToLoad.length;
-    }
-    showPokedexMessage("");
-  } catch (error) {
-    if (thisRequestNumber !== latestListRequestNumber) return;
-    console.error(error);
-    showPokedexMessage("Some Pokémon could not be loaded. Please try again.");
-  }
-  updateLoadButtonsVisibility();
+  await runListLoading(thisRequestNumber, () => appendAllRemainingBatches(thisRequestNumber));
 }
+
+// Führt die Ladeschritte aus, meldet Fehler und aktualisiert danach die Knöpfe. Hat inzwischen eine
+// neuere Suche oder ein neuer Klick übernommen, passiert nichts mehr.
+async function runListLoading(requestNumber, loadingSteps) {
+  try {
+    await loadingSteps();
+  } catch (error) {
+    if (!isOutdatedListRequest(requestNumber)) showListLoadingError(error);
+  }
+  if (!isOutdatedListRequest(requestNumber)) updateLoadButtonsVisibility();
+}
+
+function isOutdatedListRequest(requestNumber) {
+  return requestNumber !== latestListRequestNumber;
+}
+
+function showListLoadingError(error) {
+  console.error(error);
+  showPokedexMessage("Some Pokémon could not be loaded. Please try again.");
+}
+
+async function appendNextPage(requestNumber) {
+  let isStillLatest = await appendNextBatch(pokemonPerPage, requestNumber);
+  if (isStillLatest && searchResults.length) showPokedexMessage("");
+}
+
+async function appendAllRemainingBatches(requestNumber) {
+  while (displayedPokemonCount < searchResults.length) {
+    showLoadAllProgress();
+    let isStillLatest = await appendNextBatch(pokemonPerLoadAllBatch, requestNumber);
+    if (!isStillLatest) return;
+  }
+  showPokedexMessage("");
+}
+
+// Lädt die nächsten Treffer und zeigt sie an. Gibt false zurück, wenn inzwischen eine neuere Anfrage übernommen hat
+async function appendNextBatch(batchSize, requestNumber) {
+  let listEntriesToLoad = searchResults.slice(displayedPokemonCount, displayedPokemonCount + batchSize);
+  let loadedPokemon = await fetchPokemonOfListEntries(listEntriesToLoad);
+  if (isOutdatedListRequest(requestNumber)) return false;
+  appendPokemonCards(loadedPokemon);
+  displayedPokemonCount += listEntriesToLoad.length;
+  return true;
+}
+
+function fetchPokemonOfListEntries(listEntries) {
+  return Promise.all(listEntries.map((listEntry) => fetchPokemonById(listEntry.pokemonId)));
+}
+
+// ---------- Anzeige von Meldung, Knöpfen und Karten ----------
 
 function showLoadAllProgress() {
   loadAllButtonLabel.textContent = `Lade ${displayedPokemonCount} / ${searchResults.length}`;
@@ -121,31 +164,49 @@ function updateLoadButtonsVisibility() {
   );
 }
 
+// ---------- Eine Karte der Übersicht ----------
+
 function pokemonCardHtml(pokemon) {
-  let mainColor = getMainColorOfPokemon(pokemon);
-  let gradientEndColor = getGradientEndColorOfPokemon(pokemon);
-  let displayName = formatNameForDisplay(pokemon.name);
-  let typeBadgesHtml = pokemon.types
-    .map((typeEntry) => typeBadgeHtml(typeEntry.type.name))
-    .join("");
   return /* html */ `
     <div class="${pokemonCardWrapperClassName}" onclick="openPokemonDetail(${pokemon.id})">
-      <div class="pokemon-card" style="--pokemon-main-color: ${mainColor}; --pokemon-gradient-end-color: ${gradientEndColor};">
-        <div class="pokemon-card-heading">
-          <p class="pokemon-card-name">${displayName}</p>
-          <span class="pokemon-card-number">${pokemon.id}</span>
-        </div>
-        <div class="pokemon-card-types-and-image">
-          <div class="pokemon-card-types">
-            ${typeBadgesHtml}
-          </div>
-          <div class="pokemon-card-image-wrapper">
-            <img class="pokemon-card-sprite pokemon-card-sprite-default" loading="lazy" src="${getListSpriteUrl(pokemon)}" alt="${displayName}">
-            <img class="pokemon-card-sprite pokemon-card-sprite-shiny" loading="lazy" src="${getShinyListSpriteUrl(pokemon)}" alt="${displayName} (shiny)">
-            <span class="shiny-badge">✨</span>
-          </div>
-        </div>
+      <div class="pokemon-card" style="${pokemonColorStyle(pokemon)}">
+        ${pokemonCardHeadingHtml(pokemon)}
+        ${pokemonCardTypesAndImageHtml(pokemon)}
       </div>
+    </div>
+  `;
+}
+
+function pokemonCardHeadingHtml(pokemon) {
+  return /* html */ `
+    <div class="pokemon-card-heading">
+      <p class="pokemon-card-name">${formatNameForDisplay(pokemon.name)}</p>
+      <span class="pokemon-card-number">${pokemon.id}</span>
+    </div>
+  `;
+}
+
+function pokemonCardTypesAndImageHtml(pokemon) {
+  return /* html */ `
+    <div class="pokemon-card-types-and-image">
+      <div class="pokemon-card-types">${typeBadgesOfPokemonHtml(pokemon)}</div>
+      ${pokemonCardImageHtml(pokemon)}
+    </div>
+  `;
+}
+
+function typeBadgesOfPokemonHtml(pokemon) {
+  return pokemon.types.map((typeEntry) => typeBadgeHtml(typeEntry.type.name)).join("");
+}
+
+// Zwei übereinanderliegende Bilder: normal und shiny, beim Darüberfahren wird überblendet
+function pokemonCardImageHtml(pokemon) {
+  let displayName = formatNameForDisplay(pokemon.name);
+  return /* html */ `
+    <div class="pokemon-card-image-wrapper">
+      <img class="pokemon-card-sprite pokemon-card-sprite-default" loading="lazy" src="${getListSpriteUrl(pokemon)}" alt="${displayName}">
+      <img class="pokemon-card-sprite pokemon-card-sprite-shiny" loading="lazy" src="${getShinyListSpriteUrl(pokemon)}" alt="${displayName} (shiny)">
+      <span class="shiny-badge">✨</span>
     </div>
   `;
 }
