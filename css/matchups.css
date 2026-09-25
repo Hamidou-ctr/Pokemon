@@ -2,35 +2,46 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 16px;
-  padding: 12px 0;
-  border-bottom: 1px solid #eceef1;
+  gap: 10px 16px;
+  margin-bottom: 8px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--group-color);
+  border-radius: 14px;
+}
+
+.matchup-weak {
+  --group-color: #ff5c6c;
+}
+
+.matchup-resist {
+  --group-color: #43d68a;
+}
+
+.matchup-immune {
+  --group-color: #8b95b8;
 }
 
 .matchup-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  flex: 0 0 168px;
   gap: 10px;
-  flex: 0 0 170px;
+  color: var(--text);
   font-weight: 600;
 }
 
 .matchup-multiplier {
-  min-width: 34px;
-  font-size: 20px;
-  font-weight: 800;
-}
-
-.matchup-weak .matchup-multiplier {
-  color: #c62828;
-}
-
-.matchup-resist .matchup-multiplier {
-  color: #2e7d32;
-}
-
-.matchup-immune .matchup-multiplier {
-  color: #59626b;
+  min-width: 46px;
+  padding: 3px 0;
+  color: var(--group-color);
+  font-family: var(--font-roboto);
+  font-size: 18px;
+  font-weight: 900;
+  text-align: center;
+  background: color-mix(in srgb, var(--group-color) 16%, transparent);
+  border-radius: 10px;
 }
 
 .matchup-types {
@@ -45,6 +56,7 @@
 
 .matchup-note {
   margin: 14px 0 0;
-  color: #59626b;
+  color: var(--muted);
   font-size: 13px;
+  text-align: center;
 }

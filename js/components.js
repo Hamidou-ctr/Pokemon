@@ -1,13 +1,14 @@
 // HTML-Bausteine, die mehrere Tabs gemeinsam nutzen
 
-// Die drei Zellen einer Balkenzeile: Beschriftung, Wert, Balken
+// Die drei Zellen einer Balkenzeile: Beschriftung, Wert, Balken.
+// barColors sind zwei beliebige CSS-Farben: der Balken läuft von border nach fill.
 function barCellsHtml(label, value, maximumValue, barColors) {
   let percent = Math.min(100, (value / maximumValue) * 100).toFixed(1);
   return /* html */ `
     <span class="bar-label">${label}</span>
     <span class="bar-value">${value}</span>
     <div class="bar-track">
-      <div class="bar-fill" style="width: ${percent}%; background-color: ${barColors.fill}; border-color: ${barColors.border};"></div>
+      <div class="bar-fill" style="width: ${percent}%; --bar-from: ${barColors.border}; --bar-to: ${barColors.fill};"></div>
     </div>
   `;
 }

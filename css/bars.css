@@ -1,39 +1,137 @@
+/* Balken: Verlauf von --bar-from nach --bar-to (setzt das JS), mit Leuchten und Aufwachsen */
 .bar-list {
   display: grid;
   align-content: start;
-  row-gap: 6px;
+  row-gap: 12px;
   width: 100%;
-  color: rgb(13, 15, 15);
+  color: var(--text);
 }
 
 .bar-caption {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 13px;
   text-align: center;
-  font-size: 14px;
-  color: rgb(66, 61, 61);
 }
 
 .bar-row {
   display: grid;
-  grid-template-columns: 9rem 2.5rem 1fr;
+  grid-template-columns: 8.2rem 2.4rem 1fr;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 14px;
 }
 
+.bar-label {
+  color: var(--muted);
+  font-weight: 500;
+}
+
 .bar-value {
+  color: var(--text);
+  font-family: var(--font-raleway);
+  font-weight: 800;
   text-align: right;
-  font-weight: bold;
 }
 
 .bar-track {
-  height: 14px;
-  border-radius: 4px;
-  background-color: rgb(240, 240, 240);
+  height: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
 }
 
 .bar-fill {
   height: 100%;
-  border: 1px solid;
-  border-radius: 4px;
+  background: linear-gradient(90deg, var(--bar-from), var(--bar-to));
+  border-radius: 999px;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--bar-from) 60%, transparent);
+  animation: bar-grow 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes bar-grow {
+  from {
+    width: 0;
+  }
+}
+
+/* Stats-Tab: Radar-Diagramm links, Balken rechts */
+.stats-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.radar {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.radar-ring {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 1;
+}
+
+.radar-axis {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+}
+
+.radar-shape {
+  fill: color-mix(in srgb, var(--accent) 28%, transparent);
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  transform-origin: 130px 130px;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 55%, transparent));
+  animation: radar-in 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.radar-dot {
+  fill: white;
+  stroke: var(--accent);
+  stroke-width: 2;
+  animation: radar-dot-in 0.3s 0.6s ease both;
+}
+
+.radar-label {
+  fill: var(--muted);
+  font-family: var(--font-raleway);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.radar-value {
+  fill: var(--text);
+  font-family: var(--font-raleway);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+@keyframes radar-in {
+  from {
+    opacity: 0;
+    transform: scale(0.15);
+  }
+}
+
+@keyframes radar-dot-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .stats-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .radar {
+    max-width: 280px;
+  }
 }

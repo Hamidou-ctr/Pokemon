@@ -1,56 +1,184 @@
-/* Zeilen im Stil der Karten: Farbe des Typs mit weißer Schrift */
-.info-rows {
+/* Beschreibungstext aus den Spielen, mit großem Anführungszeichen */
+.about-quote {
+  position: relative;
+  margin: 0 0 18px;
+  padding: 18px 20px 18px 54px;
+  color: var(--text);
+  font-family: var(--font-lora);
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.65;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 16%, transparent),
+    var(--surface)
+  );
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.about-quote::before {
+  content: "“";
+  position: absolute;
+  left: 16px;
+  top: 4px;
+  color: var(--accent);
+  font-family: var(--font-elsie);
+  font-size: 56px;
+  font-style: normal;
+  line-height: 1.1;
+}
+
+/* Kacheln mit Größe, Gewicht usw. */
+.about-tiles {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.about-tiles-wide {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.about-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.07),
+    rgba(255, 255, 255, 0.03)
+  );
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.tile-label {
+  color: var(--muted);
+  font-family: var(--font-raleway);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.tile-value {
+  color: var(--text);
+  font-family: var(--font-raleway);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+/* Geschlechterverhältnis: blau für männlich, rosa für weiblich */
+.gender-bar {
+  display: flex;
+  height: 10px;
+  overflow: hidden;
+  background: var(--surface-strong);
+  border-radius: 999px;
+}
+
+.gender-male {
+  background: linear-gradient(90deg, #3f8cff, #7ab6ff);
+}
+
+.gender-female {
+  background: linear-gradient(90deg, #ff6fae, #ff9bc9);
+}
+
+.gender-legend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.gender-male-text {
+  color: #7ab6ff;
+}
+
+.gender-female-text {
+  color: #ff9bc9;
+}
+
+/* Kleine Pillen, z. B. für Ei-Gruppen und Fundorte */
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 16px;
-  padding: 12px 16px;
-  color: white;
-  background: var(--secondary);
-  border-radius: 8px;
-}
-
-.info-row b {
-  flex: none;
-}
-
-.info-row span {
-  text-align: right;
-}
-
-.info-row-stack span {
-  max-height: 120px;
+.chip-list-scroll {
+  max-height: 128px;
   overflow-y: auto;
-  text-align: left;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
 }
 
-.info-heading {
-  margin: 20px 0 8px;
-  color: #59626b;
+.chip {
+  padding: 4px 11px;
+  color: var(--text);
+  font-family: var(--font-roboto);
   font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  white-space: nowrap;
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+/* Überschrift mit Linie dahinter */
+.info-section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 10px;
+  color: var(--muted);
+  font-family: var(--font-raleway);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+}
+
+.info-section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
 }
 
 .tab-message {
-  margin: 40px 0;
+  margin: 48px 0;
+  color: var(--muted);
   text-align: center;
-  color: #59626b;
 }
 
 .tag {
-  margin-left: 8px;
-  padding: 1px 8px;
-  color: #59626b;
-  font-size: 11px;
-  font-weight: 700;
+  margin-left: 10px;
+  padding: 2px 9px;
+  color: var(--accent);
+  font-family: var(--font-raleway);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  background: #e5e8ec;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
   border-radius: 999px;
+}
+
+@media (max-width: 520px) {
+  .about-tile {
+    padding: 10px 11px;
+  }
+
+  .tile-value {
+    font-size: 17px;
+  }
 }

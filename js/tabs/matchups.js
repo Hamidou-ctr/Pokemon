@@ -1,4 +1,9 @@
-registerTab({ name: matchupsTabName, label: "Matchups", render: matchupsHtml });
+registerTab({
+  name: matchupsTabName,
+  label: "Matchups",
+  icon: icons.matchups,
+  render: matchupsHtml,
+});
 
 // Von der stärksten Schwäche bis zur Immunität; Gruppen ohne Typen werden nicht angezeigt
 const matchupGroups = [

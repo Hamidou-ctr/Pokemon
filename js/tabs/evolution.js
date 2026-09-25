@@ -1,4 +1,9 @@
-registerTab({ name: "Evolution", label: "Evolution", render: evolutionHtml });
+registerTab({
+  name: "Evolution",
+  label: "Evolution",
+  icon: icons.evolution,
+  render: evolutionHtml,
+});
 
 const wideEvolutionBranchCount = 3; // mehr Zweige als das werden als Raster statt nebeneinander gezeigt
 

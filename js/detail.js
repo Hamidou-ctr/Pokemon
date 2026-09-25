@@ -5,9 +5,9 @@
 const informationContainer = document.getElementById("info-pokemon-Container");
 const matchupsTabName = "Matchups"; // dorthin führt ein Klick auf einen Typ im Kopf des Popups
 
-// Ein Tab ist { name, label, render(pokemon) }. render liefert das HTML als
+// Ein Tab ist { name, label, icon, render(pokemon) }. render liefert das HTML als
 // Text oder als Promise, wenn erst noch Daten nachgeladen werden müssen.
-// name dient als id des Tab-Containers im Popup.
+// name dient als id des Tab-Containers im Popup, icon ist ein SVG (siehe icons in config.js).
 const tabs = [];
 
 function registerTab(tab) {
@@ -19,10 +19,14 @@ async function pokemonInformation(pokemonId) {
   try {
     let pokemon = await loadPokemon(pokemonId);
     if (request !== informationRequest) return; // inzwischen wurde ein anderes Pokémon angeklickt oder alles geschlossen
+    let isOpening = informationContainer.classList.contains("hidden");
     currentPokemon = pokemon;
     informationContainer.innerHTML = pokemonInformationHtml(pokemon);
+    // Das Einblenden läuft nur beim Öffnen, beim Blättern von Pokémon zu Pokémon soll nichts aufpoppen
+    informationContainer.classList.toggle("first-open", isOpening);
     showInformationView();
     showTab(tabs[0].name);
+    showSpeciesSummary(pokemon);
     // Nachbarn schon laden, damit ein Klick auf die Pfeile sofort reagiert
     for (let step of [-1, 1]) {
       loadPokemon(neighbourPokemonId(pokemonId, step)).catch(() => {});
@@ -43,7 +47,8 @@ function neighbourPokemonId(pokemonId, step) {
   return pokemonIndex[(index + step + total) % total].pokemonId;
 }
 
-// Kopf mit Name, Typen, Bild und Knöpfen; darunter die Tab-Leiste und der scrollbare Inhalt
+// Kopf (Farbverlauf des Typs) mit Werkzeugleiste, Name, Typen, Bild und Tab-Leiste;
+// darunter der scrollbare Inhalt, der mit abgerundeter Kante über den Kopf ragt
 function pokemonInformationHtml(pokemon) {
   let name = formatName(pokemon.name);
   let primaryBackgroundColor = generatePrimaryBackgroundColor(pokemon);
@@ -53,36 +58,54 @@ function pokemonInformationHtml(pokemon) {
   return /* html */ `
     <div class="info-card" role="dialog" aria-modal="true" aria-label="${name}" style="--primary: ${primaryBackgroundColor}; --secondary: ${secondaryBackgroundColor};">
       <div class="info-header">
-        <button type="button" class="info-button info-arrow left" onclick="pokemonInformation(${neighbourPokemonId(
-          pokemon.id,
-          -1,
-        )})" aria-label="Previous Pokémon">${icons.previous}</button>
-        <button type="button" class="info-button info-arrow right" onclick="pokemonInformation(${neighbourPokemonId(
-          pokemon.id,
-          1,
-        )})" aria-label="Next Pokémon">${icons.next}</button>
-        <button type="button" class="info-button info-close" onclick="closePokemon()" aria-label="Close">${icons.close}</button>
-        <div class="info-title">
-          <h1>${name.toUpperCase()}</h1>
-          <span class="info-number">№ ${pokemon.id}</span>
+        <span class="info-pokeball">${icons.pokeball}</span>
+        <div class="info-toolbar">
+          <div class="info-nav">
+            <button type="button" class="info-button" onclick="pokemonInformation(${neighbourPokemonId(
+              pokemon.id,
+              -1,
+            )})" aria-label="Previous Pokémon" title="Previous (←)">${icons.previous}</button>
+            <button type="button" class="info-button" onclick="pokemonInformation(${neighbourPokemonId(
+              pokemon.id,
+              1,
+            )})" aria-label="Next Pokémon" title="Next (→)">${icons.next}</button>
+          </div>
+          <div class="info-actions">
+            ${hasShinyImage ? `<button type="button" class="info-button" id="info-shiny-button" onclick="toggleShiny()" aria-label="Show shiny" aria-pressed="false" title="Shiny">${icons.sparkle}</button>` : ""}
+            ${hasCry ? `<button type="button" class="info-button" onclick="playCry()" aria-label="Play cry" title="Cry">${icons.sound}</button>` : ""}
+            <button type="button" class="info-button" onclick="closePokemon()" aria-label="Close" title="Close (Esc)">${icons.close}</button>
+          </div>
         </div>
-        <div class="info-types">
-          ${pokemon.types.map((entry) => headerTypeHtml(entry.type.name)).join("")}
+        <div class="info-hero">
+          <div class="info-heading">
+            <div class="info-title">
+              <span class="info-number"> ${String(pokemon.id)}</span>
+              <h1 style="--name-length: ${longestWordLength(name)};">${name}</h1>
+            </div>
+            <p class="info-subtitle" id="info-subtitle"></p>
+            <div class="info-types">
+              ${pokemon.types.map((entry) => headerTypeHtml(entry.type.name)).join("")}
+            </div>
+          </div>
+          <div class="info-figure" id="info-figure">
+            <img class="info-image" id="info-image" src="${detailImage(pokemon)}" alt="${name}">
+          </div>
         </div>
-        <img class="info-image" id="info-image" src="${detailImage(pokemon)}" alt="${name}">
-        <div class="info-tools">
-          ${hasShinyImage ? `<button type="button" class="info-button" id="info-shiny-button" onclick="toggleShiny()" aria-label="Show shiny" aria-pressed="false">✨</button>` : ""}
-          ${hasCry ? `<button type="button" class="info-button" onclick="playCry()" aria-label="Play cry">🔊</button>` : ""}
+        <div class="info-tabs" role="tablist">
+          ${tabs.map(tabButtonHtml).join("")}
         </div>
-      </div>
-      <div class="info-tabs" role="tablist">
-        ${tabs.map(tabButtonHtml).join("")}
       </div>
       <div class="info-body">
         ${tabs.map(tabContainerHtml).join("")}
       </div>
     </div>
   `;
+}
+
+// Wie viele Zeichen das längste Wort hat: danach richtet sich die Schriftgröße des Namens
+// (ein Wort soll nie mitten im Wort umbrechen, "Landorus Incarnate" darf aber in zwei Zeilen stehen)
+function longestWordLength(name) {
+  return Math.max(...name.split(" ").map((word) => word.length));
 }
 
 // Ein Klick auf den Typ zeigt die Schwächen und Stärken, sofern es den Matchups-Tab gibt
@@ -94,8 +117,9 @@ function headerTypeHtml(typeName) {
   return `<button type="button" class="info-type" onclick="showTab('${matchupsTabName}')" title="Show type matchups">${label}</button>`;
 }
 
+// Auf schmalen Bildschirmen zeigt nur der aktive Tab seine Beschriftung, die anderen nur das Symbol
 function tabButtonHtml(tab) {
-  return /* html */ `<button type="button" class="info-tab" role="tab" data-tab="${tab.name}" onclick="showTab('${tab.name}')">${tab.label}</button>`;
+  return /* html */ `<button type="button" class="info-tab" role="tab" data-tab="${tab.name}" aria-label="${tab.label}" title="${tab.label}" onclick="showTab('${tab.name}')">${tab.icon || ""}<span class="info-tab-label">${tab.label}</span></button>`;
 }
 
 function tabContainerHtml(tab) {
@@ -131,7 +155,28 @@ async function showTab(tabName) {
   }
 }
 
-// Wechselt das Bild zwischen normal und shiny
+// Zeile unter dem Namen: "Seed Pokémon · Generation I". Kommt aus den Species-Daten, die der
+// About-Tab ohnehin lädt, und erscheint, sobald sie da sind
+async function showSpeciesSummary(pokemon) {
+  try {
+    let species = await fetchJson(pokemon.species.url);
+    let subtitle = document.getElementById("info-subtitle");
+    if (pokemon !== currentPokemon || !subtitle) return;
+    let parts = [
+      englishText(species.genera, "genus"),
+      `Generation ${species.generation.name.replace("generation-", "").toUpperCase()}`,
+    ];
+    if (species.is_legendary) parts.push("★ Legendary");
+    else if (species.is_mythical) parts.push("★ Mythical");
+    else if (species.is_baby) parts.push("Baby");
+    subtitle.textContent = parts.filter(Boolean).join(" · ");
+    subtitle.classList.add("loaded");
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Wechselt das Bild zwischen normal und shiny, mit einem kurzen Aufblitzen
 function toggleShiny() {
   let button = document.getElementById("info-shiny-button");
   let showShiny = button.getAttribute("aria-pressed") !== "true";
@@ -139,6 +184,10 @@ function toggleShiny() {
   document.getElementById("info-image").src = showShiny
     ? shinyDetailImage(currentPokemon)
     : detailImage(currentPokemon);
+  let figure = document.getElementById("info-figure");
+  figure.classList.remove("flash");
+  void figure.offsetWidth; // erzwingt, dass die Animation beim erneuten Setzen der Klasse neu startet
+  figure.classList.add("flash");
 }
 
 function playCry() {

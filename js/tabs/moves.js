@@ -1,4 +1,9 @@
-registerTab({ name: "Moves", label: "Moves", render: movesHtml });
+registerTab({
+  name: "Moves",
+  label: "Moves",
+  icon: icons.moves,
+  render: movesHtml,
+});
 
 const topMovesCount = 10;
 
@@ -16,17 +21,20 @@ function movesHtml(pokemon) {
     1,
     ...topMoves.map((move) => move.versions),
   );
-  let moveBarColor = generatePrimaryBackgroundColor(pokemon);
+  // --accent und --accent-soft sind helle Töne der Typ-Farbe, die auf dem dunklen Popup leuchten (siehe detail.css)
+  let moveBarColors = { border: "var(--accent)", fill: "var(--accent-soft)" };
   return /* html */ `
     <div class="bar-list">
       <p class="bar-caption">Top ${topMovesCount} moves by number of game versions. Click a move for details.</p>
       ${topMoves
         .map((move) =>
           expandableHtml(
-            barCellsHtml(move.name, move.versions, maximumVersionCount, {
-              border: moveBarColor,
-              fill: moveBarColor,
-            }),
+            barCellsHtml(
+              move.name,
+              move.versions,
+              maximumVersionCount,
+              moveBarColors,
+            ),
             moveDetailsHtml,
             move.id,
             "bar-row",
@@ -49,7 +57,7 @@ async function moveDetailsHtml(name) {
   return /* html */ `
     <div class="facts">
       ${typeBadgeHtml(move.type.name)}
-      ${factHtml("Category", formatName(move.damage_class.name))}
+      <span class="category category-${move.damage_class.name}">${formatName(move.damage_class.name)}</span>
       ${factHtml("Power", move.power ?? "–")}
       ${factHtml("Accuracy", move.accuracy === null ? "–" : `${move.accuracy}%`)}
       ${factHtml("PP", move.pp ?? "–")}

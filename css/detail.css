@@ -1,10 +1,13 @@
+/* ---------- Hintergrund hinter dem Popup ---------- */
 .info-container {
   display: flex;
   justify-content: center;
   align-items: center;
   position: fixed;
   z-index: 20;
-  background-color: transparent;
+  background: rgba(7, 10, 24, 0.4);
+  -webkit-backdrop-filter: blur(9px);
+  backdrop-filter: blur(9px);
   height: 100vh;
   width: 100%;
   top: 0;
@@ -12,77 +15,274 @@
   padding: 12px;
 }
 
-/* Feste Höhe, damit das Popup beim Tab-Wechsel nicht springt: nur .info-body scrollt */
+/* Das Einblenden läuft nur beim Öffnen (js/detail.js setzt first-open), nicht beim Blättern */
+.info-container.first-open {
+  animation: info-fade 0.25s ease-out both;
+}
+
+.info-container.first-open .info-card {
+  animation: info-card-in 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.12) both;
+}
+
+/* ---------- Die Karte ---------- */
+/* --primary und --secondary setzt das JS je nach Typ des Pokémon, alles andere leitet sich davon ab.
+   Nur .info-body scrollt, deshalb springt das Popup beim Tab-Wechsel nicht. */
 .info-card {
+  --name-space: 400px; /* Breite, die dem Namen im Kopf zur Verfügung steht */
+  --frame: rgb(32, 199, 246);
+  --accent: color-mix(in srgb, var(--primary) 55%, white);
+  --accent-soft: color-mix(in srgb, var(--primary) 28%, white);
+  --panel: #151b31;
+  --surface: rgba(255, 255, 255, 0.055);
+  --surface-strong: rgba(255, 255, 255, 0.09);
+  --line: rgba(255, 255, 255, 0.1);
+  --text: #eef1fb;
+  --muted: #9aa5c8;
   position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
   max-width: 700px;
   height: 87vh;
+  max-height: 900px;
   overflow: hidden;
-  color: #212529;
-  background: white;
-  border: 3px solid rgb(32, 199, 246);
-  border-radius: 16px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  background: var(--panel);
+  border: 3px solid var(--frame);
+  border-radius: 24px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    0 0 80px -12px color-mix(in srgb, var(--primary) 55%, transparent);
 }
 
-/* --primary und --secondary setzt das JS je nach Typ des Pokémon */
+/* Die Seite hat keinen globalen Button-Reset mehr. :where() gibt der Regel kein Gewicht, damit die
+   Schrift der einzelnen Knöpfe (z. B. .info-tab) sie überschreiben darf. */
+:where(.info-card button) {
+  font-family: inherit;
+}
+
+/* ---------- Kopf: Farbverlauf des Typs ---------- */
 .info-header {
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
   flex: none;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 16px 64px 18px;
+  gap: 14px;
+  padding: 14px 16px 38px;
   color: white;
-  background: var(--primary);
-  background: linear-gradient(150deg, var(--primary) 0%, var(--secondary) 100%);
+  background:
+    radial-gradient(
+      circle at 80% 46%,
+      rgba(255, 255, 255, 0.3) 0,
+      rgba(255, 255, 255, 0) 44%
+    ),
+    linear-gradient(100deg, rgba(0, 0, 0, 0.34) 0%, rgba(0, 0, 0, 0) 64%),
+    radial-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1.7px) 0 0 / 15px
+      15px,
+    linear-gradient(150deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+/* Glanzstreifen, der beim Öffnen einmal über den Kopf läuft */
+.info-container.first-open .info-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.3) 48%,
+    transparent 60%
+  );
+  transform: translateX(-130%);
+  animation: info-shine 1.1s 0.3s ease forwards;
+  pointer-events: none;
+}
+
+/* Pokéball-Wasserzeichen hinter dem Bild */
+.info-pokeball {
+  position: absolute;
+  z-index: 0;
+  right: -64px;
+  top: 30px;
+  width: 330px;
+  color: rgba(255, 255, 255, 0.16);
+  pointer-events: none;
+  animation: info-spin 90s linear infinite;
+}
+
+.info-pokeball svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.info-toolbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-nav,
+.info-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Runde Glas-Knöpfe: Blättern, Shiny, Schrei, Schließen */
+.info-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  color: white;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition:
+    scale 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.info-button svg {
+  width: 19px;
+  height: 19px;
+}
+
+.info-button:hover {
+  scale: 1.1;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.info-button:active {
+  scale: 0.95;
+}
+
+.info-button[aria-pressed="true"] {
+  color: #5a4300;
+  background: #ffe27a;
+  border-color: #fff3bf;
+  box-shadow: 0 0 20px rgba(255, 226, 122, 0.75);
+}
+
+.info-button:focus-visible,
+.info-tab:focus-visible,
+button.info-type:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+/* ---------- Name, Typen und Bild ---------- */
+.info-hero {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 10px;
+}
+
+.info-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
 }
 
 .info-title {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: baseline;
-  gap: 4px 14px;
-  text-align: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.info-number {
+  padding: 3px 12px;
+  font-family: var(--font-raleway);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
 }
 
 .info-title h1 {
   margin: 0;
-  font-size: clamp(22px, 4.5vw, 32px);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  font-family: var(--font-elsie);
+  /* Elsie ist etwa 0,54 em breit pro Zeichen: so passt das längste Wort in die freie Breite neben dem Bild */
+  font-size: clamp(24px, calc(var(--name-space) / (var(--name-length) * 0.54)), 56px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.4);
+  overflow-wrap: anywhere;
 }
 
-.info-number {
-  font-size: clamp(18px, 3.5vw, 24px);
-  font-weight: 700;
-  opacity: 0.9;
+/* "Seed Pokémon · Generation I": blendet ein, sobald die Daten da sind */
+.info-subtitle {
+  min-height: 1.5em;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.info-subtitle.loaded {
+  opacity: 0.92;
 }
 
 .info-types {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: 8px;
 }
 
 .info-type {
-  padding: 4px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 14px 5px 10px;
   color: white;
+  font-family: var(--font-raleway);
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 999px;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.info-type::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
 }
 
 button.info-type {
@@ -93,138 +293,303 @@ button.info-type {
 }
 
 button.info-type:hover {
-  background: rgba(255, 255, 255, 0.35);
-  translate: 0 -1px;
+  background: rgba(255, 255, 255, 0.3);
+  translate: 0 -2px;
+}
+
+/* Das Bild schwebt über einem Schatten am Boden, der im Takt kleiner und größer wird */
+.info-figure {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding-bottom: 12px;
 }
 
 .info-image {
-  height: clamp(110px, 22vh, 190px);
-  max-width: 100%;
+  position: relative;
+  z-index: 1;
+  display: block;
+  height: clamp(120px, 27vh, 230px);
+  width: auto;
+  max-width: min(300px, 44vw);
   object-fit: contain;
-  filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 18px 20px rgba(0, 0, 0, 0.42));
+  animation:
+    info-pop 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.3) both,
+    info-float 4.4s ease-in-out 0.7s infinite;
 }
 
-.info-tools {
+.info-figure::after {
+  content: "";
   position: absolute;
-  right: 12px;
-  bottom: 10px;
-  display: flex;
-  gap: 8px;
-}
-
-/* Runde Knöpfe: Pfeile, Schließen, Shiny, Schrei */
-.info-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border: none;
+  bottom: 2px;
+  left: 50%;
+  width: 62%;
+  height: 14px;
+  margin-left: -31%;
+  background: rgba(0, 0, 0, 0.4);
   border-radius: 50%;
-  background: #eef1f4;
-  color: #333d47;
-  font-size: 18px;
-  cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-  transition:
-    scale 0.15s ease,
-    background-color 0.15s ease,
-    box-shadow 0.15s ease;
+  filter: blur(7px);
+  animation: info-shadow 4.4s ease-in-out 0.7s infinite;
 }
 
-.info-button svg {
-  width: 18px;
-  height: 18px;
-}
-
-.info-button:hover {
-  scale: 1.15;
-  background: #dfe4e9;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.info-button[aria-pressed="true"] {
-  background: #ffe27a;
-}
-
-.info-arrow {
+/* Aufblitzen beim Umschalten auf shiny */
+.info-figure::before {
+  content: "";
   position: absolute;
-  top: 50%;
-  z-index: 1;
-  transform: translateY(-50%);
+  inset: -10%;
+  z-index: 2;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.95) 0,
+    rgba(255, 255, 255, 0) 62%
+  );
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
 }
 
-.info-arrow.left {
-  left: 12px;
+.info-figure.flash::before {
+  animation: info-flash 0.75s ease-out;
 }
 
-.info-arrow.right {
-  right: 12px;
-}
-
-.info-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1;
-}
-
+/* ---------- Tabs: Segment-Leiste am unteren Rand des Kopfes ---------- */
 .info-tabs {
-  flex: none;
+  position: relative;
+  z-index: 1;
   display: flex;
+  gap: 2px;
+  padding: 4px;
   overflow-x: auto;
-  padding: 0 8px;
-  background: white;
-  border-bottom: 1px solid #e3e6ea;
+  scrollbar-width: none;
+  background: rgba(0, 0, 0, 0.26);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.info-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .info-tab {
-  flex: 1 0 auto;
-  padding: 12px 14px;
-  color: #59626b;
-  font-size: 15px;
-  font-weight: 600;
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 9px 12px;
+  color: rgba(255, 255, 255, 0.86);
+  font-family: var(--font-raleway);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   white-space: nowrap;
-  background: none;
+  background: transparent;
   border: none;
-  border-bottom: 4px solid transparent;
+  border-radius: 999px;
   cursor: pointer;
   transition:
-    color 0.15s ease,
-    background-color 0.15s ease;
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.info-tab svg {
+  width: 17px;
+  height: 17px;
+  flex: none;
 }
 
 .info-tab:hover {
-  color: #212529;
-  background: #f4f5f7;
+  color: white;
+  background: rgba(255, 255, 255, 0.14);
 }
 
-/* Die Unterstreichung hat die Farbe des Typs, die Schrift bleibt dunkel, damit sie auf jedem Typ lesbar ist */
+/* Die aktive Tafel ist weiß mit dunkler Schrift, dadurch auf jedem Typ-Farbverlauf gut lesbar */
 .info-tab.active {
-  color: #212529;
-  font-weight: 800;
-  border-bottom-color: var(--primary);
+  color: #1a2040;
+  background: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.32);
 }
 
+/* ---------- Inhalt: dunkles Panel, das mit runder Kante über den Kopf ragt ---------- */
 .info-body {
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: 16px 20px 24px;
+  margin-top: -24px;
+  padding: 34px 20px 30px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--primary) 18%, var(--panel)) 0,
+    var(--panel) 260px
+  );
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.25);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 22px), transparent);
+  mask-image: linear-gradient(180deg, #000 calc(100% - 22px), transparent);
 }
 
+/* Die Inhalte eines Tabs steigen nacheinander auf, sobald der Tab erscheint */
+.tab-panel > * {
+  animation: tab-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.tab-panel > :nth-child(2) {
+  animation-delay: 0.06s;
+}
+
+.tab-panel > :nth-child(3) {
+  animation-delay: 0.12s;
+}
+
+.tab-panel > :nth-child(4) {
+  animation-delay: 0.18s;
+}
+
+.tab-panel > :nth-child(5) {
+  animation-delay: 0.24s;
+}
+
+.tab-panel > :nth-child(n + 6) {
+  animation-delay: 0.3s;
+}
+
+/* ---------- Animationen ---------- */
+@keyframes info-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes info-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.94);
+  }
+}
+
+@keyframes info-shine {
+  to {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes info-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes info-pop {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.6) rotate(-6deg);
+  }
+}
+
+@keyframes info-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+@keyframes info-shadow {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scaleX(0.8);
+    opacity: 0.6;
+  }
+}
+
+@keyframes info-flash {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes tab-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* ---------- Schmale Bildschirme ---------- */
 @media (max-width: 520px) {
-  .info-header {
-    padding: 14px 52px 16px;
+  .info-container {
+    padding: 8px;
   }
 
+  .info-header {
+    gap: 12px;
+    padding: 12px 12px 36px;
+  }
+
+  .info-card {
+    --name-space: 47vw;
+  }
+
+  .info-title h1 {
+    font-size: clamp(22px, calc(var(--name-space) / (var(--name-length) * 0.54)), 40px);
+  }
+
+  .info-image {
+    height: clamp(100px, 18vh, 150px);
+    max-width: 38vw;
+  }
+
+  .info-pokeball {
+    right: -70px;
+    top: 44px;
+    width: 240px;
+  }
+
+  /* Nur der aktive Tab zeigt seinen Namen, die anderen nur das Symbol */
   .info-tab {
-    padding: 10px;
-    font-size: 14px;
+    padding: 9px 8px;
+  }
+
+  .info-tab:not(.active) .info-tab-label {
+    display: none;
+  }
+
+  .info-tab.active {
+    flex: 2.6 1 0;
   }
 
   .info-body {
-    padding: 14px;
+    padding: 32px 14px 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .info-container,
+  .info-container *,
+  .info-container *::before,
+  .info-container *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
   }
 }
