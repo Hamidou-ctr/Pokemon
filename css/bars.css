@@ -1,17 +1,10 @@
-/* Balken: Verlauf von --bar-from nach --bar-to (setzt das JS), mit Leuchten und Aufwachsen */
+/* Balken: Verlauf von --bar-start-color nach --bar-end-color (setzt das JS), mit Leuchten und Aufwachsen */
 .bar-list {
   display: grid;
   align-content: start;
   row-gap: 12px;
   width: 100%;
-  color: var(--text);
-}
-
-.bar-caption {
-  margin: 0 0 4px;
-  color: var(--muted);
-  font-size: 13px;
-  text-align: center;
+  color: var(--text-color);
 }
 
 .bar-row {
@@ -23,12 +16,12 @@
 }
 
 .bar-label {
-  color: var(--muted);
+  color: var(--muted-text-color);
   font-weight: 500;
 }
 
 .bar-value {
-  color: var(--text);
+  color: var(--text-color);
   font-family: var(--font-raleway);
   font-weight: 800;
   text-align: right;
@@ -42,9 +35,9 @@
 
 .bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--bar-from), var(--bar-to));
+  background: linear-gradient(90deg, var(--bar-start-color), var(--bar-end-color));
   border-radius: 999px;
-  box-shadow: 0 0 12px color-mix(in srgb, var(--bar-from) 60%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--bar-start-color) 60%, transparent);
   animation: bar-grow 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
@@ -82,24 +75,24 @@
 }
 
 .radar-shape {
-  fill: color-mix(in srgb, var(--accent) 28%, transparent);
-  stroke: var(--accent);
+  fill: color-mix(in srgb, var(--accent-color) 28%, transparent);
+  stroke: var(--accent-color);
   stroke-width: 2;
   stroke-linejoin: round;
   transform-origin: 130px 130px;
-  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 55%, transparent));
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent-color) 55%, transparent));
   animation: radar-in 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .radar-dot {
   fill: white;
-  stroke: var(--accent);
+  stroke: var(--accent-color);
   stroke-width: 2;
   animation: radar-dot-in 0.3s 0.6s ease both;
 }
 
 .radar-label {
-  fill: var(--muted);
+  fill: var(--muted-text-color);
   font-family: var(--font-raleway);
   font-size: 10px;
   font-weight: 800;
@@ -107,7 +100,7 @@
 }
 
 .radar-value {
-  fill: var(--text);
+  fill: var(--text-color);
   font-family: var(--font-raleway);
   font-size: 13px;
   font-weight: 800;

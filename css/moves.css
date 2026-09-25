@@ -20,13 +20,13 @@
   gap: 12px;
   width: 100%;
   padding: 11px 16px;
-  color: var(--text);
+  color: var(--text-color);
   font-family: var(--font-raleway);
   font-size: 15px;
   font-weight: 700;
   text-align: left;
-  background: var(--surface-strong);
-  border: 1px solid var(--line);
+  background: var(--surface-strong-color);
+  border: 1px solid var(--border-color);
   border-radius: 14px;
   cursor: pointer;
   transition:
@@ -35,24 +35,24 @@
 }
 
 .game-button:hover {
-  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  border-color: color-mix(in srgb, var(--accent-color) 55%, var(--border-color));
 }
 
 .game-button:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-color);
   outline-offset: 2px;
 }
 
 .game-button[aria-expanded="true"] {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 25%, transparent);
 }
 
 .game-button svg {
   flex: none;
   width: 16px;
   height: 16px;
-  color: var(--muted);
+  color: var(--muted-text-color);
   transition: transform 0.2s ease;
 }
 
@@ -72,7 +72,7 @@
   padding: 8px;
   overflow-y: auto;
   list-style: none;
-  background: color-mix(in srgb, var(--primary) 10%, rgba(21, 27, 49, 0.985));
+  background: color-mix(in srgb, var(--pokemon-main-color) 10%, rgba(21, 27, 49, 0.985));
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -90,9 +90,9 @@
   display: none;
 }
 
-.game-group {
+.game-generation-heading {
   padding: 12px 12px 4px;
-  color: var(--muted);
+  color: var(--muted-text-color);
   font-family: var(--font-raleway);
   font-size: 10px;
   font-weight: 800;
@@ -100,7 +100,7 @@
   text-transform: uppercase;
 }
 
-.game-group:first-child {
+.game-generation-heading:first-child {
   padding-top: 6px;
 }
 
@@ -109,7 +109,7 @@
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  color: var(--text);
+  color: var(--text-color);
   font-weight: 600;
   border-radius: 10px;
   cursor: pointer;
@@ -128,10 +128,10 @@
   opacity: 0;
 }
 
-.game-count {
+.game-move-count {
   margin-left: auto;
   padding-left: 12px;
-  color: var(--muted);
+  color: var(--muted-text-color);
   font-family: var(--font-raleway);
   font-size: 12px;
   font-weight: 700;
@@ -141,8 +141,8 @@
 /* Das gewählte Spiel leuchtet im hellen Ton des Typs */
 .game-option[aria-selected="true"] {
   color: #1a2040;
-  background: var(--accent);
-  box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--accent) 80%, transparent);
+  background: var(--accent-color);
+  box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--accent-color) 80%, transparent);
 }
 
 .game-option[aria-selected="true"].active {
@@ -153,7 +153,7 @@
   opacity: 1;
 }
 
-.game-option[aria-selected="true"] .game-count {
+.game-option[aria-selected="true"] .game-move-count {
   color: rgba(26, 32, 64, 0.7);
 }
 
@@ -166,33 +166,33 @@
 
 /* Die Filter bleiben beim Scrollen oben stehen, damit man bei langen Listen (über 60 TMs) nicht zurückscrollen muss.
    Die Leiste reicht über die ganze Breite des Panels (negativer Rand gegen das Padding) und ist Milchglas. */
-.moves-methods {
+.learn-method-filters {
   position: sticky;
-  top: -34px; /* das obere Padding von .info-body (34px), sonst bleibt die Leiste darunter stehen */
+  top: -34px; /* das obere Padding von .detail-body (34px), sonst bleibt die Leiste darunter stehen */
   z-index: 3;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin: 0 -20px 6px;
   padding: 12px 20px;
-  background: color-mix(in srgb, var(--primary) 14%, rgba(21, 27, 49, 0.86));
+  background: color-mix(in srgb, var(--pokemon-main-color) 14%, rgba(21, 27, 49, 0.86));
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 14px -12px rgba(0, 0, 0, 0.6);
 }
 
-.moves-method {
+.learn-method-filter {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 8px 12px 8px 14px;
-  color: var(--muted);
+  color: var(--muted-text-color);
   font-family: var(--font-raleway);
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.04em;
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
   border-radius: 999px;
   cursor: pointer;
   transition:
@@ -201,25 +201,25 @@
     box-shadow 0.2s ease;
 }
 
-.moves-method:hover {
-  color: var(--text);
-  background: var(--surface-strong);
+.learn-method-filter:hover {
+  color: var(--text-color);
+  background: var(--surface-strong-color);
 }
 
-.moves-method:focus-visible {
-  outline: 2px solid var(--accent);
+.learn-method-filter:focus-visible {
+  outline: 2px solid var(--accent-color);
   outline-offset: 2px;
 }
 
 /* Der aktive Filter leuchtet im hellen Ton des Typs */
-.moves-method.active {
+.learn-method-filter.active {
   color: #1a2040;
-  background: var(--accent);
+  background: var(--accent-color);
   border-color: transparent;
-  box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--accent) 80%, transparent);
+  box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--accent-color) 80%, transparent);
 }
 
-.moves-method .count {
+.learn-method-filter .learn-method-count {
   min-width: 24px;
   padding: 1px 7px;
   font-size: 11px;
@@ -228,16 +228,16 @@
   border-radius: 999px;
 }
 
-.moves-method.active .count {
+.learn-method-filter.active .learn-method-count {
   background: rgba(0, 0, 0, 0.16);
 }
 
 /* ---------- Karten: Level, Name, Typ, Werte, Beschreibung ---------- */
 .move-card {
   padding: 12px 16px 14px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-left: 4px solid var(--line);
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--border-color);
   border-radius: 14px;
   transition:
     background-color 0.3s ease,
@@ -250,21 +250,21 @@
   background: linear-gradient(
     90deg,
     color-mix(in srgb, var(--move-color) 20%, transparent),
-    var(--surface) 62%
+    var(--surface-color) 62%
   );
 }
 
-.move-head {
+.move-heading {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
 }
 
-.move-tag {
+.move-learn-tag {
   min-width: 50px;
   padding: 3px 9px;
-  color: var(--accent);
+  color: var(--accent-color);
   font-family: var(--font-raleway);
   font-size: 12px;
   font-weight: 800;
@@ -272,8 +272,8 @@
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+  background: color-mix(in srgb, var(--accent-color) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-color) 38%, transparent);
   border-radius: 999px;
 }
 
@@ -296,15 +296,15 @@
   min-height: 24px;
 }
 
-.move-badges .pokemon-type {
+.move-badges .type-badge {
   animation: move-type-in 0.35s ease both;
 }
 
-.move-badges .pokemon-type:hover {
+.move-badges .type-badge:hover {
   transform: none;
 }
 
-.category {
+.move-category {
   padding: 4px 11px;
   font-family: var(--font-raleway);
   font-size: 11px;
@@ -317,19 +317,19 @@
   animation: move-type-in 0.35s ease both;
 }
 
-.category-physical {
+.move-category-physical {
   color: #ffb199;
   background: rgba(255, 110, 64, 0.18);
   border-color: rgba(255, 110, 64, 0.45);
 }
 
-.category-special {
+.move-category-special {
   color: #9cc8ff;
   background: rgba(63, 155, 255, 0.18);
   border-color: rgba(63, 155, 255, 0.45);
 }
 
-.category-status {
+.move-category-status {
   color: #c5cbe0;
   background: rgba(160, 170, 200, 0.16);
   border-color: rgba(160, 170, 200, 0.4);
@@ -386,7 +386,7 @@
   gap: 6px;
 }
 
-.meter-top {
+.meter-label-row {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -394,7 +394,7 @@
 }
 
 .meter-label {
-  color: var(--muted);
+  color: var(--muted-text-color);
   font-family: var(--font-raleway);
   font-size: 10px;
   font-weight: 800;
@@ -403,7 +403,7 @@
 }
 
 .meter-value {
-  color: var(--text);
+  color: var(--text-color);
   font-family: var(--font-raleway);
   font-size: 17px;
   font-weight: 800;
@@ -439,13 +439,13 @@
 }
 
 @media (max-width: 520px) {
-  .moves-methods {
-    top: -32px; /* das obere Padding von .info-body ist hier 32px */
+  .learn-method-filters {
+    top: -32px; /* das obere Padding von .detail-body ist hier 32px */
     margin-inline: -14px;
     padding-inline: 14px;
   }
 
-  .moves-method {
+  .learn-method-filter {
     padding: 7px 10px 7px 12px;
   }
 
@@ -454,7 +454,7 @@
   }
 
   /* Schmal: Typ und Kategorie rutschen in eine eigene Zeile unter Level und Name */
-  .move-head {
+  .move-heading {
     grid-template-columns: auto minmax(0, 1fr);
     gap: 8px 10px;
   }
@@ -468,7 +468,7 @@
     gap: 12px;
   }
 
-  .meter-top {
+  .meter-label-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 3px;

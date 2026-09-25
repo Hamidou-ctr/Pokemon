@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pokemon</title>
 
-    <link rel="icon" type="image/x-icon" href="image./pokemon.webp" />
+    <link rel="icon" type="image/x-icon" href="images/pokemon.webp" />
 
     <!-- Reihenfolge wichtig: spätere Regeln überschreiben frühere (utilities zuletzt) -->
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/layout.css" />
     <link rel="stylesheet" href="css/buttons.css" />
-    <link rel="stylesheet" href="css/cards.css" />
-    <link rel="stylesheet" href="css/detail.css" />
+    <link rel="stylesheet" href="css/pokemon-cards.css" />
+    <link rel="stylesheet" href="css/pokemon-detail.css" />
     <link rel="stylesheet" href="css/bars.css" />
     <link rel="stylesheet" href="css/about.css" />
     <link rel="stylesheet" href="css/evolution.css" />
@@ -22,13 +22,13 @@
 
     <!-- Reihenfolge wichtig: alles baut auf den Dateien darüber auf.
          Die Tabs erscheinen im Popup in der Reihenfolge, in der sie hier stehen. -->
-    <script defer src="js/config.js"></script>
+    <script defer src="js/configuration.js"></script>
     <script defer src="js/state.js"></script>
-    <script defer src="js/utils.js"></script>
-    <script defer src="js/api.js"></script>
+    <script defer src="js/text-and-image-helpers.js"></script>
+    <script defer src="js/data-loading.js"></script>
     <script defer src="js/components.js"></script>
-    <script defer src="js/list.js"></script>
-    <script defer src="js/detail.js"></script>
+    <script defer src="js/pokemon-list.js"></script>
+    <script defer src="js/pokemon-detail.js"></script>
     <script defer src="js/tabs/about.js"></script>
     <script defer src="js/tabs/stats.js"></script>
     <script defer src="js/tabs/evolution.js"></script>
@@ -36,20 +36,20 @@
     <script defer src="js/tabs/moves.js"></script>
   </head>
 
-  <body onload="initialize()">
+  <body onload="initializePokedex()">
     <header>
       <div class="header-content">
         <a class="header-brand" href="./" aria-label="Pokédex – Startseite">
-          <img class="pokedex-logo" src="image./pokemon.webp" alt="" />
+          <img class="pokedex-logo" src="images/pokemon.webp" alt="" />
           <span class="header-title">Pokédex</span>
         </a>
         <input
-          class="icon-search"
+          class="search-input"
           type="search"
           placeholder="Search"
           aria-label="Search Pokémon"
-          id="search"
-          oninput="startSearch()"
+          id="search-input"
+          oninput="scheduleSearch()"
         />
       </div>
     </header>
@@ -58,15 +58,15 @@
       <p class="pokedex-message hidden" id="pokedex-message" role="status"></p>
     </div>
 
-    <div class="button-div hidden" id="button-loadPokemon">
-      <button type="button" class="load-more" onclick="loadNextPokemon()">
-        <img class="load-more-icon" src="image./pokemon.webp" alt="" />
+    <div class="load-buttons hidden" id="load-buttons">
+      <button type="button" class="load-more" onclick="loadNextPokemonPage()">
+        <img class="load-more-icon" src="images/pokemon.webp" alt="" />
         <span>Mehr fangen</span>
       </button>
       <button
         type="button"
         class="load-more load-all"
-        onclick="loadAllPokemon()"
+        onclick="loadAllRemainingPokemon()"
       >
         <svg
           class="load-more-icon"
@@ -84,16 +84,16 @@
     </div>
 
     <div
-      class="info-container hidden"
-      id="info-pokemon-Container"
-      onclick="closePokemonIfBackgroundClicked(event)"
+      class="detail-overlay hidden"
+      id="detail-overlay"
+      onclick="closeDetailIfOverlayClicked(event)"
     ></div>
 
     <footer>
       <a
         target="_blank"
         rel="noopener"
-        class="datenschutzt"
+        class="footer-link"
         href="datenschutzt.html"
         >Datenschutz</a
       >
@@ -101,7 +101,7 @@
       <a
         target="_blank"
         rel="noopener"
-        class="datenschutzt"
+        class="footer-link"
         href="Impressum.html"
         >Impressum</a
       >

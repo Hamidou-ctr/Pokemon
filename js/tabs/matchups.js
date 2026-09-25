@@ -1,5 +1,5 @@
 registerTab({
-  name: matchupsTabName,
+  tabId: matchupsTabId,
   label: "Matchups",
   icon: icons.matchups,
   render: matchupsHtml,
@@ -7,62 +7,64 @@ registerTab({
 
 // Von der stärksten Schwäche bis zur Immunität; Gruppen ohne Typen werden nicht angezeigt
 const matchupGroups = [
-  { multiplier: 4, symbol: "×4", label: "Very weak to", className: "matchup-weak" },
-  { multiplier: 2, symbol: "×2", label: "Weak to", className: "matchup-weak" },
-  { multiplier: 0.5, symbol: "×½", label: "Resists", className: "matchup-resist" },
-  { multiplier: 0.25, symbol: "×¼", label: "Strongly resists", className: "matchup-resist" },
-  { multiplier: 0, symbol: "×0", label: "Immune to", className: "matchup-immune" },
+  { multiplier: 4, multiplierText: "×4", label: "Very weak to", className: "matchup-weak" },
+  { multiplier: 2, multiplierText: "×2", label: "Weak to", className: "matchup-weak" },
+  { multiplier: 0.5, multiplierText: "×½", label: "Resists", className: "matchup-resist" },
+  { multiplier: 0.25, multiplierText: "×¼", label: "Strongly resists", className: "matchup-resist" },
+  { multiplier: 0, multiplierText: "×0", label: "Immune to", className: "matchup-immune" },
 ];
 
 async function matchupsHtml(pokemon) {
-  let types = await Promise.all(
-    pokemon.types.map((entry) => fetchJson(entry.type.url)),
+  let pokemonTypes = await Promise.all(
+    pokemon.types.map((typeEntry) => fetchJsonWithCache(typeEntry.type.url)),
   );
-  let multipliers = damageMultipliers(types);
-  let groups = matchupGroups
-    .map((group) => {
-      let attackers = Object.keys(multipliers).filter(
-        (attacker) => multipliers[attacker] === group.multiplier,
+  let damageMultiplierByAttackingType = calculateDamageMultipliers(pokemonTypes);
+  let groupsHtml = matchupGroups
+    .map((matchupGroup) => {
+      let attackingTypeNames = Object.keys(damageMultiplierByAttackingType).filter(
+        (attackingTypeName) => damageMultiplierByAttackingType[attackingTypeName] === matchupGroup.multiplier,
       );
-      return attackers.length ? matchupGroupHtml(group, attackers) : "";
+      return attackingTypeNames.length ? matchupGroupHtml(matchupGroup, attackingTypeNames) : "";
     })
     .join("");
   return /* html */ `
-    <div class="matchup-list">${groups}</div>
+    <div class="matchup-list">${groupsHtml}</div>
     <p class="matchup-note">All other types deal normal damage.</p>
   `;
 }
 
 // Schaden, den jeder Angriffstyp beim Pokémon anrichtet. Bei zwei Typen werden die Faktoren
 // multipliziert: Schwäche (×2) und Resistenz (×½) heben sich auf, eine Immunität (×0) gewinnt immer.
-function damageMultipliers(types) {
-  let multipliers = {};
-  for (let attacker of Object.keys(typePokemonPrimaryBackgroundColor)) {
-    multipliers[attacker] = 1;
+function calculateDamageMultipliers(pokemonTypes) {
+  let damageMultiplierByAttackingType = {};
+  for (let attackingTypeName of allTypeNames) {
+    damageMultiplierByAttackingType[attackingTypeName] = 1;
   }
-  let relations = [
+  let damageRelationRules = [
     ["double_damage_from", 2],
     ["half_damage_from", 0.5],
     ["no_damage_from", 0],
   ];
-  for (let type of types) {
-    for (let [relation, factor] of relations) {
-      for (let attacker of type.damage_relations[relation]) {
-        if (attacker.name in multipliers) multipliers[attacker.name] *= factor;
+  for (let pokemonType of pokemonTypes) {
+    for (let [relationName, damageFactor] of damageRelationRules) {
+      for (let attackingType of pokemonType.damage_relations[relationName]) {
+        if (attackingType.name in damageMultiplierByAttackingType) {
+          damageMultiplierByAttackingType[attackingType.name] *= damageFactor;
+        }
       }
     }
   }
-  return multipliers;
+  return damageMultiplierByAttackingType;
 }
 
-function matchupGroupHtml(group, attackers) {
+function matchupGroupHtml(matchupGroup, attackingTypeNames) {
   return /* html */ `
-    <div class="matchup-group ${group.className}">
-      <div class="matchup-head">
-        <b class="matchup-multiplier">${group.symbol}</b>
-        <span>${group.label}</span>
+    <div class="matchup-group ${matchupGroup.className}">
+      <div class="matchup-heading">
+        <b class="matchup-multiplier">${matchupGroup.multiplierText}</b>
+        <span>${matchupGroup.label}</span>
       </div>
-      <div class="matchup-types">${attackers.map(typeBadgeHtml).join("")}</div>
+      <div class="matchup-types">${attackingTypeNames.map(typeBadgeHtml).join("")}</div>
     </div>
   `;
 }

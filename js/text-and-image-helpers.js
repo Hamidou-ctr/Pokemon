@@ -1,56 +1,55 @@
-function capitalize(text) {
+function capitalizeFirstLetter(text) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 // "special-attack" -> "Special Attack"
-function formatName(name) {
-  return name.split("-").map(capitalize).join(" ");
-}
-
-function formatId(id) {
-  return `${String(id)}`;
+function formatNameForDisplay(apiName) {
+  return apiName.split("-").map(capitalizeFirstLetter).join(" ");
 }
 
 // ".../pokemon-species/133/" -> 133
-function idFromUrl(url) {
+function extractIdFromUrl(url) {
   return Number(url.split("/").filter(Boolean).pop());
 }
 
-// Der letzte englische Eintrag einer Liste aus { language, <field> }, ohne Zeilenumbrüche
-function englishText(entries, field) {
-  let entry = entries.filter((item) => item.language.name === "en").at(-1);
-  return entry ? entry[field].replace(/\s+/g, " ").trim() : "";
+// Der letzte englische Eintrag einer Liste aus { language, <textFieldName> }, ohne Zeilenumbrüche
+function findLatestEnglishText(textEntries, textFieldName) {
+  let englishEntry = textEntries.filter((textEntry) => textEntry.language.name === "en").at(-1);
+  return englishEntry ? englishEntry[textFieldName].replace(/\s+/g, " ").trim() : "";
 }
 
-function generatePrimaryBackgroundColor(pokemon) {
+// Die Farben richten sich nach dem ersten Typ des Pokémon
+function getMainColorOfPokemon(pokemon) {
   return (
-    typePokemonPrimaryBackgroundColor[pokemon.types[0].type.name] ||
-    defaultTypeColor
+    mainColorByTypeName[pokemon.types[0].type.name] ||
+    fallbackTypeColor
   );
 }
 
-function generateSecondaryBackgroundColor(pokemon) {
+function getGradientEndColorOfPokemon(pokemon) {
   return (
-    typePokemonSecondaryBackgroundColor[pokemon.types[0].type.name] ||
-    defaultTypeColor
+    gradientEndColorByTypeName[pokemon.types[0].type.name] ||
+    fallbackTypeColor
   );
 }
 
-function listImage(pokemon) {
+// Kleines, animiertes Bild für die Karten der Übersicht
+function getListSpriteUrl(pokemon) {
   let sprites = pokemon.sprites;
   return sprites.other.showdown.front_default || sprites.front_default;
 }
 
-function listShinyImage(pokemon) {
+function getShinyListSpriteUrl(pokemon) {
   let sprites = pokemon.sprites;
   return (
     sprites.other.showdown.front_shiny ||
     sprites.front_shiny ||
-    listImage(pokemon)
+    getListSpriteUrl(pokemon)
   );
 }
 
-function detailImage(pokemon) {
+// Großes Bild für das Popup
+function getDetailImageUrl(pokemon) {
   let sprites = pokemon.sprites;
   return (
     sprites.other.dream_world.front_default ||
@@ -60,7 +59,7 @@ function detailImage(pokemon) {
 }
 
 // null, wenn es für dieses Pokémon kein Shiny-Bild gibt
-function shinyDetailImage(pokemon) {
+function getShinyDetailImageUrl(pokemon) {
   let sprites = pokemon.sprites;
   return sprites.other["official-artwork"].front_shiny || sprites.front_shiny;
 }

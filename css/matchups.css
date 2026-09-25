@@ -5,8 +5,8 @@
   gap: 10px 16px;
   margin-bottom: 8px;
   padding: 12px 14px;
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
   border-left: 4px solid var(--group-color);
   border-radius: 14px;
 }
@@ -23,12 +23,12 @@
   --group-color: #8b95b8;
 }
 
-.matchup-head {
+.matchup-heading {
   display: flex;
   align-items: center;
   flex: 0 0 168px;
   gap: 10px;
-  color: var(--text);
+  color: var(--text-color);
   font-weight: 600;
 }
 
@@ -50,13 +50,13 @@
   gap: 6px;
 }
 
-.matchup-types .pokemon-type:hover {
+.matchup-types .type-badge:hover {
   transform: none;
 }
 
 .matchup-note {
   margin: 14px 0 0;
-  color: var(--muted);
+  color: var(--muted-text-color);
   font-size: 13px;
   text-align: center;
 }

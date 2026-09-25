@@ -1,12 +1,12 @@
 // HTML-Bausteine, die mehrere Tabs gemeinsam nutzen
 
 // Der Balken selbst: eine Spur mit dem gefüllten Anteil. barColors sind zwei beliebige
-// CSS-Farben, der Balken läuft von border nach fill.
+// CSS-Farben, der Balken läuft als Farbverlauf von startColor nach endColor.
 function barTrackHtml(value, maximumValue, barColors) {
-  let percent = Math.min(100, (value / maximumValue) * 100).toFixed(1);
+  let filledPercent = Math.min(100, (value / maximumValue) * 100).toFixed(1);
   return /* html */ `
     <div class="bar-track">
-      <div class="bar-fill" style="width: ${percent}%; --bar-from: ${barColors.border}; --bar-to: ${barColors.fill};"></div>
+      <div class="bar-fill" style="width: ${filledPercent}%; --bar-start-color: ${barColors.startColor}; --bar-end-color: ${barColors.endColor};"></div>
     </div>
   `;
 }
@@ -27,11 +27,11 @@ function barRowHtml(label, value, maximumValue, barColors) {
 }
 
 function typeBadgeHtml(typeName) {
-  let color = typePokemonPrimaryBackgroundColor[typeName] || defaultTypeColor;
-  return `<span class="pokemon-type" style="--type-color: ${color};">${formatName(typeName)}</span>`;
+  let typeColor = mainColorByTypeName[typeName] || fallbackTypeColor;
+  return `<span class="type-badge" style="--type-color: ${typeColor};">${formatNameForDisplay(typeName)}</span>`;
 }
 
 // Statusmeldung ("Loading...", Fehler) für einen Tab
-function tabMessageHtml(text) {
-  return `<p class="tab-message">${text}</p>`;
+function tabMessageHtml(messageText) {
+  return `<p class="tab-message">${messageText}</p>`;
 }

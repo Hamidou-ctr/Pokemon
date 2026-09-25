@@ -1,8 +1,8 @@
-.all-pokemon-div {
+.pokemon-card-wrapper {
   display: flex;
 }
 
-.all-pokemon {
+.pokemon-card {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -13,14 +13,14 @@
   border-radius: 22px;
   padding: 20px 20px 18px;
   cursor: pointer;
-  background: var(--primary);
-  background: linear-gradient(150deg, var(--primary) 0%, var(--secondary) 100%);
+  background: var(--pokemon-main-color);
+  background: linear-gradient(150deg, var(--pokemon-main-color) 0%, var(--pokemon-gradient-end-color) 100%);
   box-shadow:
     0 12px 24px -10px rgba(0, 0, 0, 0.35),
     0 2px 6px rgba(0, 0, 0, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
   box-shadow:
-    0 12px 24px -10px color-mix(in srgb, var(--primary) 55%, transparent),
+    0 12px 24px -10px color-mix(in srgb, var(--pokemon-main-color) 55%, transparent),
     0 2px 6px rgba(0, 0, 0, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
   transition:
@@ -29,7 +29,7 @@
 }
 
 /* Glanz-Streifen, der beim Hover über die Karte läuft */
-.all-pokemon::after {
+.pokemon-card::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -45,27 +45,27 @@
   z-index: 3;
 }
 
-.all-pokemon:hover {
+.pokemon-card:hover {
   transform: translateY(-10px) scale(1.035);
   box-shadow:
     0 26px 38px -14px rgba(0, 0, 0, 0.4),
     0 10px 14px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   box-shadow:
-    0 26px 38px -14px color-mix(in srgb, var(--primary) 65%, transparent),
+    0 26px 38px -14px color-mix(in srgb, var(--pokemon-main-color) 65%, transparent),
     0 10px 14px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
-.all-pokemon:hover::before {
+.pokemon-card:hover::before {
   transform: rotate(20deg) scale(1.08);
 }
 
-.all-pokemon:hover::after {
+.pokemon-card:hover::after {
   transform: translateX(130%);
 }
 
-.name-and-id-div {
+.pokemon-card-heading {
   position: relative;
   z-index: 2;
   display: flex;
@@ -74,7 +74,7 @@
   gap: 10px;
 }
 
-.pokemon-name {
+.pokemon-card-name {
   margin: 0;
   font-family: var(--font-elsie);
   font-size: 32px;
@@ -84,7 +84,7 @@
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
-.pokemon-id {
+.pokemon-card-number {
   flex-shrink: 0;
   font-size: 18px;
   font-weight: 700;
@@ -96,7 +96,7 @@
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3);
 }
 
-.pokemon-sprite {
+.pokemon-card-sprite {
   position: absolute;
   width: 92px;
   height: 92px;
@@ -107,19 +107,19 @@
     opacity 0.5s ease;
 }
 
-.pokemon-sprite-shiny {
+.pokemon-card-sprite-shiny {
   opacity: 0;
 }
 
-.all-pokemon:hover .pokemon-sprite-default {
+.pokemon-card:hover .pokemon-card-sprite-default {
   opacity: 0;
 }
 
-.all-pokemon:hover .pokemon-sprite-shiny {
+.pokemon-card:hover .pokemon-card-sprite-shiny {
   opacity: 1;
 }
 
-.all-pokemon:hover .pokemon-sprite {
+.pokemon-card:hover .pokemon-card-sprite {
   transform: scale(1.16);
 }
 
@@ -138,12 +138,12 @@
   pointer-events: none;
 }
 
-.all-pokemon:hover .shiny-badge {
+.pokemon-card:hover .shiny-badge {
   opacity: 1;
   transform: scale(1) rotate(0deg);
 }
 
-.pokemon-type-and-image-div {
+.pokemon-card-types-and-image {
   position: relative;
   z-index: 2;
   display: flex;
@@ -153,14 +153,14 @@
   gap: 12px;
 }
 
-.pokemon-type-div {
+.pokemon-card-types {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 7px;
 }
 
-.pokemon-type {
+.type-badge {
   margin: 0;
   padding: 5px 13px;
   border-radius: 999px;
@@ -178,11 +178,11 @@
   transition: transform 0.25s ease;
 }
 
-.pokemon-type:hover {
+.type-badge:hover {
   transform: translateX(4px) scale(1.06);
 }
 
-.pokemon-image-wrap {
+.pokemon-card-image-wrapper {
   position: relative;
   display: flex;
   align-items: center;
@@ -190,10 +190,10 @@
   width: 104px;
   height: 104px;
   flex-shrink: 0;
-  animation: pokemon-float 3.4s ease-in-out infinite;
+  animation: pokemon-card-float 3.4s ease-in-out infinite;
 }
 
-.pokemon-image-wrap::before {
+.pokemon-card-image-wrapper::before {
   content: "";
   position: absolute;
   inset: 2px;
@@ -206,7 +206,7 @@
   );
 }
 
-@keyframes pokemon-float {
+@keyframes pokemon-card-float {
   0%,
   100% {
     transform: translateY(0);

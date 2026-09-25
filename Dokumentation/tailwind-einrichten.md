@@ -116,7 +116,7 @@ Jetzt einfach Tailwind-Klassen in `index.html` verwenden, z. B.:
 
 ```html
 <header class="flex items-center justify-between gap-4 bg-gray-900 p-4">
-  <img class="pokedex-logo h-12 w-12" src="image./pokemon.webp" alt="Pokémon">
+  <img class="pokedex-logo h-12 w-12" src="images/pokemon.webp" alt="Pokémon">
   <input
     class="icon-search rounded-full border border-gray-300 px-4 py-2"
     type="search" placeholder="Search" aria-label="Search Pokémon" id="search"

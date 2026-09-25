@@ -62,14 +62,14 @@ header {
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.28);
 }
 
-.icon-search {
+.search-input {
   flex: 1 1 auto;
   width: 100%;
   max-width: 380px;
   height: 42px;
   padding: 0 16px 0 44px;
   color: #212529;
-  background: white url("../image./search.svg") no-repeat 15px center / 18px;
+  background: white url("../images/search.svg") no-repeat 15px center / 18px;
   border: 2px solid transparent;
   border-radius: 999px;
   outline: none;
@@ -83,11 +83,11 @@ header {
     box-shadow 0.2s ease;
 }
 
-.icon-search::placeholder {
+.search-input::placeholder {
   color: #7a7f85;
 }
 
-.icon-search:focus {
+.search-input:focus {
   border-color: #ffcb05;
   box-shadow:
     0 0 0 4px rgba(255, 203, 5, 0.45),
@@ -129,7 +129,7 @@ header {
   margin: 76px auto 0;
 }
 
-.pokedex-opacity {
+.pokedex-dimmed {
   opacity: 0.2;
   pointer-events: none;
 }
@@ -161,12 +161,12 @@ footer {
   color: #f1f3f9; /* statt #212529, sonst ist Text auf Dunkel unlesbar */
 }
 
-.datenschutzt {
+.footer-link {
   color: white;
   text-decoration: none;
 }
 
-.datenschutzt:hover {
+.footer-link:hover {
   font-size: 24px;
   text-decoration: underline;
 }
