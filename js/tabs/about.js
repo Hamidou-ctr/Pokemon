@@ -6,9 +6,14 @@ registerTab({
 });
 
 async function aboutHtml(pokemon) {
-  let [species, encounters] = await Promise.all([
+  let [species, encounters, abilities] = await Promise.all([
     fetchJson(pokemon.species.url),
     fetchJson(pokemon.location_area_encounters),
+    // Die Fähigkeiten stehen offen da, ihre Texte kommen deshalb gleich mit. Fehlt einer, zeigt seine Karte
+    // nur den Namen, der Rest des Tabs bleibt heil.
+    Promise.all(
+      pokemon.abilities.map((entry) => fetchJson(entry.ability.url).catch(() => null)),
+    ),
   ]);
   // Die Spieltexte schreiben den Namen der Reihe in Großbuchstaben
   let description = englishText(species.flavor_text_entries, "flavor_text")
@@ -30,8 +35,8 @@ async function aboutHtml(pokemon) {
       ${tileHtml("Egg Groups", chipsHtml(eggGroups))}
     </div>
     <h3 class="info-section-title">Abilities</h3>
-    <div class="expandable-list">
-      ${pokemon.abilities.map(abilityHtml).join("")}
+    <div class="card-list">
+      ${pokemon.abilities.map((entry, index) => abilityHtml(entry, abilities[index])).join("")}
     </div>
     <h3 class="info-section-title">Locations</h3>
     ${chipsHtml(locations.length ? locations : ["Unknown"], "chip-list-scroll")}
@@ -71,20 +76,17 @@ function genderTileHtml(genderRate) {
   );
 }
 
-function abilityHtml(entry) {
+function abilityHtml(entry, ability) {
   let hiddenTag = entry.is_hidden ? `<span class="tag">Hidden</span>` : "";
-  return expandableHtml(
-    `${formatName(entry.ability.name)}${hiddenTag}`,
-    abilityDetailsHtml,
-    entry.ability.name,
-  );
-}
-
-async function abilityDetailsHtml(name) {
-  let ability = await fetchJson(`${baseUrl}/ability/${name}`);
   let description =
-    englishText(ability.effect_entries, "short_effect") ||
-    englishText(ability.flavor_text_entries, "flavor_text") ||
+    (ability &&
+      (englishText(ability.effect_entries, "short_effect") ||
+        englishText(ability.flavor_text_entries, "flavor_text"))) ||
     "No description available.";
-  return `<p>${description}</p>`;
+  return /* html */ `
+    <article class="ability-card">
+      <h4 class="ability-name">${formatName(entry.ability.name)}${hiddenTag}</h4>
+      <p class="ability-description">${description}</p>
+    </article>
+  `;
 }

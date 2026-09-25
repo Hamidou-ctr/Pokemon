@@ -3,7 +3,7 @@ registerTab({
   label: "Moves",
   icon: icons.moves,
   render: movesHtml,
-  afterRender: observeMoveRows,
+  afterRender: observeMoveCards,
 });
 
 // Alle Spielversionen in der Reihenfolge ihres Erscheinens, mit Anzeigenamen. Die IDs der API taugen
@@ -66,7 +66,7 @@ const moveMeterColors = {
 
 let learnset = []; // Spielversionen des angezeigten Pokémon, neueste zuerst: { name, methods: { key: [move] } }
 let movesView = { game: "", method: "" }; // aktuelle Auswahl, wird bei jedem Pokémon neu gesetzt
-let moveRowObserver; // lädt den Typ einer Zeile erst nach, wenn sie ins Bild scrollt
+let moveCardObserver; // lädt die Details einer Karte erst nach, wenn sie fast im Bild ist
 
 function movesHtml(pokemon) {
   learnset = buildLearnset(pokemon);
@@ -148,21 +148,27 @@ function movesViewHtml() {
         })
         .join("")}
     </div>
-    <div class="expandable-list" id="moves-list">
-      ${moves.map((move) => moveRowHtml(move, method)).join("")}
+    <div class="card-list" id="moves-list">
+      ${moves.map((move) => moveCardHtml(move, method)).join("")}
     </div>
   `;
 }
 
-// Eine Zeile: Level (oder Lernart), Name und Platz für den Typ, der später nachgeladen wird
-function moveRowHtml(move, method) {
-  return expandableHtml(
-    `<span class="move-tag">${method.tag(move)}</span><span class="move-name">${move.name}</span><span class="move-type-slot"></span>`,
-    moveDetailsHtml,
-    move.id,
-    "move-summary",
-    "move-row",
-  );
+// Eine Karte: Level (oder Lernart) und Name stehen sofort da. (Kein <header>-Element für die Kopfzeile:
+// layout.css gibt jedem <header> der Seite den Stil des roten Seitenkopfes.) Alles Weitere (Typ, Kategorie, Werte,
+// Beschreibung) kommt aus dem Netz, sobald die Karte fast im Bild ist. Der Platzhalter hat schon
+// ungefähr die Höhe des fertigen Inhalts, damit beim Nachladen nichts springt.
+function moveCardHtml(move, method) {
+  return /* html */ `
+    <article class="move-card" data-name="${move.id}">
+      <div class="move-head">
+        <span class="move-tag">${method.tag(move)}</span>
+        <h4 class="move-name">${move.name}</h4>
+        <span class="move-badges"></span>
+      </div>
+      <div class="move-body"></div>
+    </article>
+  `;
 }
 
 function selectMovesGame(name) {
@@ -177,49 +183,52 @@ function selectMovesMethod(key) {
 
 function renderMovesView() {
   document.getElementById("moves-view").innerHTML = movesViewHtml();
-  observeMoveRows();
+  observeMoveCards();
 }
 
-// Lädt Typ und Power einer Zeile erst, wenn sie fast im Bild ist: bei über hundert Attacken
-// wären das sonst über hundert Anfragen auf einmal
-function observeMoveRows() {
-  if (moveRowObserver) moveRowObserver.disconnect();
-  moveRowObserver = new IntersectionObserver(
+// Lädt die Details einer Karte erst, wenn sie fast im Bild ist: bei über hundert Attacken
+// wären das sonst über hundert Anfragen auf einmal. Der Vorlauf ist großzügig, damit beim
+// Scrollen kaum Platzhalter zu sehen sind.
+function observeMoveCards() {
+  if (moveCardObserver) moveCardObserver.disconnect();
+  moveCardObserver = new IntersectionObserver(
     (entries) => {
       for (let entry of entries) {
         if (!entry.isIntersecting) continue;
-        moveRowObserver.unobserve(entry.target);
-        fillMoveRow(entry.target);
+        moveCardObserver.unobserve(entry.target);
+        fillMoveCard(entry.target);
       }
     },
-    { root: document.querySelector(".info-body"), rootMargin: "240px 0px" },
+    { root: document.querySelector(".info-body"), rootMargin: "600px 0px" },
   );
   document
-    .querySelectorAll("#moves-list .move-row")
-    .forEach((row) => moveRowObserver.observe(row));
+    .querySelectorAll("#moves-list .move-card")
+    .forEach((card) => moveCardObserver.observe(card));
 }
 
-// Die Zeile färbt sich in der Farbe des Typs
-async function fillMoveRow(row) {
-  let slot = row.querySelector(".move-type-slot");
+// Die Karte färbt sich in der Farbe des Attacken-Typs
+async function fillMoveCard(card) {
   try {
-    let move = await fetchJson(`${baseUrl}/move/${row.dataset.name}`);
-    if (!row.isConnected) return; // inzwischen ist eine andere Liste oder ein anderes Pokémon zu sehen
-    row.style.setProperty(
+    let move = await fetchJson(`${baseUrl}/move/${card.dataset.name}`);
+    if (!card.isConnected) return; // inzwischen ist eine andere Liste oder ein anderes Pokémon zu sehen
+    card.style.setProperty(
       "--move-color",
       typePokemonPrimaryBackgroundColor[move.type.name] || defaultTypeColor,
     );
-    let power = move.power ? `<span class="move-power" title="Power">${move.power}</span>` : "";
-    slot.innerHTML = `${power}${typeBadgeHtml(move.type.name)}`;
-    row.classList.add("typed");
+    card.querySelector(".move-badges").innerHTML =
+      `${typeBadgeHtml(move.type.name)}<span class="category category-${move.damage_class.name}">${formatName(move.damage_class.name)}</span>`;
+    card.querySelector(".move-body").innerHTML = moveBodyHtml(move);
+    card.classList.add("loaded");
   } catch (error) {
     console.error(error);
-    slot.classList.add("failed"); // nimmt nur den Platzhalter weg, die Zeile bleibt benutzbar
+    card.classList.add("failed"); // nimmt die Platzhalter weg, Level und Name bleiben stehen
+    card.querySelector(".move-body").innerHTML =
+      `<p class="move-description">The details could not be loaded.</p>`;
   }
 }
 
-async function moveDetailsHtml(name) {
-  let move = await fetchJson(`${baseUrl}/move/${name}`);
+// Power, Genauigkeit und AP als drei Balken nebeneinander, darunter die Beschreibung
+function moveBodyHtml(move) {
   let effect =
     englishText(move.effect_entries, "short_effect").replaceAll(
       "$effect_chance",
@@ -228,16 +237,12 @@ async function moveDetailsHtml(name) {
     englishText(move.flavor_text_entries, "flavor_text") ||
     "No description available.";
   return /* html */ `
-    <div class="facts">
-      ${typeBadgeHtml(move.type.name)}
-      <span class="category category-${move.damage_class.name}">${formatName(move.damage_class.name)}</span>
-    </div>
-    <div class="bar-list move-meters">
+    <div class="move-meters">
       ${moveMeterHtml("Power", move.power, maximumMovePower)}
       ${moveMeterHtml("Accuracy", move.accuracy, maximumMoveAccuracy, "%")}
       ${moveMeterHtml("PP", move.pp, maximumMovePp)}
     </div>
-    <p>${effect}</p>
+    <p class="move-description">${effect}</p>
   `;
 }
 
@@ -245,6 +250,12 @@ async function moveDetailsHtml(name) {
 function moveMeterHtml(label, value, maximum, suffix = "") {
   let hasValue = value !== null && value !== undefined;
   return /* html */ `
-    <div class="bar-row">${barCellsHtml(label, hasValue ? value : 0, maximum, moveMeterColors, hasValue ? `${value}${suffix}` : "–")}</div>
+    <div class="meter">
+      <div class="meter-top">
+        <span class="meter-label">${label}</span>
+        <span class="meter-value">${hasValue ? `${value}${suffix}` : "–"}</span>
+      </div>
+      ${barTrackHtml(hasValue ? value : 0, maximum, moveMeterColors)}
+    </div>
   `;
 }

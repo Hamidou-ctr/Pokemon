@@ -182,3 +182,37 @@
     font-size: 17px;
   }
 }
+
+/* Karten-Listen (Fähigkeiten, Attacken) */
+.card-list {
+  display: grid;
+  gap: 8px;
+}
+
+.ability-card {
+  padding: 14px 16px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 12%, transparent),
+    var(--surface) 65%
+  );
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 14px;
+}
+
+.ability-name {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  font-family: var(--font-raleway);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ability-description {
+  margin: 6px 0 0;
+  color: #c9d1ea;
+  font-size: 14px;
+  line-height: 1.55;
+}
