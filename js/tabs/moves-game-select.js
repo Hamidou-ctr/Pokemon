@@ -1,14 +1,14 @@
-// Die Spiel-Auswahl im Moves-Tab (Teil von moves.js, dort stehen learnsetPerGame und movesSelection).
-// Eine eigene Liste statt <select>: die Liste des Browsers zeichnet das Betriebssystem, sie lässt sich nicht
-// gestalten. Der Knopf behält den Fokus, die Liste folgt dem Muster "Listbox mit aria-activedescendant".
+// The game selection in the Moves tab (part of moves.js, which holds learnsetPerGame and movesSelection).
+// A custom list instead of <select>: the browser's list is drawn by the operating system and cannot be
+// styled. The button keeps the focus; the list follows the "listbox with aria-activedescendant" pattern.
 
-// Höhe der aufgeklappten Liste in Pixeln: sie passt sich dem freien Platz an, bleibt aber in diesem Rahmen
+// Height of the opened list in pixels: it adapts to the free space but stays within this range
 const minimumGameListHeight = 180;
 const maximumGameListHeight = 340;
-const gameListBottomMargin = 24; // so viel Abstand bleibt zwischen Liste und Rand des Popups
-const gameOptionScrollMargin = 8; // so viel Abstand bleibt beim Ins-Bild-Scrollen einer Option
+const gameListBottomMargin = 24; // this much space remains between the list and the edge of the popup
+const gameOptionScrollMargin = 8; // this much space remains when scrolling an option into view
 
-// ---------- Aufbau ----------
+// ---------- Structure ----------
 
 function gameSelectHtml(selectedGame) {
   return /* html */ `
@@ -29,7 +29,7 @@ function gameButtonHtml(selectedGame) {
   `;
 }
 
-// Die Spiele stehen nach Generation gruppiert, neueste zuerst; bei jedem steht, wie viele Attacken es dort gibt
+// The games are grouped by generation, newest first; each one shows how many moves there are
 function gameListItemsHtml(selectedGame) {
   return learnsetPerGame
     .map((game, index) => gameListItemHtml(game, index, selectedGame))
@@ -66,7 +66,7 @@ function countMovesOfGame(game) {
   return Object.values(game.movesByLearnMethod).reduce((sum, movesOfLearnMethod) => sum + movesOfLearnMethod.length, 0);
 }
 
-// ---------- Öffnen und Schließen ----------
+// ---------- Opening and closing ----------
 
 function getGameOptionElements() {
   return Array.from(document.querySelectorAll("#game-list .game-option"));
@@ -95,11 +95,11 @@ function openGameList() {
 function markGameButtonExpanded() {
   let gameButton = document.querySelector(".game-button");
   gameButton.setAttribute("aria-expanded", "true");
-  gameButton.focus(); // Safari fokussiert Knöpfe beim Mausklick nicht, ohne Fokus kämen die Pfeiltasten nicht an
+  gameButton.focus(); // Safari doesn't focus buttons on mouse click; without focus the arrow keys wouldn't arrive
 }
 
-// Die Liste bekommt nur so viel Höhe, wie unter dem Knopf im sichtbaren Bereich frei ist,
-// damit sie nicht über den Rand des Panels ragt und das Panel nicht mitgeschoben werden muss
+// The list only gets as much height as is free below the button in the visible area,
+// so that it doesn't stick out past the edge of the panel and the panel doesn't have to be pushed along
 function measureFreeSpaceBelowGameButton(gameListElement) {
   let bottomOfPanel = document.querySelector(".detail-body").getBoundingClientRect().bottom;
   return bottomOfPanel - gameListElement.getBoundingClientRect().top - gameListBottomMargin;
@@ -109,14 +109,14 @@ function limitGameListHeight(freeSpaceBelowButton) {
   return Math.max(minimumGameListHeight, Math.min(maximumGameListHeight, freeSpaceBelowButton));
 }
 
-// Hebt das gewählte Spiel hervor und rückt es in die Mitte der Liste
+// Highlights the selected game and moves it to the middle of the list
 function centerSelectedGameOption(gameListElement) {
   let selectedOption = gameListElement.querySelector('[aria-selected="true"]');
   setActiveGameOption(selectedOption);
   gameListElement.scrollTop = selectedOption.offsetTop - (gameListElement.clientHeight - selectedOption.offsetHeight) / 2;
 }
 
-// Ist der Knopf ganz unten, muss das Panel nachrücken
+// If the button is at the very bottom, the panel has to scroll along
 function scrollGameListIntoView(gameListElement) {
   gameListElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
@@ -130,14 +130,14 @@ function closeGameList() {
   gameButton.removeAttribute("aria-activedescendant");
 }
 
-// Ein Klick außerhalb schließt die Liste
+// A click outside closes the list
 function closeGameListIfClickedOutside(clickEvent) {
   if (isGameListOpen() && !clickEvent.target.closest(".game-select")) closeGameList();
 }
 
-// ---------- Hervorgehobene Option (Maus oder Pfeiltasten) ----------
+// ---------- Highlighted option (mouse or arrow keys) ----------
 
-// Hebt eine Option hervor und scrollt sie bei Bedarf in der Liste ins Bild
+// Highlights an option and scrolls it into view in the list if needed
 function setActiveGameOption(optionElement) {
   getGameOptionElements().forEach((gameOption) => gameOption.classList.toggle("active", gameOption === optionElement));
   document.querySelector(".game-button").setAttribute("aria-activedescendant", optionElement.id);
@@ -164,7 +164,7 @@ function getNeighbourGameOption(stepDirection) {
   return gameOptionElements[(activeOptionIndex + stepDirection + gameOptionElements.length) % gameOptionElements.length];
 }
 
-// ---------- Auswahl ----------
+// ---------- Selection ----------
 
 function selectGame(versionGroupName) {
   movesSelection.versionGroupName = versionGroupName;
@@ -182,10 +182,10 @@ function showSelectedGameInSelect(versionGroupName) {
   );
 }
 
-// ---------- Tastatur ----------
+// ---------- Keyboard ----------
 
-// Bei offener Liste gehören Esc und die Pfeiltasten der Liste: stopPropagation hält sie vom
-// Popup fern, das sonst bei Esc schließen und bei links/rechts das Pokémon wechseln würde
+// While the list is open, Esc and the arrow keys belong to the list: stopPropagation keeps them away
+// from the popup, which would otherwise close on Esc and switch the Pokémon on left/right
 const gameSelectKeyHandlers = new Map([
   ["ArrowDown", moveHighlightWithArrowKey],
   ["ArrowUp", moveHighlightWithArrowKey],
@@ -224,13 +224,13 @@ function moveHighlightToEdge(keyEvent) {
 }
 
 function chooseHighlightedGame(keyEvent) {
-  if (!isGameListOpen()) return; // bei geschlossener Liste öffnet der Klick sie
+  if (!isGameListOpen()) return; // when the list is closed, the click opens it
   keepKeyAwayFromPopup(keyEvent);
   selectGame(findActiveGameOption().dataset.game);
 }
 
 function closeGameListWithEscape(keyEvent) {
-  if (!isGameListOpen()) return; // dann darf das Popup schließen
+  if (!isGameListOpen()) return; // then the popup may close
   keepKeyAwayFromPopup(keyEvent);
   closeGameList();
 }

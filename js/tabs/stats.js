@@ -5,10 +5,10 @@ registerTab({
   render: baseStatisticsHtml,
 });
 
-const maximumStatisticValue = 255; // bei diesem Wert ist der Balken einer Statistik voll
-const maximumTotalValue = 780; // bei diesem Wert ist der Total-Balken voll
+const maximumStatisticValue = 255; // at this value the bar of a statistic is full
+const maximumTotalValue = 780; // at this value the total bar is full
 
-// Farbverlauf je Balken (von startColor nach endColor): erst die sechs Statistiken, zuletzt die Summe (Total)
+// Gradient per bar (from startColor to endColor): first the six statistics, last the sum (total)
 const statisticBarColors = [
   { startColor: "#ff5c7c", endColor: "#ff9db1" }, // hp
   { startColor: "#ff9147", endColor: "#ffc08a" }, // attack
@@ -19,7 +19,7 @@ const statisticBarColors = [
   { startColor: "#ff5a1f", endColor: "#ffb08a" }, // total
 ];
 
-// Kurzformen für die Ecken des Radar-Diagramms, wie in den Spielen
+// Abbreviations for the corners of the radar chart, as in the games
 const radarCornerLabels = {
   hp: "HP",
   attack: "ATK",
@@ -28,15 +28,15 @@ const radarCornerLabels = {
   "special-defense": "SpD",
   speed: "SPE",
 };
-const radarViewBoxSize = 260; // Kantenlänge des SVG (viewBox), das Diagramm liegt mittig darin
+const radarViewBoxSize = 260; // edge length of the SVG (viewBox); the chart sits centered in it
 const radarCenterCoordinate = radarViewBoxSize / 2;
-const radarOuterRadius = 88; // Abstand vom Mittelpunkt bis zur äußersten Linie
-const radarMaximumValue = 150; // ab diesem Wert reicht das Diagramm bis zum Rand; typische Werte liegen bei 40-120
-const radarRingDistanceRatios = [0.25, 0.5, 0.75, 1]; // die Hilfslinien, jeweils als Anteil des Wegs zum Rand
-const radarCornerCount = 6; // eine Ecke pro Statistik
+const radarOuterRadius = 88; // distance from the center to the outermost line
+const radarMaximumValue = 150; // from this value on the chart reaches the edge; typical values are 40-120
+const radarRingDistanceRatios = [0.25, 0.5, 0.75, 1]; // the guide rings, each as a fraction of the way to the edge
+const radarCornerCount = 6; // one corner per statistic
 const radarAngleBetweenCornersInDegrees = 360 / radarCornerCount;
 
-// ---------- Balken ----------
+// ---------- Bars ----------
 
 function baseStatisticsHtml(pokemon) {
   let statistics = pokemon.stats.map(toStatistic);
@@ -67,14 +67,14 @@ function statisticBarRowHtml(barEntry, index) {
   return barRowHtml(barEntry.displayName, barEntry.value, barEntry.maximumValue, statisticBarColors[index]);
 }
 
-// ---------- Radar-Diagramm: Geometrie ----------
+// ---------- Radar chart: geometry ----------
 
-// Winkel einer Ecke des Sechsecks: Ecke 0 oben (HP), dann im Uhrzeigersinn
+// Angle of a corner of the hexagon: corner 0 at the top (HP), then clockwise
 function radarCornerAngleInRadians(cornerIndex) {
   return ((-90 + cornerIndex * radarAngleBetweenCornersInDegrees) * Math.PI) / 180;
 }
 
-// Punkt auf dem Sechseck; distanceRatio 1 ist der äußere Rand, 0 die Mitte
+// Point on the hexagon; distanceRatio 1 is the outer edge, 0 the center
 function radarPointCoordinates(cornerIndex, distanceRatio) {
   let angleInRadians = radarCornerAngleInRadians(cornerIndex);
   return [
@@ -83,7 +83,7 @@ function radarPointCoordinates(cornerIndex, distanceRatio) {
   ];
 }
 
-// Ein Wert pro Ecke, jeweils als Anteil (0 bis 1) des Wegs von der Mitte zum Rand
+// One value per corner, each as a fraction (0 to 1) of the way from the center to the edge
 function radarPolygonPoints(distanceRatios) {
   return distanceRatios
     .map((distanceRatio, cornerIndex) =>
@@ -92,7 +92,7 @@ function radarPolygonPoints(distanceRatios) {
     .join(" ");
 }
 
-// ---------- Radar-Diagramm: Zeichnung ----------
+// ---------- Radar chart: drawing ----------
 
 function radarChartHtml(statistics) {
   let distanceRatios = statistics.map((statistic) => Math.min(1, statistic.value / radarMaximumValue));
@@ -134,7 +134,7 @@ function radarLabelsHtml(statistics) {
   return statistics.map(radarLabelHtml).join("");
 }
 
-// Name und Wert der Statistik neben der Ecke
+// Name and value of the statistic next to the corner
 function radarLabelHtml(statistic, cornerIndex) {
   let [labelX, labelY] = radarPointCoordinates(cornerIndex, 1.28);
   let textAnchor = radarTextAnchor(cornerIndex);
@@ -144,7 +144,7 @@ function radarLabelHtml(statistic, cornerIndex) {
   `;
 }
 
-// Rechts der Mitte steht der Text rechts von der Ecke, links davon links, oben und unten mittig
+// Right of the center the text sits to the right of the corner, left of it to the left, top and bottom centered
 function radarTextAnchor(cornerIndex) {
   let horizontalDirection = Math.cos(radarCornerAngleInRadians(cornerIndex));
   if (horizontalDirection > 0.3) return "start";

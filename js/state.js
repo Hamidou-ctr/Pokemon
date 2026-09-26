@@ -1,8 +1,8 @@
-// Gemeinsamer Zustand der Seite: pokemon-list.js und pokemon-detail.js lesen und ändern ihn.
-let allPokemonNamesAndIds = []; // { pokemonId, name } aller Pokémon, wird einmal beim Start geladen
-let searchResults = []; // der Teil von allPokemonNamesAndIds, der zur aktuellen Suche passt
-let displayedPokemonCount = 0; // wie viele der searchResults schon auf der Seite stehen
-let pokemonInDetailView = null; // Pokémon der Detailansicht, null solange sie geschlossen ist
-let latestListRequestNumber = 0; // Nummer der letzten Listen-Aktualisierung, ältere werden verworfen
-let latestDetailRequestNumber = 0; // dasselbe für die Detailansicht
+// Shared page state: pokemon-list.js and pokemon-detail.js read and modify it.
+let allPokemonNamesAndIds = []; // { pokemonId, name } of all Pokémon, loaded once at startup
+let searchResults = []; // the part of allPokemonNamesAndIds that matches the current search
+let displayedPokemonCount = 0; // how many of the searchResults are already on the page
+let pokemonInDetailView = null; // Pokémon in the detail view, null while it is closed
+let latestListRequestNumber = 0; // number of the latest list update; older ones are discarded
+let latestDetailRequestNumber = 0; // the same for the detail view
 let searchDelayTimerId;

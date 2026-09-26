@@ -5,7 +5,7 @@ registerTab({
   render: matchupsHtml,
 });
 
-// Von der stärksten Schwäche bis zur Immunität; Gruppen ohne Typen werden nicht angezeigt
+// From the strongest weakness to immunity; groups without types are not shown
 const matchupGroups = [
   { multiplier: 4, multiplierText: "×4", label: "Very weak to", className: "matchup-weak" },
   { multiplier: 2, multiplierText: "×2", label: "Weak to", className: "matchup-weak" },
@@ -14,7 +14,7 @@ const matchupGroups = [
   { multiplier: 0, multiplierText: "×0", label: "Immune to", className: "matchup-immune" },
 ];
 
-// Welche Angriffstypen wie viel Schaden machen (Faktor) – so steht es in den Typ-Daten der API
+// Which attacking types deal how much damage (factor) – this is how the API's type data lists it
 const damageRelationRules = [
   ["double_damage_from", 2],
   ["half_damage_from", 0.5],
@@ -34,10 +34,10 @@ function fetchTypesOfPokemon(pokemon) {
   return Promise.all(pokemon.types.map((typeEntry) => fetchJsonWithCache(typeEntry.type.url)));
 }
 
-// ---------- Berechnung des Schadens ----------
+// ---------- Damage calculation ----------
 
-// Schaden, den jeder Angriffstyp beim Pokémon anrichtet. Bei zwei Typen werden die Faktoren
-// multipliziert: Schwäche (×2) und Resistenz (×½) heben sich auf, eine Immunität (×0) gewinnt immer.
+// Damage that each attacking type deals to the Pokémon. With two types the factors are
+// multiplied: weakness (×2) and resistance (×½) cancel out, an immunity (×0) always wins.
 function calculateDamageMultipliers(pokemonTypes) {
   let damageMultiplierByAttackingType = createNeutralDamageMultipliers();
   for (let pokemonType of pokemonTypes) {
@@ -46,7 +46,7 @@ function calculateDamageMultipliers(pokemonTypes) {
   return damageMultiplierByAttackingType;
 }
 
-// Am Anfang macht jeder Typ normalen Schaden (Faktor 1)
+// At the start every type deals normal damage (factor 1)
 function createNeutralDamageMultipliers() {
   return Object.fromEntries(allTypeNames.map((typeName) => [typeName, 1]));
 }
@@ -65,7 +65,7 @@ function multiplyDamage(damageMultiplierByAttackingType, attackingTypes, damageF
   }
 }
 
-// ---------- Anzeige der Gruppen ----------
+// ---------- Display of the groups ----------
 
 function matchupGroupsHtml(damageMultiplierByAttackingType) {
   return matchupGroups

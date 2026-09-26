@@ -38,7 +38,7 @@ header {
 .pokedex-logo {
   width: 46px;
   height: 46px;
-  margin-left: 5px; /* Platz für den Ring, damit er mit dem Kartenrand fluchtet */
+  margin-left: 5px; /* space for the ring so it lines up with the card edge */
   border-radius: 50%;
   background: white;
   box-shadow:
@@ -158,7 +158,7 @@ footer {
 
   background: radial-gradient(circle at 20% 0%, #2b3a67 0%, #12182b 65%);
   background-attachment: fixed;
-  color: #f1f3f9; /* statt #212529, sonst ist Text auf Dunkel unlesbar */
+  color: #f1f3f9; /* instead of #212529, otherwise text is unreadable on dark */
 }
 
 .footer-link {

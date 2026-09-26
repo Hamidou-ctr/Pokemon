@@ -5,7 +5,7 @@ registerTab({
   render: evolutionHtml,
 });
 
-const wideEvolutionBranchCount = 3; // mehr Zweige als das werden als Raster statt nebeneinander gezeigt
+const wideEvolutionBranchCount = 3; // more branches than this are shown as a grid instead of side by side
 
 async function evolutionHtml(pokemon) {
   let species = await fetchJsonWithCache(pokemon.species.url);
@@ -16,16 +16,16 @@ async function evolutionHtml(pokemon) {
   `;
 }
 
-// null, wenn die Kette gar keine Entwicklung enthält
+// null if the chain contains no evolution at all
 async function fetchEvolutionChain(species) {
   if (!species.evolution_chain) return null;
   let evolutionChain = (await fetchJsonWithCache(species.evolution_chain.url)).chain;
   return evolutionChain.evolves_to.length ? evolutionChain : null;
 }
 
-// ---------- Baum aus Pokémon und Pfeilen ----------
+// ---------- Tree of Pokémon and arrows ----------
 
-// Ein Pokémon der Kette samt allem, wozu es sich weiterentwickelt (rekursiv, damit auch Verzweigungen wie Evoli passen)
+// A Pokémon of the chain together with everything it evolves into (recursive, so branching like Eevee works too)
 function evolutionStageHtml(chainLink, currentSpeciesName) {
   let pokemonNodeHtml = evolutionNodeHtml(chainLink, currentSpeciesName);
   if (!chainLink.evolves_to.length) return pokemonNodeHtml;
@@ -37,7 +37,7 @@ function evolutionStageHtml(chainLink, currentSpeciesName) {
   `;
 }
 
-// Bei vielen Zweigen (Evoli hat 8) wäre die Kette waagerecht viel zu hoch, dann werden sie als Raster unter dem Pokémon angeordnet
+// With many branches (Eevee has 8) the chain would be far too tall horizontally, so they are arranged as a grid below the Pokémon
 function getWideLayoutClassName(chainLink) {
   return chainLink.evolves_to.length > wideEvolutionBranchCount ? " wide" : "";
 }
@@ -48,7 +48,7 @@ function evolutionBranchesHtml(chainLink, currentSpeciesName) {
     .join("");
 }
 
-// Ein Pfeil mit der Bedingung und dahinter das Pokémon, zu dem es sich entwickelt
+// An arrow with the condition, followed by the Pokémon it evolves into
 function evolutionBranchHtml(nextChainLink, currentSpeciesName) {
   return /* html */ `
     <div class="evolution-branch">
@@ -58,7 +58,7 @@ function evolutionBranchHtml(nextChainLink, currentSpeciesName) {
   `;
 }
 
-// Die Species-ID ist zugleich die ID der Standardform, daher öffnet ein Klick direkt das Popup dieses Pokémon
+// The species ID is also the ID of the default form, so a click directly opens the popup of this Pokémon
 function evolutionNodeHtml(chainLink, currentSpeciesName) {
   let speciesId = extractIdFromUrl(chainLink.species.url);
   let isCurrentPokemon = chainLink.species.name === currentSpeciesName;
@@ -69,7 +69,7 @@ function evolutionNodeHtml(chainLink, currentSpeciesName) {
   `;
 }
 
-// Das gerade offene Pokémon lässt sich nicht anklicken, alle anderen öffnen ihr Popup
+// The Pokémon that is currently open cannot be clicked; all others open their popup
 function evolutionNodeActionAttribute(speciesId, isCurrentPokemon) {
   return isCurrentPokemon ? 'aria-current="true"' : `onclick="openPokemonDetail(${speciesId})"`;
 }
@@ -82,15 +82,15 @@ function evolutionNodeContentHtml(speciesName, speciesId) {
   `;
 }
 
-// ---------- Bedingungen der Entwicklung ----------
+// ---------- Evolution conditions ----------
 
-// Ein Pokémon kann auf mehreren Wegen entwickeln (z. B. Tag oder Nacht), die Wege stehen mit "or" getrennt
+// A Pokémon can evolve in several ways (e.g. day or night); the ways are separated with "or"
 function evolutionConditionText(evolutionDetailsList) {
   let alternativeTexts = evolutionDetailsList.map(evolutionDetailText).filter(Boolean);
   return [...new Set(alternativeTexts)].join(" or ");
 }
 
-// Die Auslöser und alle zusätzlichen Bedingungen eines Weges, durch Kommas getrennt
+// The trigger and all additional conditions of one way, separated by commas
 function evolutionDetailText(evolutionDetail) {
   return [
     evolutionTriggerText(evolutionDetail),
@@ -125,7 +125,7 @@ function friendshipConditionTexts(evolutionDetail) {
   ].filter(Boolean);
 }
 
-// Tageszeit, Ort, Geschlecht und Wetter
+// Time of day, location, gender and weather
 function circumstanceConditionTexts(evolutionDetail) {
   return [
     evolutionDetail.time_of_day && `at ${evolutionDetail.time_of_day}`,
@@ -144,7 +144,7 @@ function partyAndStatsConditionTexts(evolutionDetail) {
   ].filter(Boolean);
 }
 
-// Zum Beispiel Tyrogue: Hitmonlee bei Angriff > Verteidigung, Hitmonchan bei <, Hitmontop bei =
+// For example Tyrogue: Hitmonlee if Attack > Defense, Hitmonchan if <, Hitmontop if =
 function attackVersusDefenseText(evolutionDetail) {
   if (typeof evolutionDetail.relative_physical_stats !== "number") return "";
   let comparisonSign = { 1: ">", 0: "=", "-1": "<" }[evolutionDetail.relative_physical_stats];

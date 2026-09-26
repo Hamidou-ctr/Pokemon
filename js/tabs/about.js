@@ -24,18 +24,18 @@ function fetchAboutData(pokemon) {
   ]);
 }
 
-// Die Fähigkeiten stehen offen da, ihre Texte kommen deshalb gleich mit. Fehlt einer, zeigt seine Karte
-// nur den Namen, der Rest des Tabs bleibt heil.
+// The abilities are shown openly, so their texts are loaded right away. If one is missing, its card
+// shows only the name and the rest of the tab stays intact.
 function fetchAllAbilityDetails(pokemon) {
   return Promise.all(
     pokemon.abilities.map((abilityEntry) => fetchJsonWithCache(abilityEntry.ability.url).catch(() => null)),
   );
 }
 
-// ---------- Beschreibung und Kacheln ----------
+// ---------- Description and tiles ----------
 
 function descriptionQuoteHtml(species) {
-  // Die Spieltexte schreiben den Namen der Reihe in Großbuchstaben
+  // The game texts write the name of the series in capital letters
   let pokedexDescription = findLatestEnglishText(species.flavor_text_entries, "flavor_text")
     .replaceAll("POKéMON", "Pokémon")
     .replaceAll("POKÉMON", "Pokémon");
@@ -71,7 +71,7 @@ function tileHtml(label, valueHtml) {
   `;
 }
 
-// genderRate sind Achtel weiblich, -1 bedeutet geschlechtslos
+// genderRate is eighths female, -1 means genderless
 function genderTileHtml(genderRate) {
   if (genderRate === -1) return tileHtml("Gender", "Genderless");
   let femalePercent = (genderRate / 8) * 100;
@@ -79,7 +79,7 @@ function genderTileHtml(genderRate) {
   return tileHtml("Gender", genderBarHtml(malePercent, femalePercent) + genderLegendHtml(malePercent, femalePercent));
 }
 
-// blau für männlich, rosa für weiblich
+// blue for male, pink for female
 function genderBarHtml(malePercent, femalePercent) {
   return /* html */ `
     <span class="gender-bar" aria-hidden="true">
@@ -98,12 +98,12 @@ function genderLegendHtml(malePercent, femalePercent) {
   `;
 }
 
-// Kleine Pillen, z. B. für Ei-Gruppen und Fundorte
+// Small pills, e.g. for egg groups and locations
 function chipListHtml(chipTexts, extraClassName = "") {
   return `<div class="chip-list ${extraClassName}">${chipTexts.map((chipText) => `<span class="chip">${chipText}</span>`).join("")}</div>`;
 }
 
-// ---------- Fähigkeiten ----------
+// ---------- Abilities ----------
 
 function abilitiesSectionHtml(pokemon, abilityDetailsList) {
   return /* html */ `
@@ -114,7 +114,7 @@ function abilitiesSectionHtml(pokemon, abilityDetailsList) {
   `;
 }
 
-// abilityDetails ist null, wenn die Texte der Fähigkeit nicht geladen werden konnten
+// abilityDetails is null if the texts of the ability could not be loaded
 function abilityCardHtml(abilityEntry, abilityDetails) {
   let hiddenAbilityTagHtml = abilityEntry.is_hidden ? `<span class="ability-tag">Hidden</span>` : "";
   return /* html */ `
@@ -134,7 +134,7 @@ function abilityDescriptionText(abilityDetails) {
   );
 }
 
-// ---------- Fundorte ----------
+// ---------- Locations ----------
 
 function locationsSectionHtml(encounterAreas) {
   let locationNames = encounterAreas.map((encounterArea) => formatNameForDisplay(encounterArea.location_area.name));

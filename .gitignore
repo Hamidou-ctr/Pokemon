@@ -1,7 +1,7 @@
 .DS_Store
 .vscode/
 
-# Nie Schlüssel oder Zugangsdaten committen (das Repo ist öffentlich)
+# Never commit keys or credentials (the repo is public)
 .env
 .env.*
 *.pem

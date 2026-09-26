@@ -7,7 +7,7 @@
   padding: 0 24px 24px;
 }
 
-/* Pokéball-roter "Drück mich"-Button mit dickem Boden, der beim Klick eingedrückt wird */
+/* Pokéball-red "press me" button with a thick bottom edge that is pressed in on click */
 .load-more {
   --button-top: #ee4a26;
   --button-bottom: #cf2a0c;
@@ -45,7 +45,7 @@
     filter 0.2s ease;
 }
 
-/* Glanz-Streifen wie bei den Karten */
+/* Shine streak like on the cards */
 .load-more::after {
   content: "";
   position: absolute;
@@ -103,20 +103,20 @@
     0 12px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Blaue Variante für "Alle anzeigen" */
+/* Blue variant for "Show all" */
 .load-all {
   --button-top: #5468e0;
   --button-bottom: #2f3fae;
   --button-edge: #1b2570;
 }
 
-/* Icon ist hier ein SVG statt eines Bildes */
+/* Icon is an SVG here instead of an image */
 svg.load-more-icon {
   padding: 9px;
   color: var(--button-bottom);
 }
 
-/* Während "Alle anzeigen" lädt: Knopf bleibt sichtbar, reagiert aber nicht */
+/* While "Show all" is loading: button stays visible but doesn't react */
 .load-more:disabled,
 .load-more:disabled:hover {
   transform: none;

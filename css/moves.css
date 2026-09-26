@@ -1,6 +1,6 @@
-/* ---------- Auswahl: Spiel und Lernart ---------- */
-/* Über den Karten und der angehefteten Leiste, sonst verschwindet die aufgeklappte Liste dahinter
-   (jedes Kind von .tab-panel ist wegen der Einblend-Animation ein eigener Stapel) */
+/* ---------- Selection: game and learn method ---------- */
+/* Above the cards and the pinned bar, otherwise the opened list disappears behind them
+   (every child of .tab-panel is its own stacking context because of the fade-in animation) */
 .moves-header {
   position: relative;
   z-index: 5;
@@ -60,7 +60,7 @@
   transform: rotate(180deg);
 }
 
-/* Die Liste: Milchglas im Stil des Popups, gruppiert nach Generation */
+/* The list: frosted glass in the style of the popup, grouped by generation */
 .game-list {
   position: absolute;
   top: calc(100% + 8px);
@@ -120,7 +120,7 @@
   background: rgba(255, 255, 255, 0.09);
 }
 
-/* Das Häkchen ist nur beim gewählten Spiel sichtbar, der Platz dafür ist immer da */
+/* The checkmark is only visible on the selected game, but the space for it is always there */
 .game-option svg {
   flex: none;
   width: 16px;
@@ -138,7 +138,7 @@
   white-space: nowrap;
 }
 
-/* Das gewählte Spiel leuchtet im hellen Ton des Typs */
+/* The selected game glows in the light shade of the type */
 .game-option[aria-selected="true"] {
   color: #1a2040;
   background: var(--accent-color);
@@ -164,11 +164,11 @@
   }
 }
 
-/* Die Filter bleiben beim Scrollen oben stehen, damit man bei langen Listen (über 60 TMs) nicht zurückscrollen muss.
-   Die Leiste reicht über die ganze Breite des Panels (negativer Rand gegen das Padding) und ist Milchglas. */
+/* The filters stay at the top while scrolling so you don't have to scroll back on long lists (over 60 TMs).
+   The bar spans the full width of the panel (negative margin against the padding) and is frosted glass. */
 .learn-method-filters {
   position: sticky;
-  top: -34px; /* das obere Padding von .detail-body (34px), sonst bleibt die Leiste darunter stehen */
+  top: -34px; /* the top padding of .detail-body (34px), otherwise the bar stays below it */
   z-index: 3;
   display: flex;
   flex-wrap: wrap;
@@ -211,7 +211,7 @@
   outline-offset: 2px;
 }
 
-/* Der aktive Filter leuchtet im hellen Ton des Typs */
+/* The active filter glows in the light shade of the type */
 .learn-method-filter.active {
   color: #1a2040;
   background: var(--accent-color);
@@ -232,7 +232,7 @@
   background: rgba(0, 0, 0, 0.16);
 }
 
-/* ---------- Karten: Level, Name, Typ, Werte, Beschreibung ---------- */
+/* ---------- Cards: level, name, type, values, description ---------- */
 .move-card {
   padding: 12px 16px 14px;
   background: var(--surface-color);
@@ -244,7 +244,7 @@
     border-color 0.3s ease;
 }
 
-/* Sobald die Details da sind, färbt sich die Karte in der Farbe des Typs (--move-color setzt das JS) */
+/* Once the details are there, the card takes on the color of the type (--move-color is set by the JS) */
 .move-card.loaded {
   border-left-color: color-mix(in srgb, var(--move-color) 70%, white);
   background: linear-gradient(
@@ -288,7 +288,7 @@
   white-space: nowrap;
 }
 
-/* Typ und Kategorie; der Platz ist von Anfang an reserviert, damit beim Nachladen nichts springt */
+/* Type and category; the space is reserved from the start so nothing jumps on loading */
 .move-badges {
   display: flex;
   align-items: center;
@@ -339,7 +339,7 @@
   margin-top: 12px;
 }
 
-/* Platzhalter, bis die Details da sind: ein schimmernder Block in der Höhe des fertigen Inhalts */
+/* Placeholder until the details are there: a shimmering block at the height of the finished content */
 .move-body:empty {
   height: 92px;
   background: linear-gradient(
@@ -373,7 +373,7 @@
   display: none;
 }
 
-/* Power, Genauigkeit und AP: drei Werte mit Balken nebeneinander */
+/* Power, accuracy and PP: three values with bars side by side */
 .move-meters {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -440,7 +440,7 @@
 
 @media (max-width: 520px) {
   .learn-method-filters {
-    top: -32px; /* das obere Padding von .detail-body ist hier 32px */
+    top: -32px; /* the top padding of .detail-body is 32px here */
     margin-inline: -14px;
     padding-inline: 14px;
   }
@@ -453,7 +453,7 @@
     max-height: min(300px, 46vh);
   }
 
-  /* Schmal: Typ und Kategorie rutschen in eine eigene Zeile unter Level und Name */
+  /* Narrow: type and category move to their own row below level and name */
   .move-heading {
     grid-template-columns: auto minmax(0, 1fr);
     gap: 8px 10px;
@@ -463,7 +463,7 @@
     grid-column: 1 / -1;
   }
 
-  /* Beschriftung über der Zahl: nebeneinander ist in den drei schmalen Spalten kein Platz */
+  /* Label above the number: there's no room side by side in the three narrow columns */
   .move-meters {
     gap: 12px;
   }

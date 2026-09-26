@@ -1,801 +1,801 @@
-# Pokédex – Code-Dokumentation
+# Pokédex – Code Documentation
 
-Diese Datei erklärt, **was jede Datei im Projekt macht** und **wie die Teile zusammenspielen**.
-Sie ist so aufgebaut, dass du sie von oben nach unten lesen kannst (Überblick → Aufbau →
-Abläufe → Details) oder gezielt einzelne Abschnitte nachschlägst.
+This file explains **what each file in the project does** and **how the parts work together**.
+It is structured so that you can read it from top to bottom (overview → structure →
+flows → details) or look up individual sections directly.
 
-> Stand dieser Doku: 25.09.2026, Code-Stand: Commit `f5c6103`. Wenn du den Code später
-> stark änderst, prüfe vor allem die Abschnitte 4 bis 8 auf Aktualität.
+> Status of this documentation: 2026-09-25, code state: commit `f5c6103`. If you change the
+> code significantly later, check sections 4 to 8 in particular for accuracy.
 
-## Inhaltsverzeichnis
+## Table of contents
 
-1. [Was ist dieses Projekt?](#1-was-ist-dieses-projekt)
-2. [Projekt lokal starten](#2-projekt-lokal-starten)
-3. [Ordnerstruktur](#3-ordnerstruktur)
-4. [Architektur: Wie die Teile zusammenspielen](#4-architektur-wie-die-teile-zusammenspielen)
-5. [Abläufe Schritt für Schritt](#5-abläufe-schritt-für-schritt)
-6. [Die PokéAPI: Welche Daten woher kommen](#6-die-pokéapi-welche-daten-woher-kommen)
-7. [JavaScript: Datei für Datei](#7-javascript-datei-für-datei)
-8. [CSS: Datei für Datei](#8-css-datei-für-datei)
-9. [HTML-Dateien](#9-html-dateien)
-10. [Wichtige Konzepte erklärt](#10-wichtige-konzepte-erklärt)
-11. [Anleitungen: So erweiterst du das Projekt](#11-anleitungen-so-erweiterst-du-das-projekt)
-12. [Deployment und Hilfsdateien](#12-deployment-und-hilfsdateien)
-13. [Auffälligkeiten im aktuellen Code](#13-auffälligkeiten-im-aktuellen-code)
-14. [Glossar](#14-glossar)
+1. [What is this project?](#1-what-is-this-project)
+2. [Running the project locally](#2-running-the-project-locally)
+3. [Folder structure](#3-folder-structure)
+4. [Architecture: How the parts work together](#4-architecture-how-the-parts-work-together)
+5. [Step-by-step flows](#5-step-by-step-flows)
+6. [The PokéAPI: Which data comes from where](#6-the-pokéapi-which-data-comes-from-where)
+7. [JavaScript: file by file](#7-javascript-file-by-file)
+8. [CSS: file by file](#8-css-file-by-file)
+9. [HTML files](#9-html-files)
+10. [Important concepts explained](#10-important-concepts-explained)
+11. [Guides: How to extend the project](#11-guides-how-to-extend-the-project)
+12. [Deployment and helper files](#12-deployment-and-helper-files)
+13. [Observations about the current code](#13-observations-about-the-current-code)
+14. [Glossary](#14-glossary)
 
 ---
 
-## 1. Was ist dieses Projekt?
+## 1. What is this project?
 
-Ein **Pokédex im Browser**: Eine Übersicht aller Pokémon als bunte Karten, eine Suche und
-ein Popup mit allen Details zu einem Pokémon.
+A **Pokédex in the browser**: an overview of all Pokémon as colorful cards, a search, and
+a popup with all the details of a Pokémon.
 
-**Was die Seite kann**
+**What the site can do**
 
-- Alle Pokémon als Karten anzeigen, jeweils 20 auf einmal ("Mehr fangen") oder alle
-  blockweise ("Alle anzeigen").
-- Nach dem Namen suchen (die Liste aktualisiert sich kurz nach dem Tippen).
-- Auf eine Karte klicken: Ein Popup zeigt Bild, Typen, Nummer, Generation und fünf Tabs:
+- Show all Pokémon as cards, either 20 at a time ("Catch more") or all of them
+  in batches ("Show all").
+- Search by name (the list updates shortly after typing).
+- Click a card: a popup shows the image, types, number, generation and five tabs:
   **About**, **Stats**, **Evolution**, **Matchups**, **Moves**.
-- Im Popup: zum vorherigen/nächsten Pokémon blättern (Knöpfe oder Pfeiltasten), das
-  Shiny-Bild ansehen, den Schrei abspielen, mit `Esc` schließen.
-- Beim Darüberfahren über eine Karte wechselt das Bild zur Shiny-Version.
+- In the popup: browse to the previous/next Pokémon (buttons or arrow keys), look at the
+  shiny image, play the cry, close with `Esc`.
+- Hovering over a card switches the image to the shiny version.
 
-**Technik in einem Satz:** reines HTML, CSS und JavaScript, **ohne Framework, ohne Build-Tool,
-ohne `package.json`, ohne eigenes Backend**. Die Daten kommen live von der
-[PokéAPI](https://pokeapi.co/), die Sprites aus dem GitHub-Repository der PokéAPI. Die
-Schriften liegen lokal im Ordner `fonts/` (es werden keine Schriften von Google o. Ä. geladen).
+**Technology in one sentence:** plain HTML, CSS and JavaScript, **no framework, no build tool,
+no `package.json`, no backend of its own**. The data comes live from the
+[PokéAPI](https://pokeapi.co/), the sprites from the PokéAPI's GitHub repository. The
+fonts are stored locally in the `fonts/` folder (no fonts are loaded from Google or similar).
 
-**Was es nicht gibt:** keine automatischen Tests, keine Speicherung im Browser
-(`localStorage`, Cookies), keine Benutzerkonten. Das passt zur
-[Datenschutzerklärung](../datenschutzt.html) der Seite.
+**What it does not have:** no automated tests, no storage in the browser
+(`localStorage`, cookies), no user accounts. This matches the site's
+[privacy policy](../privacy-policy.html).
 
-**Browser:** Es wird modernes CSS/JS benutzt (`color-mix()`, `:where()`, `backdrop-filter`,
-`Array.at()`, `IntersectionObserver` …). Aktuelle Versionen von Chrome, Firefox, Safari
-und Edge genügen.
+**Browsers:** Modern CSS/JS is used (`color-mix()`, `:where()`, `backdrop-filter`,
+`Array.at()`, `IntersectionObserver` …). Current versions of Chrome, Firefox, Safari
+and Edge are enough.
 
 ---
 
-## 2. Projekt lokal starten
+## 2. Running the project locally
 
-Es gibt nichts zu installieren und nichts zu bauen. Du brauchst nur eine **Internetverbindung**
-(wegen der PokéAPI).
+There is nothing to install and nothing to build. You only need an **internet connection**
+(because of the PokéAPI).
 
-**Variante A – am einfachsten:** `index.html` per Doppelklick im Browser öffnen.
+**Option A – simplest:** open `index.html` in the browser with a double click.
 
-**Variante B – sauberer, mit kleinem lokalen Server** (verhält sich wie die echte Seite):
+**Option B – cleaner, with a small local server** (behaves like the real site):
 
 ```bash
 cd /Users/hamidou/Documents/Pokemon
 python3 -m http.server 8000
-# dann im Browser: http://localhost:8000
+# then in the browser: http://localhost:8000
 ```
 
-Alternativ die VS-Code-Erweiterung "Live Server" benutzen.
+Alternatively, use the VS Code extension "Live Server".
 
-**Fehler ansehen:** Öffne die Entwicklerwerkzeuge (`Cmd + Option + I`) → Tab *Console*.
-Der Code schreibt Fehler dorthin (`console.error`) und zeigt dem Nutzer zusätzlich eine
-kurze Meldung.
+**Viewing errors:** Open the developer tools (`Cmd + Option + I`) → *Console* tab.
+The code writes errors there (`console.error`) and additionally shows the user a
+short message.
 
 ---
 
-## 3. Ordnerstruktur
+## 3. Folder structure
 
 ```text
 Pokemon/
-├── index.html                  Die einzige Seite der App (Startpunkt)
-├── Impressum.html              Rechtliche Seite
-├── datenschutzt.html           Rechtliche Seite (Dateiname mit "t", siehe Abschnitt 13)
+├── index.html                  The app's only page (entry point)
+├── legal-notice.html           Legal page
+├── privacy-policy.html         Legal page
 │
-├── css/                        Alle Stile, aufgeteilt nach Bereichen
-│   ├── base.css                Schriften, Grundwerte, Seitenhintergrund
-│   ├── layout.css              Kopfzeile, Suchfeld, Kartenraster, Fußzeile
-│   ├── buttons.css            "Mehr fangen" / "Alle anzeigen"
-│   ├── pokemon-cards.css       Die Karten der Übersicht + Typ-Plaketten
-│   ├── pokemon-detail.css      Das Popup (Rahmen, Kopf, Tab-Leiste, Animationen)
-│   ├── bars.css                Balken und Radar-Diagramm (Stats-Tab)
-│   ├── about.css               About-Tab (und geteilte Bausteine)
-│   ├── evolution.css           Evolution-Tab
-│   ├── matchups.css            Matchups-Tab
-│   ├── moves.css               Moves-Tab (Spielauswahl, Filter, Attacken-Karten)
-│   ├── legal.css               Impressum und Datenschutz
-│   └── utilities.css           Nur die Klasse .hidden (muss zuletzt geladen werden)
+├── css/                        All styles, split by area
+│   ├── base.css                Fonts, base values, page background
+│   ├── layout.css              Header, search field, card grid, footer
+│   ├── buttons.css             "Catch more" / "Show all"
+│   ├── pokemon-cards.css       The cards of the overview + type badges
+│   ├── pokemon-detail.css      The popup (frame, header, tab bar, animations)
+│   ├── bars.css                Bars and radar chart (Stats tab)
+│   ├── about.css               About tab (and shared building blocks)
+│   ├── evolution.css           Evolution tab
+│   ├── matchups.css            Matchups tab
+│   ├── moves.css               Moves tab (game selection, filters, move cards)
+│   ├── legal.css               Legal notice and privacy policy
+│   └── utilities.css           Only the .hidden class (must be loaded last)
 │
-├── js/                         Alle Logik
-│   ├── configuration.js        Konstanten, Icons, Typ-Farben
-│   ├── state.js                Gemeinsamer Zustand (globale Variablen)
-│   ├── text-and-image-helpers.js   Kleine Helfer für Texte, Farben, Bild-URLs
-│   ├── data-loading.js         Daten von der API holen (mit Cache)
-│   ├── components.js           HTML-Bausteine, die mehrere Tabs nutzen
-│   ├── pokemon-list.js         Übersicht: Start, Suche, Karten, Nachladen
-│   ├── pokemon-detail.js       Popup: Öffnen, Tabs, Blättern, Tastatur
-│   └── tabs/                   Ein Tab pro Datei
+├── js/                         All logic
+│   ├── configuration.js        Constants, icons, type colors
+│   ├── state.js                Shared state (global variables)
+│   ├── text-and-image-helpers.js   Small helpers for texts, colors, image URLs
+│   ├── data-loading.js         Fetching data from the API (with cache)
+│   ├── components.js           HTML building blocks used by several tabs
+│   ├── pokemon-list.js         Overview: startup, search, cards, loading more
+│   ├── pokemon-detail.js       Popup: opening, tabs, browsing, keyboard
+│   └── tabs/                   One tab per file
 │       ├── about.js
 │       ├── stats.js
 │       ├── evolution.js
 │       ├── matchups.js
 │       ├── moves.js
-│       └── moves-game-select.js   Die Spiel-Auswahl des Moves-Tabs
+│       └── moves-game-select.js   The game selection of the Moves tab
 │
-├── fonts/                      Schriftdateien (.woff2), lokal eingebunden
+├── fonts/                      Font files (.woff2), included locally
 ├── images/
-│   ├── pokemon.webp            Logo und Favicon (Pokéball)
-│   └── search.svg              Lupe im Suchfeld
+│   ├── pokemon.webp            Logo and favicon (Poké Ball)
+│   └── search.svg              Magnifying glass in the search field
 │
-├── Dokumentation/              Diese Doku und die Anleitungen zu Deployment/Tailwind
+├── Documentation/              This documentation and the guides for deployment/Tailwind
 ├── .github/
-│   ├── workflows/deploy.yml    Automatisches Deployment bei Push auf main
-│   └── dependabot.yml          Hält die GitHub-Actions aktuell
-├── up.sh                       Kurzbefehl: pull, add, commit, push
-├── plan.drawio                 Frühe Skizze (kein Teil der Seite)
-└── .gitignore                  Schützt Schlüssel und Zugangsdaten vor dem Einchecken
+│   ├── workflows/deploy.yml    Automatic deployment on push to main
+│   └── dependabot.yml          Keeps the GitHub Actions up to date
+├── up.sh                       Shortcut: pull, add, commit, push
+├── plan.drawio                 Early sketch (not part of the site)
+└── .gitignore                  Protects keys and credentials from being committed
 ```
 
-**Empfohlene Lesereihenfolge des Codes** (von einfach nach komplex):
+**Recommended reading order of the code** (from simple to complex):
 
-1. `configuration.js` → `state.js` → `text-and-image-helpers.js` (Grundlagen)
-2. `data-loading.js` → `components.js` (Daten holen, Bausteine)
-3. `pokemon-list.js` (die Übersicht)
-4. `pokemon-detail.js` (das Popup und das Tab-System)
+1. `configuration.js` → `state.js` → `text-and-image-helpers.js` (basics)
+2. `data-loading.js` → `components.js` (fetching data, building blocks)
+3. `pokemon-list.js` (the overview)
+4. `pokemon-detail.js` (the popup and the tab system)
 5. `tabs/about.js` → `stats.js` → `matchups.js` → `evolution.js` → `moves.js` → `moves-game-select.js`
 
 ---
 
-## 4. Architektur: Wie die Teile zusammenspielen
+## 4. Architecture: How the parts work together
 
-### 4.1 Keine Module, alles teilt sich einen globalen Bereich
+### 4.1 No modules, everything shares one global scope
 
-Der Code benutzt **keine** `import`/`export`-Module. Jede Datei wird mit einem normalen
-`<script defer src="...">` geladen. Dadurch gilt:
+The code uses **no** `import`/`export` modules. Every file is loaded with a normal
+`<script defer src="...">`. This means:
 
-- Alle Funktionen und Variablen auf oberster Ebene sind **überall sichtbar**. Eine Funktion aus
-  `text-and-image-helpers.js` kann direkt in `about.js` benutzt werden.
-- **Namen müssen eindeutig sein.** Zwei Dateien dürfen nicht denselben Namen deklarieren.
-  Bei `const`/`let` gibt es dann einen Fehler in der Konsole. Bei `function` gewinnt dagegen
-  **still die spätere Datei**, was schwerer zu finden ist. Deshalb haben die Namen so
-  ausführliche, sprechende Formen (`fetchAllPokemonNamesAndIds`, `moveCardHtml` …).
-- **Die Reihenfolge der `<script>`-Tags in `index.html` ist wichtig.** Was eine Datei
-  beim Laden sofort benutzt, muss in einer Datei *darüber* stehen. Funktionen, die erst
-  später aufgerufen werden (z. B. bei einem Klick), dürfen auch weiter unten definiert sein.
-- HTML-Attribute wie `onclick="openPokemonDetail(25)"` rufen diese globalen Funktionen auf.
+- All top-level functions and variables are **visible everywhere**. A function from
+  `text-and-image-helpers.js` can be used directly in `about.js`.
+- **Names must be unique.** Two files must not declare the same name.
+  With `const`/`let` this causes an error in the console. With `function`, on the other hand,
+  **the later file silently wins**, which is harder to find. That is why names have such
+  long, descriptive forms (`fetchAllPokemonNamesAndIds`, `moveCardHtml` …).
+- **The order of the `<script>` tags in `index.html` matters.** Whatever a file
+  uses immediately on load must be in a file *above* it. Functions that are only called
+  later (e.g. on a click) may also be defined further down.
+- HTML attributes like `onclick="openPokemonDetail(25)"` call these global functions.
 
-`defer` bedeutet: Die Skripte laden parallel, laufen aber erst, **nachdem** der HTML-Text
-fertig gelesen wurde, und zwar **in der Reihenfolge der Tags**. Deshalb kann
-`pokemon-list.js` gleich zu Beginn `document.getElementById("search-input")` benutzen.
+`defer` means: the scripts load in parallel but only run **after** the HTML text
+has been fully read, and **in the order of the tags**. That is why
+`pokemon-list.js` can use `document.getElementById("search-input")` right at the start.
 
-### 4.2 Ladereihenfolge und wer wen braucht
+### 4.2 Load order and who needs whom
 
-| Nr. | Datei | Braucht | Stellt bereit |
+| No. | File | Needs | Provides |
 | --- | --- | --- | --- |
-| 1 | `configuration.js` | nichts | URLs, Seitengrößen, `icons`, Typ-Farben, `allTypeNames` |
-| 2 | `state.js` | nichts | gemeinsame Zustandsvariablen |
-| 3 | `text-and-image-helpers.js` | 1 | Formatierung, Farb- und Bild-Helfer |
+| 1 | `configuration.js` | nothing | URLs, page sizes, `icons`, type colors, `allTypeNames` |
+| 2 | `state.js` | nothing | shared state variables |
+| 3 | `text-and-image-helpers.js` | 1 | formatting, color and image helpers |
 | 4 | `data-loading.js` | 1 | `fetchJsonWithCache`, `fetchPokemonById` |
-| 5 | `components.js` | 1, 3 | Balken, Typ-Plakette, Tab-Meldung |
-| 6 | `pokemon-list.js` | 1–5 | Start, Suche, Karten, Nachladen |
-| 7 | `pokemon-detail.js` | 1–6 | Popup, `registerTab`, `showTab` |
-| 8 | `tabs/about.js` | 1–7 | registriert den Tab "About" |
-| 9 | `tabs/stats.js` | 1–7 | registriert "Base-Stats" |
-| 10 | `tabs/evolution.js` | 1–7 | registriert "Evolution" |
-| 11 | `tabs/matchups.js` | 1–7 | registriert "Matchups" |
-| 12 | `tabs/moves.js` | 1–7 | registriert "Moves" |
-| 13 | `tabs/moves-game-select.js` | 12 | Spiel-Auswahl (nutzt Variablen aus `moves.js`) |
+| 5 | `components.js` | 1, 3 | bars, type badge, tab message |
+| 6 | `pokemon-list.js` | 1–5 | startup, search, cards, loading more |
+| 7 | `pokemon-detail.js` | 1–6 | popup, `registerTab`, `showTab` |
+| 8 | `tabs/about.js` | 1–7 | registers the "About" tab |
+| 9 | `tabs/stats.js` | 1–7 | registers "Base-Stats" |
+| 10 | `tabs/evolution.js` | 1–7 | registers "Evolution" |
+| 11 | `tabs/matchups.js` | 1–7 | registers "Matchups" |
+| 12 | `tabs/moves.js` | 1–7 | registers "Moves" |
+| 13 | `tabs/moves-game-select.js` | 12 | game selection (uses variables from `moves.js`) |
 
-Die **Reihenfolge der Tabs im Popup** ist die Reihenfolge der Tab-Skripte in `index.html`
-(Punkte 8 bis 12). Mehr dazu in [Abschnitt 7.7](#77-jstabs--die-fünf-tabs).
+The **order of the tabs in the popup** is the order of the tab scripts in `index.html`
+(items 8 to 12). More on this in [section 7.7](#77-jstabs--the-five-tabs).
 
-### 4.3 Schichtenbild
+### 4.3 Layer diagram
 
 ```text
                         index.html
                             │  <body onload="initializePokedex()">
                             ▼
    ┌─────────────────────────────────────────────────────────────┐
-   │  pokemon-list.js   Übersicht: Suche, Karten, Nachladen      │
+   │  pokemon-list.js   Overview: search, cards, loading more    │
    └───────────────┬─────────────────────────────────────────────┘
-                   │ Klick auf Karte: openPokemonDetail(id)
+                   │ click on a card: openPokemonDetail(id)
                    ▼
    ┌─────────────────────────────────────────────────────────────┐
-   │  pokemon-detail.js   Popup + Tab-System (registerTab/showTab)│
+   │  pokemon-detail.js   Popup + tabs (registerTab/showTab)     │
    └───────────────┬─────────────────────────────────────────────┘
-                   │ ruft je Tab: tab.render(pokemon)
+                   │ calls per tab: tab.render(pokemon)
                    ▼
    ┌─────────────────────────────────────────────────────────────┐
    │  tabs/about · stats · evolution · matchups · moves          │
    └───────────────┬─────────────────────────────────────────────┘
-                   │ benutzen alle
+                   │ all of them use
                    ▼
    ┌─────────────────────────────────────────────────────────────┐
-   │  Grundlagen: configuration · state · text-and-image-helpers │
-   │              data-loading · components                      │
+   │  Basics: configuration · state · text-and-image-helpers     │
+   │          data-loading · components                          │
    └───────────────┬─────────────────────────────────────────────┘
                    ▼
-              PokéAPI (Internet)
+              PokéAPI (internet)
 ```
 
-`pokemon-list.js` und `pokemon-detail.js` kennen sich gegenseitig: Die Liste öffnet das
-Popup, das Popup meldet der Liste über `updateLoadButtonsVisibility()`, dass die Knöpfe
-"Mehr fangen"/"Alle anzeigen" verschwinden sollen, solange es offen ist.
+`pokemon-list.js` and `pokemon-detail.js` know each other: the list opens the
+popup, and the popup tells the list via `updateLoadButtonsVisibility()` that the
+"Catch more"/"Show all" buttons should disappear while it is open.
 
-### 4.4 Wie aus Daten ein Bildschirminhalt wird
+### 4.4 How data becomes screen content
 
-Der ganze Code folgt demselben Muster:
+All of the code follows the same pattern:
 
 ```text
-API-Daten (JSON)  →  Funktion baut einen HTML-Text  →  innerHTML  →  CSS gestaltet ihn
+API data (JSON)  →  function builds an HTML string  →  innerHTML  →  CSS styles it
 ```
 
-- Fast alle Funktionen, die auf `...Html` enden, **geben HTML als Text zurück** (Template-
-  Strings mit Backticks). Der Kommentar `/* html */` direkt vor dem Backtick ist nur
-  ein Hinweis für den Editor (Syntax-Farben), er hat keine Wirkung.
-- Große Bausteine setzen sich aus kleinen zusammen (`pokemonCardHtml` ruft
-  `pokemonCardHeadingHtml` und `pokemonCardTypesAndImageHtml` auf …). Jede Funktion macht nur eine Sache.
-- Das fertige HTML wird per `innerHTML` oder `insertAdjacentHTML` in die Seite gesetzt.
-- **Zur Sicherheit:** Die Texte stammen aus der PokéAPI. Der Text aus dem Suchfeld wird
-  nur zum Vergleichen (`includes`) benutzt und **nie** als HTML eingefügt. Würdest du später
-  Texte von Nutzern anzeigen, müssten sie zuerst maskiert werden.
+- Almost all functions ending in `...Html` **return HTML as a string** (template
+  strings with backticks). The comment `/* html */` directly before the backtick is only
+  a hint for the editor (syntax colors); it has no effect.
+- Large building blocks are composed of small ones (`pokemonCardHtml` calls
+  `pokemonCardHeadingHtml` and `pokemonCardTypesAndImageHtml` …). Each function does only one thing.
+- The finished HTML is put into the page via `innerHTML` or `insertAdjacentHTML`.
+- **For safety:** The texts come from the PokéAPI. The text from the search field is
+  only used for comparing (`includes`) and is **never** inserted as HTML. If you later
+  displayed texts from users, they would have to be escaped first.
 
-### 4.5 Der Aufbau des Popups (DOM)
+### 4.5 The structure of the popup (DOM)
 
 ```text
-#detail-overlay                        dunkler, unscharfer Hintergrund (index.html)
-└─ .detail-card                        die Karte (role="dialog"), trägt die Typ-Farben
-   ├─ .detail-header                   Kopf mit Farbverlauf des Typs
-   │  ├─ .detail-pokeball-watermark    drehender Pokéball im Hintergrund
-   │  ├─ .detail-toolbar               Zurück/Weiter  |  Shiny, Schrei, Schließen
-   │  ├─ .detail-hero                  Name, Nummer, Untertitel, Typen  |  großes Bild
-   │  └─ .detail-tab-bar               ein Knopf pro Tab
-   └─ .detail-body                     der scrollbare Inhalt
-      ├─ #About        .tab-panel      (anfangs leer und versteckt)
+#detail-overlay                        dark, blurred background (index.html)
+└─ .detail-card                        the card (role="dialog"), carries the type colors
+   ├─ .detail-header                   header with the type's gradient
+   │  ├─ .detail-pokeball-watermark    rotating Poké Ball in the background
+   │  ├─ .detail-toolbar               Previous/Next  |  Shiny, Cry, Close
+   │  ├─ .detail-hero                  Name, number, subtitle, types  |  large image
+   │  └─ .detail-tab-bar               one button per tab
+   └─ .detail-body                     the scrollable content
+      ├─ #About        .tab-panel      (initially empty and hidden)
       ├─ #Base-Stats   .tab-panel
       ├─ #Evolution    .tab-panel
       ├─ #Matchups     .tab-panel
       └─ #Moves        .tab-panel
 ```
 
-Alle fünf Tab-Container existieren sofort, sind aber leer und mit `.hidden` versteckt.
-Ihr Inhalt wird erst beim ersten Öffnen des Tabs erzeugt.
+All five tab containers exist immediately, but are empty and hidden with `.hidden`.
+Their content is only created when the tab is opened for the first time.
 
 ---
 
-## 5. Abläufe Schritt für Schritt
+## 5. Step-by-step flows
 
-### 5.1 Start der Seite
+### 5.1 Page startup
 
-1. Der Browser lädt `index.html` und die Stylesheets.
-2. Die Skripte (`defer`) laufen der Reihe nach. Dabei legen sie nur Funktionen und Konstanten an;
-   `pokemon-list.js` sucht die festen HTML-Elemente. Die Tab-Dateien rufen `registerTab()` auf.
-3. Wenn die Seite fertig geladen ist, ruft `<body onload="initializePokedex()">` den Start auf.
-4. `initializePokedex()` holt zuerst die **Gesamtzahl** der Pokémon
-   (`/pokemon?limit=1`) und dann in **einer** Anfrage die Namen und URLs **aller**
-   Pokémon (`/pokemon?limit=<Anzahl>`). Daraus entsteht `allPokemonNamesAndIds`
-   (Einträge der Form `{ pokemonId, name }`). Das sind nur Namen, noch keine Details.
-5. `runSearch()` läuft mit leerem Suchfeld: Alle Pokémon passen, die ersten 20 werden
-   geladen (`/pokemon/<id>` je Pokémon) und als Karten angezeigt.
-6. Schlägt etwas fehl: Meldung "The Pokémon could not be loaded. Please reload the page."
+1. The browser loads `index.html` and the stylesheets.
+2. The scripts (`defer`) run one after another. They only create functions and constants;
+   `pokemon-list.js` looks up the fixed HTML elements. The tab files call `registerTab()`.
+3. When the page has finished loading, `<body onload="initializePokedex()">` calls the startup.
+4. `initializePokedex()` first fetches the **total count** of Pokémon
+   (`/pokemon?limit=1`) and then, in **one** request, the names and URLs of **all**
+   Pokémon (`/pokemon?limit=<count>`). This produces `allPokemonNamesAndIds`
+   (entries of the form `{ pokemonId, name }`). These are only names, no details yet.
+5. `runSearch()` runs with an empty search field: all Pokémon match, the first 20 are
+   loaded (`/pokemon/<id>` for each Pokémon) and displayed as cards.
+6. If something fails: the message "The Pokémon could not be loaded. Please reload the page."
 
-### 5.2 Suche
+### 5.2 Search
 
-1. Bei jedem Tastendruck ruft das Suchfeld `scheduleSearch()` auf (`oninput`).
-2. `scheduleSearch()` setzt einen Timer von **250 ms** zurück und neu. Erst wenn so lange
-   nicht getippt wurde, läuft `runSearch()` (Entprellen, im Englischen *debounce*).
-3. `runSearch()` filtert `allPokemonNamesAndIds` nach Namen, die den Suchtext **enthalten**
-   (Kleinschreibung, Leerzeichen am Rand entfernt), setzt `displayedPokemonCount = 0`,
-   entfernt alle alten Karten und lädt die erste Seite der Treffer.
+1. On every keystroke, the search field calls `scheduleSearch()` (`oninput`).
+2. `scheduleSearch()` resets and restarts a timer of **250 ms**. Only when nothing has been
+   typed for that long does `runSearch()` run (*debounce*).
+3. `runSearch()` filters `allPokemonNamesAndIds` by names that **contain** the search text
+   (lowercase, whitespace at the edges removed), sets `displayedPokemonCount = 0`,
+   removes all old cards and loads the first page of results.
 
-Die Suche prüft nur den **englischen API-Namen** (z. B. `mr-mime` mit Bindestrich), nicht
-die Nummer und nicht den Typ.
+The search only checks the **English API name** (e.g. `mr-mime` with a hyphen), not
+the number and not the type.
 
-### 5.3 "Mehr fangen" und "Alle anzeigen"
+### 5.3 "Catch more" and "Show all"
 
-- **Mehr fangen:** `loadNextPokemonPage()` lädt die nächsten `pokemonPerPage` (20) Treffer.
-- **Alle anzeigen:** `loadAllRemainingPokemon()` lädt alle übrigen Treffer in Blöcken zu
-  `pokemonPerLoadAllBatch` (50). Jeder Block erscheint sofort, die Seite wächst also nach
-  und nach. Der Knopf zeigt den Fortschritt ("Lade 150 / 1300") und beide Knöpfe sind gesperrt.
-- Nach jedem Ladevorgang entscheidet `updateLoadButtonsVisibility()`: Die Knöpfe sind nur
-  sichtbar, wenn es noch weitere Treffer gibt **und** kein Popup offen ist.
-- Klickt der Nutzer währenddessen etwas anderes an (z. B. eine neue Suche), werden die
-  laufenden Ladevorgänge **verworfen** (siehe [Request-Nummern](#103-veraltete-anfragen-verwerfen-request-nummern)).
+- **Catch more:** `loadNextPokemonPage()` loads the next `pokemonPerPage` (20) results.
+- **Show all:** `loadAllRemainingPokemon()` loads all remaining results in batches of
+  `pokemonPerLoadAllBatch` (50). Each batch appears immediately, so the page grows
+  gradually. The button shows the progress ("Loading 150 / 1300") and both buttons are disabled.
+- After every loading process, `updateLoadButtonsVisibility()` decides: the buttons are only
+  visible if there are more results **and** no popup is open.
+- If the user clicks something else in the meantime (e.g. a new search), the
+  running loading processes are **discarded** (see [request numbers](#103-discarding-outdated-requests-request-numbers)).
 
-### 5.4 Ein Popup öffnen
+### 5.4 Opening a popup
 
-1. Klick auf eine Karte → `openPokemonDetail(pokemonId)`.
-2. Die Funktion zählt `latestDetailRequestNumber` hoch und lädt das Pokémon
-   (`fetchPokemonById`). Meist ist es schon im Cache, weil die Karte es geladen hat.
-3. Wurde inzwischen ein anderes Pokémon angeklickt oder das Popup geschlossen, endet die
-   Funktion still.
+1. Click on a card → `openPokemonDetail(pokemonId)`.
+2. The function increments `latestDetailRequestNumber` and loads the Pokémon
+   (`fetchPokemonById`). It is usually already in the cache because the card loaded it.
+3. If another Pokémon was clicked or the popup was closed in the meantime, the
+   function ends silently.
 4. `displayPokemonDetail(pokemon)`:
-   - merkt sich das Pokémon in `pokemonInDetailView`,
-   - baut das komplette Popup (`pokemonDetailHtml`) und setzt es in `#detail-overlay`,
-   - setzt die Klasse `first-open` **nur beim ersten Öffnen** (Einblend-Animation), nicht beim
-     Blättern von Pokémon zu Pokémon,
-   - blendet das Overlay ein und dunkelt die Übersicht ab (`.pokedex-dimmed`),
-   - öffnet den **ersten** Tab (`showTab(registeredTabs[0].tabId)`),
-   - lädt im Hintergrund die "Species"-Daten für die Zeile unter dem Namen
+   - remembers the Pokémon in `pokemonInDetailView`,
+   - builds the complete popup (`pokemonDetailHtml`) and puts it into `#detail-overlay`,
+   - sets the class `first-open` **only on the first opening** (fade-in animation), not when
+     browsing from Pokémon to Pokémon,
+   - fades in the overlay and dims the overview (`.pokedex-dimmed`),
+   - opens the **first** tab (`showTab(registeredTabs[0].tabId)`),
+   - loads the "species" data in the background for the line below the name
      ("Seed Pokémon · Generation I · ★ Legendary").
-5. `preloadNeighbourPokemon` lädt das vorherige und nächste Pokémon schon vor, damit das
-   Blättern sofort reagiert.
+5. `preloadNeighbourPokemon` preloads the previous and next Pokémon so that
+   browsing responds immediately.
 
-### 5.5 Einen Tab öffnen
+### 5.5 Opening a tab
 
 `showTab(tabId)` in `pokemon-detail.js`:
 
-1. Alle Tabs werden auf aktiv/inaktiv gesetzt (Klasse `.active`, `aria-selected`, `.hidden`).
-2. Der Inhalt scrollt nach oben.
-3. Wurde der Tab für dieses Pokémon **schon gebaut** (`data-rendered`), ist man fertig.
-4. Sonst wird `tab.render(pokemon)` aufgerufen:
-   - Liefert `render` **Text**, wird er sofort angezeigt.
-   - Liefert `render` ein **Promise** (der Tab muss erst Daten laden), zeigt das Popup
-     "Loading..." und wartet.
-5. Ist das Pokémon inzwischen ein anderes, wird das Ergebnis verworfen.
-6. Der HTML-Text wird eingesetzt, danach läuft optional `tab.afterRender(tabPanel)`.
-7. Bei einem Fehler erscheint "The details could not be loaded." und der Tab darf durch
-   erneutes Anklicken noch einmal versucht werden.
+1. All tabs are set to active/inactive (class `.active`, `aria-selected`, `.hidden`).
+2. The content scrolls to the top.
+3. If the tab has **already been built** for this Pokémon (`data-rendered`), you are done.
+4. Otherwise `tab.render(pokemon)` is called:
+   - If `render` returns **text**, it is displayed immediately.
+   - If `render` returns a **Promise** (the tab first has to load data), the popup shows
+     "Loading..." and waits.
+5. If the Pokémon has changed in the meantime, the result is discarded.
+6. The HTML text is inserted, then `tab.afterRender(tabPanel)` optionally runs.
+7. On an error, "The details could not be loaded." appears and the tab may be retried
+   by clicking it again.
 
-### 5.6 Blättern, Schließen, Tastatur
+### 5.6 Browsing, closing, keyboard
 
-- **Blättern:** Pfeil-Knöpfe im Kopf oder `←` / `→`. `getNeighbourPokemonId` läuft über die
-  **Position in der Liste**, nicht über `id ± 1`, weil die IDs bei den Sonderformen auf
-  10001+ springen. Nach dem letzten Pokémon geht es wieder beim ersten los (und umgekehrt).
-- **Schließen:** Knopf ✕, `Esc` oder ein Klick auf den dunklen Hintergrund
-  (`closeDetailIfOverlayClicked` schließt nur, wenn wirklich der Hintergrund getroffen
-  wurde, nicht die Karte).
-- Pfeiltasten werden ignoriert, wenn der Fokus in einem Eingabefeld liegt, und Tasten mit
-  `Ctrl`/`Alt`/`Cmd` gehören dem Browser.
+- **Browsing:** arrow buttons in the header or `←` / `→`. `getNeighbourPokemonId` works via the
+  **position in the list**, not via `id ± 1`, because the IDs jump to
+  10001+ for the special forms. After the last Pokémon it starts again at the first (and vice versa).
+- **Closing:** the ✕ button, `Esc` or a click on the dark background
+  (`closeDetailIfOverlayClicked` only closes if the background was really hit,
+  not the card).
+- Arrow keys are ignored when the focus is in an input field, and keys with
+  `Ctrl`/`Alt`/`Cmd` belong to the browser.
 
-### 5.7 Der Moves-Tab im Detail
+### 5.7 The Moves tab in detail
 
-1. `movesHtml(pokemon)` sortiert die Attacken des Pokémon **nach Spiel und Lernart**
-   (`buildLearnsetPerGame`). Ergebnis in `learnsetPerGame`, neuestes Spiel zuerst.
-2. Vorausgewählt wird das neueste Spiel, das Level-up-Attacken kennt
+1. `movesHtml(pokemon)` organizes the Pokémon's moves **by game and learn method**
+   (`buildLearnsetPerGame`). The result goes into `learnsetPerGame`, newest game first.
+2. The newest game that has level-up moves is preselected
    (`findNewestGameWithLevelUpMoves`).
-3. Der Tab zeigt oben die **Spiel-Auswahl** (`moves-game-select.js`), darunter die Filter
-   (Level up, TM/HM, Egg, Tutor, Other, je mit Anzahl) und die Liste als Karten.
-4. Jede Karte zeigt sofort Level und Name. Typ, Kategorie, Power, Genauigkeit, AP und
-   Beschreibung werden **erst nachgeladen, wenn die Karte fast sichtbar ist**
-   (`IntersectionObserver`). Bei über 100 Attacken wären das sonst über 100 Anfragen auf einmal.
-5. Wechselt der Nutzer Spiel oder Filter, baut `renderMovesView()` Filter und Liste neu
-   und startet die Beobachtung neu. Die Spiel-Auswahl selbst bleibt bestehen.
+3. The tab shows the **game selection** at the top (`moves-game-select.js`), below it the filters
+   (Level up, TM/HM, Egg, Tutor, Other, each with a count) and the list as cards.
+4. Each card immediately shows level and name. Type, category, power, accuracy, PP and
+   description are **only loaded once the card is almost visible**
+   (`IntersectionObserver`). With over 100 moves, that would otherwise be over 100 requests at once.
+5. When the user changes the game or filter, `renderMovesView()` rebuilds the filters and list
+   and restarts the observation. The game selection itself stays in place.
 
 ---
 
-## 6. Die PokéAPI: Welche Daten woher kommen
+## 6. The PokéAPI: Which data comes from where
 
-Basis-URL: `https://pokeapi.co/api/v2` (Konstante `pokeApiBaseUrl` in `configuration.js`).
+Base URL: `https://pokeapi.co/api/v2` (constant `pokeApiBaseUrl` in `configuration.js`).
 
-| Endpunkt | Geladen von | Wofür |
+| Endpoint | Loaded by | Used for |
 | --- | --- | --- |
-| `/pokemon?limit=1&offset=0` | `fetchTotalPokemonCount` | nur das Feld `count` (Gesamtzahl) |
-| `/pokemon?limit=<count>&offset=0` | `fetchAllPokemonNamesAndIds` | Namen und URLs aller Pokémon für die Suche |
-| `/pokemon/<id>` | `fetchPokemonById` | Karte, Popup-Kopf, Stats, Typen, Fähigkeiten-Liste, Attacken-Liste, Bilder, Schrei |
-| `pokemon.species.url` (`/pokemon-species/<id>`) | About-Tab, Evolution-Tab, Untertitel | Beschreibung, Ei-Zyklus, Geschlecht, Ei-Gruppen, Gattung, Generation, "legendär" |
-| `species.evolution_chain.url` | Evolution-Tab | die Entwicklungskette |
-| `pokemon.location_area_encounters` | About-Tab | Fundorte |
-| `abilityEntry.ability.url` (`/ability/<id>`) | About-Tab | Beschreibung jeder Fähigkeit |
-| `typeEntry.type.url` (`/type/<id>`) | Matchups-Tab | `damage_relations` (wer wie viel Schaden macht) |
-| `/move/<name>` | Moves-Tab | Typ, Kategorie, Power, Genauigkeit, AP, Beschreibung |
+| `/pokemon?limit=1&offset=0` | `fetchTotalPokemonCount` | only the `count` field (total number) |
+| `/pokemon?limit=<count>&offset=0` | `fetchAllPokemonNamesAndIds` | names and URLs of all Pokémon for the search |
+| `/pokemon/<id>` | `fetchPokemonById` | card, popup header, stats, types, abilities list, moves list, images, cry |
+| `pokemon.species.url` (`/pokemon-species/<id>`) | About tab, Evolution tab, subtitle | description, egg cycle, gender, egg groups, genus, generation, "legendary" |
+| `species.evolution_chain.url` | Evolution tab | the evolution chain |
+| `pokemon.location_area_encounters` | About tab | locations |
+| `abilityEntry.ability.url` (`/ability/<id>`) | About tab | description of each ability |
+| `typeEntry.type.url` (`/type/<id>`) | Matchups tab | `damage_relations` (who deals how much damage) |
+| `/move/<name>` | Moves tab | type, category, power, accuracy, PP, description |
 
-**Bilder** (`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon`,
-Konstante `pokemonSpriteBaseUrl`):
+**Images** (`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon`,
+constant `pokemonSpriteBaseUrl`):
 
-- Karten und Popup benutzen die **URLs, die schon im `/pokemon/<id>`-Ergebnis stehen**
-  (`sprites.other.showdown`, `dream_world`, `official-artwork`, …). Mehr dazu in
+- Cards and popup use the **URLs that are already in the `/pokemon/<id>` result**
+  (`sprites.other.showdown`, `dream_world`, `official-artwork`, …). More on this in
   [text-and-image-helpers.js](#74-jstext-and-image-helpersjs).
-- Der Evolution-Tab baut die Bild-URL selbst: `<Basis>/other/official-artwork/<id>.png`.
+- The Evolution tab builds the image URL itself: `<base>/other/official-artwork/<id>.png`.
 
-**Der Cache:** Jede URL wird pro Seitenaufruf nur **einmal** geladen
-(`responseCacheByUrl` in `data-loading.js`). Der Cache lebt nur im Arbeitsspeicher und
-ist nach einem Neuladen der Seite weg. Er wird nirgends dauerhaft gespeichert.
+**The cache:** Each URL is only loaded **once** per page visit
+(`responseCacheByUrl` in `data-loading.js`). The cache lives only in memory and
+is gone after reloading the page. It is never stored permanently anywhere.
 
 ---
 
-## 7. JavaScript: Datei für Datei
+## 7. JavaScript: file by file
 
 ### 7.1 `js/configuration.js`
 
-**Zweck:** Alle festen Werte an einem Ort. Wer etwas anpassen will (Seitengröße, Farben,
-Icons), sucht zuerst hier.
+**Purpose:** All fixed values in one place. If you want to adjust something (page size, colors,
+icons), look here first.
 
-| Name | Bedeutung |
+| Name | Meaning |
 | --- | --- |
-| `pokeApiBaseUrl` | Basis-URL der PokéAPI |
-| `pokemonSpriteBaseUrl` | Basis-URL der Sprite-Bilder auf GitHub |
-| `pokemonPerPage` | 20 – so viele Pokémon kommen pro Klick auf "Mehr fangen" dazu |
-| `pokemonPerLoadAllBatch` | 50 – Blockgröße bei "Alle anzeigen" |
-| `searchDelayMilliseconds` | 250 – Wartezeit nach dem letzten Tastendruck, bevor gesucht wird |
-| `fallbackTypeColor` | `"blue"` – Farbe, falls ein Typ nicht in den Tabellen steht |
-| `pokemonCardWrapperClassName` | CSS-Klasse der Karten-Hülle; wird auch zum Entfernen der Karten benutzt |
-| `noDescriptionText` | Text, wenn die API keine Beschreibung liefert |
-| `strokeIconSvg(shapes)` | Hilfsfunktion: verpackt SVG-Formen in ein 24×24-Strich-Icon |
-| `icons` | Alle Icons als SVG-Text: `previous`, `next`, `close`, `sound`, `sparkle`, `about`, `stats`, `evolution`, `matchups`, `moves`, `check`, `chevronDown`, `pokeball` |
-| `mainColorByTypeName` | Hauptfarbe je Typ (Plakette und Beginn des Farbverlaufs) |
-| `gradientEndColorByTypeName` | Endfarbe des Farbverlaufs je Typ |
-| `allTypeNames` | Alle Typnamen (aus den Schlüsseln von `mainColorByTypeName`); der Matchups-Tab rechnet damit |
+| `pokeApiBaseUrl` | Base URL of the PokéAPI |
+| `pokemonSpriteBaseUrl` | Base URL of the sprite images on GitHub |
+| `pokemonPerPage` | 20 – this many Pokémon are added per click on "Catch more" |
+| `pokemonPerLoadAllBatch` | 50 – batch size for "Show all" |
+| `searchDelayMilliseconds` | 250 – wait time after the last keystroke before searching |
+| `fallbackTypeColor` | `"blue"` – color in case a type is not in the tables |
+| `pokemonCardWrapperClassName` | CSS class of the card wrapper; also used to remove the cards |
+| `noDescriptionText` | Text if the API provides no description |
+| `strokeIconSvg(shapes)` | Helper function: wraps SVG shapes into a 24×24 stroke icon |
+| `icons` | All icons as SVG text: `previous`, `next`, `close`, `sound`, `sparkle`, `about`, `stats`, `evolution`, `matchups`, `moves`, `check`, `chevronDown`, `pokeball` |
+| `mainColorByTypeName` | Main color per type (badge and start of the gradient) |
+| `gradientEndColorByTypeName` | End color of the gradient per type |
+| `allTypeNames` | All type names (from the keys of `mainColorByTypeName`); the Matchups tab calculates with them |
 
-Die Icons erben ihre Farbe vom umgebenden Text (`stroke="currentColor"`).
+The icons inherit their color from the surrounding text (`stroke="currentColor"`).
 
 ### 7.2 `js/state.js`
 
-**Zweck:** Die globalen Variablen, die `pokemon-list.js` und `pokemon-detail.js` gemeinsam
-lesen und ändern.
+**Purpose:** The global variables that `pokemon-list.js` and `pokemon-detail.js` read and
+modify together.
 
-| Variable | Bedeutung |
+| Variable | Meaning |
 | --- | --- |
-| `allPokemonNamesAndIds` | `{ pokemonId, name }` aller Pokémon, einmal beim Start geladen |
-| `searchResults` | Der Teil davon, der zur aktuellen Suche passt |
-| `displayedPokemonCount` | Wie viele der `searchResults` schon als Karten auf der Seite stehen |
-| `pokemonInDetailView` | Das Pokémon des offenen Popups, `null` wenn es geschlossen ist |
-| `latestListRequestNumber` | Nummer des letzten Listen-Ladevorgangs (ältere werden verworfen) |
-| `latestDetailRequestNumber` | Dasselbe für das Popup |
-| `searchDelayTimerId` | Timer-ID der Such-Verzögerung |
+| `allPokemonNamesAndIds` | `{ pokemonId, name }` of all Pokémon, loaded once at startup |
+| `searchResults` | The part of it that matches the current search |
+| `displayedPokemonCount` | How many of the `searchResults` are already on the page as cards |
+| `pokemonInDetailView` | The Pokémon of the open popup, `null` if it is closed |
+| `latestListRequestNumber` | Number of the latest list loading process (older ones are discarded) |
+| `latestDetailRequestNumber` | The same for the popup |
+| `searchDelayTimerId` | Timer ID of the search delay |
 
 ### 7.3 `js/data-loading.js`
 
-**Zweck:** Alles, was mit dem Laden von Daten aus dem Netz zu tun hat, mit Cache.
+**Purpose:** Everything to do with loading data from the network, with a cache.
 
-| Funktion | Aufgabe |
+| Function | Job |
 | --- | --- |
-| `fetchJsonWithCache(url)` | **Die** Ladefunktion für alle. Lädt eine URL nur einmal und gibt danach das gemerkte Ergebnis zurück |
-| `fetchJsonAndForgetFailure(url)` | Wirft eine fehlgeschlagene Anfrage wieder aus dem Cache, damit ein neuer Versuch möglich ist |
-| `fetchJsonFromNetwork(url)` | Der eigentliche `fetch` |
-| `readJsonOrThrow(response, url)` | Wirft einen Fehler bei HTTP-Status außerhalb von 200–299, sonst liefert es das JSON |
-| `fetchPokemonById(id)` | Kurzform für `/pokemon/<id>` |
+| `fetchJsonWithCache(url)` | **The** loading function for everyone. Loads a URL only once and afterwards returns the remembered result |
+| `fetchJsonAndForgetFailure(url)` | Removes a failed request from the cache again so that a new attempt is possible |
+| `fetchJsonFromNetwork(url)` | The actual `fetch` |
+| `readJsonOrThrow(response, url)` | Throws an error for an HTTP status outside 200–299, otherwise returns the JSON |
+| `fetchPokemonById(id)` | Shorthand for `/pokemon/<id>` |
 
 ### 7.4 `js/text-and-image-helpers.js`
 
-**Zweck:** Kleine, unabhängige Helfer.
+**Purpose:** Small, independent helpers.
 
-| Funktion | Aufgabe |
+| Function | Job |
 | --- | --- |
-| `capitalizeFirstLetter(text)` | erster Buchstabe groß |
+| `capitalizeFirstLetter(text)` | first letter uppercase |
 | `formatNameForDisplay(apiName)` | `"special-attack"` → `"Special Attack"` |
 | `extractIdFromUrl(url)` | `".../pokemon-species/133/"` → `133` |
-| `findLatestEnglishText(entries, fieldName)` | Sucht in einer Liste von `{ language, <Feld> }` den **letzten englischen** Eintrag und entfernt Zeilenumbrüche |
-| `getMainColorOfPokemon` / `getGradientEndColorOfPokemon` | Farben nach dem **ersten** Typ des Pokémon |
-| `getListSpriteUrl` | Kleines animiertes Bild der Karte (`showdown`), sonst das normale Vorderbild |
-| `getShinyListSpriteUrl` | Dasselbe als Shiny (Ersatz: normales Bild) |
-| `getDetailImageUrl` | Großes Popup-Bild: `dream_world` → `official-artwork` → Vorderbild |
-| `getShinyDetailImageUrl` | Großes Shiny-Bild oder `null`, wenn es keines gibt (dann fehlt der Shiny-Knopf) |
+| `findLatestEnglishText(entries, fieldName)` | Searches a list of `{ language, <field> }` for the **last English** entry and removes line breaks |
+| `getMainColorOfPokemon` / `getGradientEndColorOfPokemon` | Colors based on the Pokémon's **first** type |
+| `getListSpriteUrl` | Small animated card image (`showdown`), otherwise the normal front image |
+| `getShinyListSpriteUrl` | The same as shiny (fallback: normal image) |
+| `getDetailImageUrl` | Large popup image: `dream_world` → `official-artwork` → front image |
+| `getShinyDetailImageUrl` | Large shiny image or `null` if there is none (then the shiny button is missing) |
 
-Die Reihenfolge mit `||` ist eine **Rückfallkette**: Fehlt das erste Bild, wird das
-nächste benutzt.
+The order with `||` is a **fallback chain**: if the first image is missing, the
+next one is used.
 
 ### 7.5 `js/components.js`
 
-**Zweck:** HTML-Bausteine, die von **mehreren Tabs** genutzt werden.
+**Purpose:** HTML building blocks used by **several tabs**.
 
-| Funktion | Aufgabe |
+| Function | Job |
 | --- | --- |
-| `barTrackHtml(value, max, colors)` | Der Balken selbst; Füllung in Prozent (höchstens 100 %), Farben als CSS-Variablen |
-| `barCellsHtml(label, value, max, colors)` | Drei Zellen: Beschriftung, Wert, Balken |
-| `barRowHtml(...)` | Eine komplette Balkenzeile (Stats-Tab) |
-| `pokemonColorStyle(pokemon)` | Der `style`-Text, der `--pokemon-main-color` und `--pokemon-gradient-end-color` setzt |
-| `typeBadgeHtml(typeName)` | Die farbige Typ-Plakette |
-| `tabMessageHtml(text)` | Statusmeldung für einen Tab ("Loading...", Fehler, "does not evolve") |
+| `barTrackHtml(value, max, colors)` | The bar itself; fill in percent (at most 100 %), colors as CSS variables |
+| `barCellsHtml(label, value, max, colors)` | Three cells: label, value, bar |
+| `barRowHtml(...)` | A complete bar row (Stats tab) |
+| `pokemonColorStyle(pokemon)` | The `style` text that sets `--pokemon-main-color` and `--pokemon-gradient-end-color` |
+| `typeBadgeHtml(typeName)` | The colored type badge |
+| `tabMessageHtml(text)` | Status message for a tab ("Loading...", error, "does not evolve") |
 
-`barColors` ist immer ein Objekt `{ startColor, endColor }`.
+`barColors` is always an object `{ startColor, endColor }`.
 
-### 7.6 `js/pokemon-list.js` und `js/pokemon-detail.js`
+### 7.6 `js/pokemon-list.js` and `js/pokemon-detail.js`
 
-#### `js/pokemon-list.js` – die Übersicht
+#### `js/pokemon-list.js` – the overview
 
-Gliederung im Code:
+Organization in the code:
 
-| Abschnitt | Funktionen |
+| Section | Functions |
 | --- | --- |
-| **Feste Elemente** (oben) | `searchInput`, `pokedexElement`, `pokedexMessageElement`, `loadButtonsContainer`, `loadAllButtonLabel` |
-| **Start** | `initializePokedex`, `fetchAllPokemonNamesAndIds`, `fetchTotalPokemonCount`, `toPokemonNameAndId` |
-| **Suche** | `scheduleSearch`, `runSearch`, `findPokemonMatchingSearchText`, `removeAllPokemonCards` |
-| **Nachladen** | `loadNextPokemonPage`, `loadAllRemainingPokemon`, `runListLoading`, `isOutdatedListRequest`, `showListLoadingError`, `appendNextPage`, `appendAllRemainingBatches`, `appendNextBatch`, `fetchPokemonOfListEntries` |
-| **Anzeige** | `showLoadAllProgress`, `setLoadButtonsDisabled`, `appendPokemonCards`, `showPokedexMessage`, `updateLoadButtonsVisibility` |
-| **Eine Karte** | `pokemonCardHtml`, `pokemonCardHeadingHtml`, `pokemonCardTypesAndImageHtml`, `typeBadgesOfPokemonHtml`, `pokemonCardImageHtml` |
+| **Fixed elements** (top) | `searchInput`, `pokedexElement`, `pokedexMessageElement`, `loadButtonsContainer`, `loadAllButtonLabel` |
+| **Startup** | `initializePokedex`, `fetchAllPokemonNamesAndIds`, `fetchTotalPokemonCount`, `toPokemonNameAndId` |
+| **Search** | `scheduleSearch`, `runSearch`, `findPokemonMatchingSearchText`, `removeAllPokemonCards` |
+| **Loading more** | `loadNextPokemonPage`, `loadAllRemainingPokemon`, `runListLoading`, `isOutdatedListRequest`, `showListLoadingError`, `appendNextPage`, `appendAllRemainingBatches`, `appendNextBatch`, `fetchPokemonOfListEntries` |
+| **Display** | `showLoadAllProgress`, `setLoadButtonsDisabled`, `appendPokemonCards`, `showPokedexMessage`, `updateLoadButtonsVisibility` |
+| **A card** | `pokemonCardHtml`, `pokemonCardHeadingHtml`, `pokemonCardTypesAndImageHtml`, `typeBadgesOfPokemonHtml`, `pokemonCardImageHtml` |
 
-Wichtige Details:
+Important details:
 
-- `runListLoading` ist der gemeinsame Rahmen für beide Nachlade-Wege: Er führt die
-  Schritte aus, fängt Fehler ab, zeigt eine Meldung und aktualisiert danach die Knöpfe,
-  aber nur, wenn die Anfrage noch aktuell ist.
-- `appendNextBatch` gibt `false` zurück, wenn inzwischen eine neuere Anfrage
-  übernommen hat, dann wird nichts mehr angezeigt.
-- `appendPokemonCards` fügt neue Karten **vor** dem Meldungs-Element ein
-  (`insertAdjacentHTML("beforebegin", …)`). Die Meldung bleibt so immer das letzte Element
-  im `#pokedex`.
-- `pokemonCardImageHtml` erzeugt **zwei** übereinanderliegende Bilder (normal und shiny).
-  Das CSS blendet beim Darüberfahren von einem zum anderen über.
-- Bilder haben `loading="lazy"`: Der Browser lädt sie erst, wenn sie fast sichtbar sind.
+- `runListLoading` is the shared frame for both ways of loading more: it runs the
+  steps, catches errors, shows a message and then updates the buttons,
+  but only if the request is still current.
+- `appendNextBatch` returns `false` if a newer request has taken over in the
+  meantime; then nothing is displayed anymore.
+- `appendPokemonCards` inserts new cards **before** the message element
+  (`insertAdjacentHTML("beforebegin", …)`). This way the message always stays the last element
+  in `#pokedex`.
+- `pokemonCardImageHtml` creates **two** stacked images (normal and shiny).
+  The CSS crossfades from one to the other on hover.
+- Images have `loading="lazy"`: the browser only loads them when they are almost visible.
 
-#### `js/pokemon-detail.js` – das Popup und das Tab-System
+#### `js/pokemon-detail.js` – the popup and the tab system
 
-Gliederung im Code:
+Organization in the code:
 
-| Abschnitt | Funktionen |
+| Section | Functions |
 | --- | --- |
-| **Tab-Verwaltung** (oben) | `detailOverlay`, `matchupsTabId`, `registeredTabs`, `registerTab` |
-| **Öffnen, Blättern, Schließen** | `openPokemonDetail`, `displayPokemonIfStillLatest`, `displayPokemonDetail`, `preloadNeighbourPokemon`, `getNeighbourPokemonId`, `showDetailOverlay`, `closePokemonDetail`, `closeDetailIfOverlayClicked` |
-| **Aufbau des Popups** | `pokemonDetailHtml`, `detailHeaderHtml`, `detailToolbarHtml`, `detailNavigationHtml`, `detailActionsHtml`, `hasCrySound`, `detailRoundButtonHtml`, `previousPokemonButtonHtml`, `nextPokemonButtonHtml`, `shinyButtonHtml`, `cryButtonHtml`, `closeButtonHtml`, `detailHeroHtml`, `detailHeadingHtml`, `detailTitleHtml`, `getLongestWordLength`, `detailFigureHtml`, `detailHeaderTypeHtml` |
+| **Tab management** (top) | `detailOverlay`, `matchupsTabId`, `registeredTabs`, `registerTab` |
+| **Opening, browsing, closing** | `openPokemonDetail`, `displayPokemonIfStillLatest`, `displayPokemonDetail`, `preloadNeighbourPokemon`, `getNeighbourPokemonId`, `showDetailOverlay`, `closePokemonDetail`, `closeDetailIfOverlayClicked` |
+| **Popup structure** | `pokemonDetailHtml`, `detailHeaderHtml`, `detailToolbarHtml`, `detailNavigationHtml`, `detailActionsHtml`, `hasCrySound`, `detailRoundButtonHtml`, `previousPokemonButtonHtml`, `nextPokemonButtonHtml`, `shinyButtonHtml`, `cryButtonHtml`, `closeButtonHtml`, `detailHeroHtml`, `detailHeadingHtml`, `detailTitleHtml`, `getLongestWordLength`, `detailFigureHtml`, `detailHeaderTypeHtml` |
 | **Tabs** | `tabButtonHtml`, `tabPanelHtml`, `showTab`, `setTabActive`, `fillTabPanel`, `renderTabContent`, `showTabContent`, `showTabLoadError` |
-| **Zeile unter dem Namen** | `showSpeciesSummary`, `displaySubtitle`, `speciesSummaryText`, `getSpecialStatusText` |
-| **Shiny und Schrei** | `toggleShinyImage`, `showDetailImage`, `flashDetailFigure`, `playPokemonCry` |
-| **Tastatur** | `handleDetailKeyDown`, `stepWithArrowKey` (registriert per `document.addEventListener("keydown", …)`) |
+| **Line below the name** | `showSpeciesSummary`, `displaySubtitle`, `speciesSummaryText`, `getSpecialStatusText` |
+| **Shiny and cry** | `toggleShinyImage`, `showDetailImage`, `flashDetailFigure`, `playPokemonCry` |
+| **Keyboard** | `handleDetailKeyDown`, `stepWithArrowKey` (registered via `document.addEventListener("keydown", …)`) |
 
-**Das Tab-Format** (Kommentar am Anfang der Datei):
+**The tab format** (comment at the top of the file):
 
 ```js
 {
-  tabId: "About",         // eindeutig; wird als HTML-id des Containers benutzt
-  label: "About",         // Beschriftung im Tab-Knopf
-  icon: icons.about,      // SVG-Text (siehe configuration.js)
-  render: aboutHtml,      // (pokemon) => HTML-Text ODER Promise mit HTML-Text
-  afterRender: fn         // optional: (tabPanel) => …, läuft nachdem das HTML im Popup steht
+  tabId: "About",         // unique; used as the HTML id of the container
+  label: "About",         // label in the tab button
+  icon: icons.about,      // SVG text (see configuration.js)
+  render: aboutHtml,      // (pokemon) => HTML text OR Promise with HTML text
+  afterRender: fn         // optional: (tabPanel) => …, runs after the HTML is in the popup
 }
 ```
 
-Wichtige Details:
+Important details:
 
-- `getLongestWordLength` liefert die Länge des längsten Wortes im Namen. CSS berechnet
-  daraus die Schriftgröße (`--name-longest-word-length`), damit ein Wort nie mitten im
-  Wort umbricht ("Landorus Incarnate" darf aber in zwei Zeilen stehen).
-- `detailHeaderTypeHtml` macht die Typen im Kopf zu Knöpfen, die zum Matchups-Tab springen,
-  aber nur, wenn es diesen Tab gibt. Ohne ihn sind es einfache Beschriftungen.
-- `flashDetailFigure` erzwingt mit `void figureElement.offsetWidth`, dass die
-  Blitz-Animation neu startet, auch wenn die Klasse gerade erst entfernt wurde.
-- `playPokemonCry` fängt eine Ablehnung des Browsers ab (Autoplay-Regeln), dann bleibt es still.
+- `getLongestWordLength` returns the length of the longest word in the name. CSS calculates
+  the font size from it (`--name-longest-word-length`) so that a word never breaks in the
+  middle ("Landorus Incarnate" may span two lines, though).
+- `detailHeaderTypeHtml` turns the types in the header into buttons that jump to the Matchups tab,
+  but only if that tab exists. Without it they are plain labels.
+- `flashDetailFigure` uses `void figureElement.offsetWidth` to force the
+  flash animation to restart, even if the class was only just removed.
+- `playPokemonCry` catches a refusal by the browser (autoplay rules); then it stays silent.
 
-### 7.7 `js/tabs/` – die fünf Tabs
+### 7.7 `js/tabs/` – the five tabs
 
-Jede Tab-Datei beginnt mit `registerTab({ … })`. Danach folgen die Funktionen des Tabs.
+Each tab file starts with `registerTab({ … })`. The tab's functions follow.
 
 #### `tabs/about.js` – "About"
 
-Zeigt Beschreibungstext, Größe/Gewicht/Ei-Zyklus, Geschlecht, Ei-Gruppen, Fähigkeiten und Fundorte.
+Shows the description text, height/weight/egg cycle, gender, egg groups, abilities and locations.
 
-| Funktion | Aufgabe |
+| Function | Job |
 | --- | --- |
-| `aboutHtml` | Lädt alles und setzt die Teile zusammen |
-| `fetchAboutData` | Lädt gleichzeitig (`Promise.all`): Species, Fundorte, Fähigkeiten |
-| `fetchAllAbilityDetails` | Lädt jede Fähigkeit; schlägt eine fehl, wird sie zu `null` (nur diese Karte zeigt dann keinen Text, der Rest bleibt heil) |
-| `descriptionQuoteHtml` | Der Pokédex-Text aus den Spielen (ersetzt "POKéMON" durch "Pokémon") |
-| `basicFactTilesHtml` | Kacheln Height, Weight, Egg Cycle |
-| `genderAndEggGroupTilesHtml`, `genderTileHtml`, `genderBarHtml`, `genderLegendHtml` | Geschlechterverhältnis als zweifarbiger Balken |
-| `tileHtml`, `chipListHtml` | Kleine Bausteine: Kachel und Pillen |
-| `abilitiesSectionHtml`, `abilityCardHtml`, `abilityDescriptionText` | Fähigkeiten-Karten (mit "Hidden"-Marke) |
-| `locationsSectionHtml` | Fundorte als scrollbare Pillen ("Unknown", wenn keine bekannt) |
+| `aboutHtml` | Loads everything and assembles the parts |
+| `fetchAboutData` | Loads simultaneously (`Promise.all`): species, locations, abilities |
+| `fetchAllAbilityDetails` | Loads each ability; if one fails, it becomes `null` (only that card then shows no text, the rest stays intact) |
+| `descriptionQuoteHtml` | The Pokédex text from the games (replaces "POKéMON" with "Pokémon") |
+| `basicFactTilesHtml` | Tiles Height, Weight, Egg Cycle |
+| `genderAndEggGroupTilesHtml`, `genderTileHtml`, `genderBarHtml`, `genderLegendHtml` | Gender ratio as a two-color bar |
+| `tileHtml`, `chipListHtml` | Small building blocks: tile and pills |
+| `abilitiesSectionHtml`, `abilityCardHtml`, `abilityDescriptionText` | Ability cards (with a "Hidden" tag) |
+| `locationsSectionHtml` | Locations as scrollable pills ("Unknown" if none are known) |
 
-Umrechnungen: Die API liefert Größe in **Dezimetern** (`× 10` = cm) und Gewicht in
-**Hektogramm** (`÷ 10` = kg). `gender_rate` sind **Achtel** weiblich (`-1` = geschlechtslos).
+Conversions: the API returns height in **decimeters** (`× 10` = cm) and weight in
+**hectograms** (`÷ 10` = kg). `gender_rate` is **eighths** female (`-1` = genderless).
 
 #### `tabs/stats.js` – "Stats" (tabId `Base-Stats`)
 
-Zeigt ein **Radar-Diagramm** (Sechseck) und sechs **Balken** plus einen Total-Balken.
+Shows a **radar chart** (hexagon) and six **bars** plus a total bar.
 
-| Bereich | Funktionen |
+| Area | Functions |
 | --- | --- |
-| Balken | `baseStatisticsHtml`, `toStatistic`, `createTotalBarEntry`, `statisticBarRowHtml` |
-| Radar: Geometrie | `radarCornerAngleInRadians`, `radarPointCoordinates`, `radarPolygonPoints` |
-| Radar: Zeichnung | `radarChartHtml`, `radarRingsHtml`, `radarAxesHtml`, `radarAxisHtml`, `radarDotsHtml`, `radarDotHtml`, `radarLabelsHtml`, `radarLabelHtml`, `radarTextAnchor` |
+| Bars | `baseStatisticsHtml`, `toStatistic`, `createTotalBarEntry`, `statisticBarRowHtml` |
+| Radar: geometry | `radarCornerAngleInRadians`, `radarPointCoordinates`, `radarPolygonPoints` |
+| Radar: drawing | `radarChartHtml`, `radarRingsHtml`, `radarAxesHtml`, `radarAxisHtml`, `radarDotsHtml`, `radarDotHtml`, `radarLabelsHtml`, `radarLabelHtml`, `radarTextAnchor` |
 
-Konstanten und ihre Wirkung:
+Constants and their effect:
 
-- `maximumStatisticValue = 255` und `maximumTotalValue = 780`: Bei diesen Werten ist der Balken voll.
-- `radarMaximumValue = 150`: Ab diesem Wert reicht das Diagramm bis zum Rand.
-- `statisticBarColors`: Farbverlauf je Balken, die Reihenfolge entspricht HP, Attack,
+- `maximumStatisticValue = 255` and `maximumTotalValue = 780`: at these values the bar is full.
+- `radarMaximumValue = 150`: from this value on the chart reaches the edge.
+- `statisticBarColors`: gradient per bar, the order corresponds to HP, Attack,
   Defense, Sp. Attack, Sp. Defense, Speed, Total.
-- `radarCornerLabels`: Kurznamen an den Ecken (HP, ATK, DEF, SpA, SpD, SPE).
+- `radarCornerLabels`: short names at the corners (HP, ATK, DEF, SpA, SpD, SPE).
 
-Das Radar ist ein **selbst gezeichnetes SVG** (keine Bibliothek). Eine Ecke liegt bei
-`Winkel = -90° + Ecke × 60°` (Ecke 0 = oben). Aus dem Winkel und einem Abstands-Anteil
-(0 = Mitte, 1 = Rand) berechnet `radarPointCoordinates` mit `cos` und `sin` einen Punkt.
-Die Hilfslinien (Ringe bei 25/50/75/100 %), die Achsen, die Fläche und die Punkte sind
-alle derselbe Rechenweg mit anderen Anteilen.
+The radar is a **hand-drawn SVG** (no library). A corner lies at
+`angle = -90° + corner × 60°` (corner 0 = top). From the angle and a distance ratio
+(0 = center, 1 = edge), `radarPointCoordinates` calculates a point with `cos` and `sin`.
+The guide rings (at 25/50/75/100 %), the axes, the area and the dots are
+all the same calculation with different ratios.
 
 #### `tabs/evolution.js` – "Evolution"
 
-Zeigt die Entwicklungskette als Baum aus Pokémon-Kacheln und Pfeilen mit Bedingung.
+Shows the evolution chain as a tree of Pokémon tiles and arrows with conditions.
 
-| Funktion | Aufgabe |
+| Function | Job |
 | --- | --- |
-| `evolutionHtml` | Lädt Species und Kette; "does not evolve", wenn es keine Entwicklung gibt |
-| `fetchEvolutionChain` | Liefert die Kette oder `null` |
-| `evolutionStageHtml` | **Rekursiv:** ein Pokémon plus alles, wozu es sich entwickelt (deshalb funktionieren auch Verzweigungen wie bei Evoli) |
-| `getWideLayoutClassName` | Ab mehr als `wideEvolutionBranchCount` (3) Zweigen wird als Raster gezeichnet (`.wide`) |
-| `evolutionBranchesHtml`, `evolutionBranchHtml` | Pfeil mit Bedingung und das Ziel-Pokémon |
-| `evolutionNodeHtml`, `evolutionNodeActionAttribute`, `evolutionNodeContentHtml` | Die Kachel; das aktuelle Pokémon ist nicht klickbar, alle anderen öffnen ihr Popup |
-| `evolutionConditionText` | Mehrere Wege werden mit "or" verbunden, doppelte Texte entfallen |
-| `evolutionDetailText` und `evolutionTriggerText`, `itemAndMoveConditionTexts`, `friendshipConditionTexts`, `circumstanceConditionTexts`, `partyAndStatsConditionTexts`, `attackVersusDefenseText` | Übersetzen die API-Felder in Text ("Level 16", "Use Fire Stone", "at night", "friendship 220+" …) |
+| `evolutionHtml` | Loads species and chain; "does not evolve" if there is no evolution |
+| `fetchEvolutionChain` | Returns the chain or `null` |
+| `evolutionStageHtml` | **Recursive:** a Pokémon plus everything it evolves into (which is why branches like Eevee's also work) |
+| `getWideLayoutClassName` | With more than `wideEvolutionBranchCount` (3) branches, it is drawn as a grid (`.wide`) |
+| `evolutionBranchesHtml`, `evolutionBranchHtml` | Arrow with condition and the target Pokémon |
+| `evolutionNodeHtml`, `evolutionNodeActionAttribute`, `evolutionNodeContentHtml` | The tile; the current Pokémon is not clickable, all others open their popup |
+| `evolutionConditionText` | Several ways are joined with "or", duplicate texts are dropped |
+| `evolutionDetailText` and `evolutionTriggerText`, `itemAndMoveConditionTexts`, `friendshipConditionTexts`, `circumstanceConditionTexts`, `partyAndStatsConditionTexts`, `attackVersusDefenseText` | Translate the API fields into text ("Level 16", "Use Fire Stone", "at night", "friendship 220+" …) |
 
-Die Kachel-ID ist die **Species-ID**. Sie ist zugleich die ID der Standardform, deshalb
-kann ein Klick direkt `openPokemonDetail(speciesId)` aufrufen.
+The tile ID is the **species ID**. It is also the ID of the default form, so
+a click can directly call `openPokemonDetail(speciesId)`.
 
 #### `tabs/matchups.js` – "Matchups"
 
-Zeigt, gegen welche Angriffstypen das Pokémon schwach, resistent oder immun ist.
+Shows which attacking types the Pokémon is weak to, resists or is immune to.
 
-| Funktion | Aufgabe |
+| Function | Job |
 | --- | --- |
-| `matchupsHtml` | Lädt die Typen, rechnet, baut die Gruppen |
-| `fetchTypesOfPokemon` | Lädt die 1 oder 2 Typen des Pokémon |
-| `calculateDamageMultipliers` | Bestimmt den Schadensfaktor je Angriffstyp |
-| `createNeutralDamageMultipliers` | Startwert: jeder der 18 Typen hat Faktor 1 |
-| `applyDamageRelations`, `multiplyDamage` | Multipliziert die Faktoren aus `damage_relations` ein |
-| `matchupGroupsHtml`, `matchupGroupHtmlIfNotEmpty`, `matchupGroupHtml`, `matchupHeadingHtml` | Gruppen wie "Very weak to ×4" anzeigen |
+| `matchupsHtml` | Loads the types, calculates, builds the groups |
+| `fetchTypesOfPokemon` | Loads the Pokémon's 1 or 2 types |
+| `calculateDamageMultipliers` | Determines the damage factor per attacking type |
+| `createNeutralDamageMultipliers` | Starting value: each of the 18 types has factor 1 |
+| `applyDamageRelations`, `multiplyDamage` | Multiplies in the factors from `damage_relations` |
+| `matchupGroupsHtml`, `matchupGroupHtmlIfNotEmpty`, `matchupGroupHtml`, `matchupHeadingHtml` | Display groups like "Very weak to ×4" |
 
-**Die Rechnung:** Start bei ×1. Für jeden Typ des Pokémon gilt: `double_damage_from` → ×2,
-`half_damage_from` → ×½, `no_damage_from` → ×0. Bei **zwei Typen** werden die Faktoren
-multipliziert. So entstehen ×4 (zweimal schwach), ×¼ (zweimal resistent), Schwäche und
-Resistenz heben sich zu ×1 auf, und ×0 (Immunität) gewinnt immer. Gruppen ohne Typen werden
-nicht angezeigt, ×1 wird gar nicht gelistet ("All other types deal normal damage.").
+**The calculation:** start at ×1. For each type of the Pokémon: `double_damage_from` → ×2,
+`half_damage_from` → ×½, `no_damage_from` → ×0. With **two types** the factors are
+multiplied. This produces ×4 (weak twice), ×¼ (resistant twice), weakness and
+resistance cancel out to ×1, and ×0 (immunity) always wins. Groups without types are
+not shown, ×1 is not listed at all ("All other types deal normal damage.").
 
 #### `tabs/moves.js` – "Moves"
 
-Zeigt alle Attacken nach Spiel und Lernart. Die längste Tab-Datei.
+Shows all moves by game and learn method. The longest tab file.
 
-| Bereich | Funktionen |
+| Area | Functions |
 | --- | --- |
-| Einstieg | `movesHtml`, `findNewestGameWithLevelUpMoves` |
-| Spiele: Namen, Reihenfolge | `getGameDisplayName`, `getGameGeneration`, `findKnownGame`, `getGameReleaseRank`, `compareGamesNewestFirst` |
-| Attacken ordnen | `buildLearnsetPerGame`, `addMoveToLearnset`, `getOrCreateGame`, `createGame`, `toKnownLearnMethodApiName`, `createLearnedMove` |
-| Filter und Liste | `movesViewHtml`, `findSelectedGame`, `ensureValidLearnMethodSelection`, `learnMethodFiltersHtml`, `learnMethodFilterButtonHtml`, `moveCardListHtml`, `sortMovesForDisplay`, `compareMovesByLevelThenName`, `selectLearnMethod`, `renderMovesView` |
-| Karte | `moveCardHtml`, `moveHeadingHtml` |
-| Nachladen bei Sichtbarkeit | `observeMoveCards` (auch als `afterRender` eingetragen), `createMoveCardObserver`, `fillMoveCardsThatBecameVisible`, `fillMoveCard`, `showMoveDetails`, `showMoveDetailsError`, `moveBadgesHtml` |
-| Werte und Beschreibung | `moveBodyHtml`, `moveEffectDescription`, `moveMeterHtml`, `meterLabelRowHtml` |
+| Entry point | `movesHtml`, `findNewestGameWithLevelUpMoves` |
+| Games: names, order | `getGameDisplayName`, `getGameGeneration`, `findKnownGame`, `getGameReleaseRank`, `compareGamesNewestFirst` |
+| Organizing moves | `buildLearnsetPerGame`, `addMoveToLearnset`, `getOrCreateGame`, `createGame`, `toKnownLearnMethodApiName`, `createLearnedMove` |
+| Filters and list | `movesViewHtml`, `findSelectedGame`, `ensureValidLearnMethodSelection`, `learnMethodFiltersHtml`, `learnMethodFilterButtonHtml`, `moveCardListHtml`, `sortMovesForDisplay`, `compareMovesByLevelThenName`, `selectLearnMethod`, `renderMovesView` |
+| Card | `moveCardHtml`, `moveHeadingHtml` |
+| Loading when visible | `observeMoveCards` (also registered as `afterRender`), `createMoveCardObserver`, `fillMoveCardsThatBecameVisible`, `fillMoveCard`, `showMoveDetails`, `showMoveDetailsError`, `moveBadgesHtml` |
+| Values and description | `moveBodyHtml`, `moveEffectDescription`, `moveMeterHtml`, `meterLabelRowHtml` |
 
-Wichtige Datenstrukturen und Konstanten:
+Important data structures and constants:
 
-- `knownGameVersionGroups`: **Tabelle aller Spiele in Erscheinungsreihenfolge** mit Anzeigename
-  und Generation. Die API-IDs taugen dafür nicht (japanische Fassungen haben späte IDs).
-  Unbekannte, neuere Spiele hängen hinten an und erscheinen unter "Newer games".
-- `learnMethods`: Lernarten in Filter-Reihenfolge (`level-up`, `machine`, `egg`, `tutor`,
-  `other`). Seltene Sonderfälle werden zu `other` zusammengefasst
-  (`toKnownLearnMethodApiName`). `tagText` liefert die kleine Pille am Zeilenanfang
+- `knownGameVersionGroups`: **table of all games in order of release** with display name
+  and generation. The API IDs are not suitable for this (Japanese versions have late IDs).
+  Unknown, newer games are appended at the end and appear under "Newer games".
+- `learnMethods`: learn methods in filter order (`level-up`, `machine`, `egg`, `tutor`,
+  `other`). Rare special cases are grouped into `other`
+  (`toKnownLearnMethodApiName`). `tagText` returns the small pill at the start of a row
   ("Lv 16", "Evo", "TM" …).
-- `learnsetPerGame`: Liste der Spiele des Pokémon, neueste zuerst. Form:
+- `learnsetPerGame`: list of the Pokémon's games, newest first. Shape:
   `{ versionGroupName, versionGroupId, movesByLearnMethod: { "level-up": [ { apiName, displayName, levelLearnedAt } ] } }`.
-- `movesSelection`: aktuelle Auswahl `{ versionGroupName, learnMethodApiName }`. Wird bei jedem
-  Pokémon neu gesetzt. Hat das neu gewählte Spiel die gewählte Lernart nicht, gilt die erste
-  vorhandene (`ensureValidLearnMethodSelection`).
-- `moveMeterColors`: Farben der Balken über `color-mix` mit `--move-color` (Farbe des
-  Attacken-Typs) oder ersatzweise der Farbe des Pokémon.
-- `maximumMovePower` (200), `maximumMoveAccuracy` (100), `maximumMovePowerPoints` (40): Obergrenzen der Balken.
+- `movesSelection`: current selection `{ versionGroupName, learnMethodApiName }`. Reset for every
+  Pokémon. If the newly chosen game does not have the chosen learn method, the first
+  available one is used (`ensureValidLearnMethodSelection`).
+- `moveMeterColors`: colors of the bars via `color-mix` with `--move-color` (color of the
+  move's type) or, as a fallback, the Pokémon's color.
+- `maximumMovePower` (200), `maximumMoveAccuracy` (100), `maximumMovePowerPoints` (40): upper limits of the bars.
 
-Statusattacken haben keine Power, manche keine Genauigkeit (sie treffen immer): Dann zeigt
-`moveMeterHtml` "–" und einen leeren Balken.
+Status moves have no power, and some have no accuracy (they always hit): then
+`moveMeterHtml` shows "–" and an empty bar.
 
-#### `tabs/moves-game-select.js` – die Spiel-Auswahl
+#### `tabs/moves-game-select.js` – the game selection
 
-Ein **selbstgebautes Dropdown** statt `<select>`, weil die Liste eines echten `<select>` vom
-Betriebssystem gezeichnet wird und sich nicht gestalten lässt. Es folgt dem
-Barrierefreiheits-Muster "Listbox mit `aria-activedescendant`": Der Knopf behält den Fokus,
-die Liste markiert nur die "aktive" Option.
+A **custom-built dropdown** instead of `<select>`, because the list of a real `<select>` is drawn by the
+operating system and cannot be styled. It follows the accessibility pattern
+"listbox with `aria-activedescendant`": the button keeps the focus,
+the list only marks the "active" option.
 
-| Bereich | Funktionen |
+| Area | Functions |
 | --- | --- |
-| Aufbau | `gameSelectHtml`, `gameButtonHtml`, `gameListItemsHtml`, `gameListItemHtml`, `startsNewGeneration`, `generationHeadingHtml`, `gameOptionHtml`, `countMovesOfGame` |
-| Öffnen/Schließen | `getGameOptionElements`, `isGameListOpen`, `toggleGameList`, `openGameList`, `markGameButtonExpanded`, `measureFreeSpaceBelowGameButton`, `limitGameListHeight`, `centerSelectedGameOption`, `scrollGameListIntoView`, `closeGameList`, `closeGameListIfClickedOutside` |
-| Hervorhebung | `setActiveGameOption`, `scrollGameOptionIntoView`, `findActiveGameOption`, `getNeighbourGameOption` |
-| Auswahl | `selectGame`, `showSelectedGameInSelect` |
-| Tastatur | `gameSelectKeyHandlers` (Tabelle Taste → Funktion), `handleGameSelectKeyDown`, `keepKeyAwayFromPopup`, `moveHighlightWithArrowKey`, `moveHighlightToEdge`, `chooseHighlightedGame`, `closeGameListWithEscape`, `keepHorizontalArrowInsideOpenList` |
+| Structure | `gameSelectHtml`, `gameButtonHtml`, `gameListItemsHtml`, `gameListItemHtml`, `startsNewGeneration`, `generationHeadingHtml`, `gameOptionHtml`, `countMovesOfGame` |
+| Opening/closing | `getGameOptionElements`, `isGameListOpen`, `toggleGameList`, `openGameList`, `markGameButtonExpanded`, `measureFreeSpaceBelowGameButton`, `limitGameListHeight`, `centerSelectedGameOption`, `scrollGameListIntoView`, `closeGameList`, `closeGameListIfClickedOutside` |
+| Highlighting | `setActiveGameOption`, `scrollGameOptionIntoView`, `findActiveGameOption`, `getNeighbourGameOption` |
+| Selection | `selectGame`, `showSelectedGameInSelect` |
+| Keyboard | `gameSelectKeyHandlers` (table of key → function), `handleGameSelectKeyDown`, `keepKeyAwayFromPopup`, `moveHighlightWithArrowKey`, `moveHighlightToEdge`, `chooseHighlightedGame`, `closeGameListWithEscape`, `keepHorizontalArrowInsideOpenList` |
 
-Tastaturbedienung bei offener Liste: `↑` `↓` bewegen, `Home`/`End` springen, `Enter` oder
-Leertaste wählt, `Esc` schließt nur die Liste, `Tab` schließt sie.
-`keepKeyAwayFromPopup` ruft `stopPropagation()` auf, damit `Esc` und die Pfeiltasten nicht
-zum Popup durchdringen (sonst würde `Esc` das ganze Popup schließen und `←`/`→` das Pokémon
-wechseln).
+Keyboard operation with the list open: `↑` `↓` move, `Home`/`End` jump, `Enter` or
+Space selects, `Esc` closes only the list, `Tab` closes it.
+`keepKeyAwayFromPopup` calls `stopPropagation()` so that `Esc` and the arrow keys do not
+reach the popup (otherwise `Esc` would close the whole popup and `←`/`→` would switch
+the Pokémon).
 
-Die Höhe der aufgeklappten Liste passt sich dem freien Platz im Popup an, bleibt aber
-zwischen `minimumGameListHeight` (180 px) und `maximumGameListHeight` (340 px).
+The height of the opened list adapts to the free space in the popup but stays
+between `minimumGameListHeight` (180 px) and `maximumGameListHeight` (340 px).
 
 ---
 
-## 8. CSS: Datei für Datei
+## 8. CSS: file by file
 
-### 8.1 Die Reihenfolge ist wichtig
+### 8.1 The order matters
 
-In `index.html` steht: *"spätere Regeln überschreiben frühere (utilities zuletzt)"*.
-`utilities.css` enthält nur `.hidden { display: none; }`. Das muss **zuletzt** kommen, damit
-es Regeln wie `.detail-overlay { display: flex }` mit gleicher Gewichtung überstimmt.
+In `index.html` it says: *"Order matters: later rules override earlier ones (utilities last)"*.
+`utilities.css` contains only `.hidden { display: none; }`. It must come **last** so that
+it overrides rules like `.detail-overlay { display: flex }` with the same specificity.
 
-Die Rechtsseiten laden nur `base.css`, `layout.css` und `legal.css`.
+The legal pages only load `base.css`, `layout.css` and `legal.css`.
 
-### 8.2 Die Dateien
+### 8.2 The files
 
-| Datei | Inhalt |
+| File | Content |
 | --- | --- |
-| `base.css` | 11 `@font-face`-Blöcke für 7 Schriftfamilien, Schrift-Variablen (`--font-…`), `box-sizing: border-box`, Seitenhintergrund (dunkler Farbverlauf, fixiert), Grundwerte für `h1`, `p`, `img` |
-| `layout.css` | **Kopfzeile** (fest oben, 76 px, rot), Logo (dreht sich beim Darüberfahren), Suchfeld mit Lupe, **Kartenraster** `.pokedex`, Abdunkeln bei offenem Popup `.pokedex-dimmed`, Meldung `.pokedex-message`, Fußzeile |
-| `buttons.css` | Die Knöpfe "Mehr fangen" (rot) und "Alle anzeigen" (blau, `.load-all`): dicker Boden, Glanzstreifen, eingedrückt beim Klick, gesperrter Zustand |
-| `pokemon-cards.css` | Die Karte (Farbverlauf des Typs, Hover-Anheben, Glanzstreifen), Name, Nummer, Bild-Wechsel normal/shiny, schwebende Animation, **`.type-badge`** (auch in Matchups und Moves benutzt) |
-| `pokemon-detail.css` | Das Popup: Overlay (Unschärfe), **die Farb-Variablen der Karte** (siehe 8.3), Kopf mit Farbverlauf, runde Glas-Knöpfe, Name/Typen/Bild, Tab-Leiste, scrollbarer Inhalt, alle Popup-Animationen, Regeln für schmale Bildschirme |
-| `bars.css` | Balken (`.bar-row`, `.bar-track`, `.bar-fill`), Stats-Layout, das komplette Radar-Diagramm |
-| `about.css` | About-Tab: Zitat, Kacheln, Geschlechter-Balken, Pillen, Fähigkeiten-Karten. **Enthält auch geteilte Klassen** (`.tab-message`, `.detail-section-title`, `.tile-label`, `.card-list`, `.chip-list`), die andere Tabs mitbenutzen |
-| `evolution.css` | Baum aus Kacheln und Pfeilen, breite Variante `.wide`, senkrechte Anordnung auf Handys |
-| `matchups.css` | Gruppen-Zeilen mit farbigem linken Rand (rot = schwach, grün = resistent, grau = immun) |
-| `moves.css` | Spiel-Auswahl und ihre Liste, Lernart-Filter (kleben oben beim Scrollen), Attacken-Karten, Platzhalter mit Schimmer-Animation, Werte-Balken |
-| `legal.css` | Lesbare Textspalte für Impressum und Datenschutz |
+| `base.css` | 11 `@font-face` blocks for 7 font families, font variables (`--font-…`), `box-sizing: border-box`, page background (dark gradient, fixed), base values for `h1`, `p`, `img` |
+| `layout.css` | **Header** (fixed at the top, 76 px, red), logo (rotates on hover), search field with magnifying glass, **card grid** `.pokedex`, dimming while a popup is open `.pokedex-dimmed`, message `.pokedex-message`, footer |
+| `buttons.css` | The buttons "Catch more" (red) and "Show all" (blue, `.load-all`): thick bottom edge, shine streak, pressed in on click, disabled state |
+| `pokemon-cards.css` | The card (type gradient, hover lift, shine streak), name, number, normal/shiny image switch, floating animation, **`.type-badge`** (also used in Matchups and Moves) |
+| `pokemon-detail.css` | The popup: overlay (blur), **the card's color variables** (see 8.3), header with gradient, round glass buttons, name/types/image, tab bar, scrollable content, all popup animations, rules for narrow screens |
+| `bars.css` | Bars (`.bar-row`, `.bar-track`, `.bar-fill`), Stats layout, the complete radar chart |
+| `about.css` | About tab: quote, tiles, gender bar, pills, ability cards. **Also contains shared classes** (`.tab-message`, `.detail-section-title`, `.tile-label`, `.card-list`, `.chip-list`) that other tabs use too |
+| `evolution.css` | Tree of tiles and arrows, wide variant `.wide`, vertical layout on phones |
+| `matchups.css` | Group rows with a colored left border (red = weak, green = resistant, gray = immune) |
+| `moves.css` | Game selection and its list, learn method filters (stick to the top while scrolling), move cards, placeholders with shimmer animation, value bars |
+| `legal.css` | Readable text column for the legal notice and privacy policy |
 | `utilities.css` | `.hidden` |
 
-### 8.3 Das Farbsystem (CSS-Variablen)
+### 8.3 The color system (CSS variables)
 
-Die Farben eines Pokémon werden **nicht** in CSS festgelegt, sondern vom JavaScript als
-CSS-Variablen an die Elemente geschrieben. Das CSS benutzt sie nur.
+A Pokémon's colors are **not** defined in CSS but written by the JavaScript as
+CSS variables onto the elements. The CSS only uses them.
 
-| Variable | Wer setzt sie | Wofür |
+| Variable | Set by | Used for |
 | --- | --- | --- |
-| `--pokemon-main-color`, `--pokemon-gradient-end-color` | `pokemonColorStyle()` in `components.js`, als `style` auf Karte und Popup | Farbverlauf der Karte und des Popup-Kopfes; alles andere leitet sich davon ab |
-| `--type-color` | `typeBadgeHtml()` | Farbe einer Typ-Plakette |
-| `--bar-start-color`, `--bar-end-color` | `barTrackHtml()` | Farbverlauf eines Balkens |
-| `--move-color` | `showMoveDetails()` in `moves.js` | Farbe einer Attacken-Karte nach dem Nachladen |
-| `--name-longest-word-length` | `detailTitleHtml()` | Schriftgröße des Namens im Popup |
+| `--pokemon-main-color`, `--pokemon-gradient-end-color` | `pokemonColorStyle()` in `components.js`, as `style` on card and popup | Gradient of the card and the popup header; everything else derives from it |
+| `--type-color` | `typeBadgeHtml()` | Color of a type badge |
+| `--bar-start-color`, `--bar-end-color` | `barTrackHtml()` | Gradient of a bar |
+| `--move-color` | `showMoveDetails()` in `moves.js` | Color of a move card after loading |
+| `--name-longest-word-length` | `detailTitleHtml()` | Font size of the name in the popup |
 
-In `.detail-card` (`pokemon-detail.css`) werden daraus die **Farben des Popups** abgeleitet:
-`--accent-color` (helle Version der Typ-Farbe), `--panel-background-color`, `--surface-color`,
+In `.detail-card` (`pokemon-detail.css`) the **popup's colors** are derived from these:
+`--accent-color` (light version of the type color), `--panel-background-color`, `--surface-color`,
 `--surface-strong-color`, `--border-color`, `--text-color`, `--muted-text-color`.
-Alle Tab-Stile (`about.css`, `evolution.css`, `matchups.css`, `moves.css`) benutzen diese Namen.
-**Willst du das Popup umfärben, ändere sie an dieser einen Stelle.**
+All tab styles (`about.css`, `evolution.css`, `matchups.css`, `moves.css`) use these names.
+**If you want to recolor the popup, change them in this one place.**
 
-`color-mix(in srgb, <Farbe> 55%, white)` mischt Farben direkt im CSS (heller, transparenter).
-Bei einigen Regeln steht davor eine einfachere Zeile als **Rückfall** für Browser ohne `color-mix`.
+`color-mix(in srgb, <color> 55%, white)` mixes colors directly in CSS (lighter, more transparent).
+Some rules have a simpler line in front of them as a **fallback** for browsers without `color-mix`.
 
-### 8.4 Responsives Verhalten und Bewegung
+### 8.4 Responsive behavior and motion
 
-- **Haltepunkt 520 px** (Handy): kleinere Abstände, Titel in der Kopfzeile verschwindet,
-  im Popup zeigt nur der **aktive** Tab seine Beschriftung, Evolution wird senkrecht,
-  Attacken-Typ und Kategorie rutschen in eine eigene Zeile.
-- **560 px:** Im Stats-Tab steht das Radar dann über den Balken statt daneben.
-- **1200 px:** `h1` wird fest 2.5 rem groß.
-- **`prefers-reduced-motion: reduce`:** Wer im Betriebssystem "Bewegung reduzieren" eingestellt
-  hat, bekommt im Popup **keine** Animationen (`animation: none`) und kaum Übergänge. Das
-  Logo in der Kopfzeile und die beiden Lade-Knöpfe verzichten auf ihre Dreh- und Glanz-Effekte.
-  Die Karten der Übersicht haben dafür keine eigene Regel (sie schweben weiter).
-- **Layout des Kartenrasters:** `grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))`,
-  also so viele Spalten, wie in die Breite passen.
+- **Breakpoint 520 px** (phone): smaller spacing, the title in the header disappears,
+  in the popup only the **active** tab shows its label, Evolution becomes vertical,
+  move type and category move to their own row.
+- **560 px:** in the Stats tab the radar then sits above the bars instead of next to them.
+- **1200 px:** `h1` becomes a fixed 2.5 rem.
+- **`prefers-reduced-motion: reduce`:** anyone who has set "Reduce motion" in the operating system
+  gets **no** animations in the popup (`animation: none`) and hardly any transitions. The
+  logo in the header and the two loading buttons drop their rotation and shine effects.
+  The overview's cards have no rule of their own for this (they keep floating).
+- **Layout of the card grid:** `grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))`,
+  i.e. as many columns as fit into the width.
 
 ---
 
-## 9. HTML-Dateien
+## 9. HTML files
 
 ### 9.1 `index.html`
 
-Die einzige Seite der App. Aufbau von oben nach unten:
+The app's only page. Structure from top to bottom:
 
-| Element | Aufgabe |
+| Element | Job |
 | --- | --- |
-| `<head>` | Favicon, alle Stylesheets (Reihenfolge wichtig), alle Skripte mit `defer` (Reihenfolge wichtig) |
-| `<body onload="initializePokedex()">` | Startet die App, sobald die Seite geladen ist |
-| `<header>` | Logo, Titel und Suchfeld `#search-input` (`oninput="scheduleSearch()"`) |
-| `#pokedex` | Das Kartenraster; enthält anfangs nur die Meldung `#pokedex-message`. Die Karten fügt JS ein |
-| `#load-buttons` | Die beiden Knöpfe. Anfangs `hidden`; `#load-all-label` ist die Beschriftung von "Alle anzeigen" |
-| `#detail-overlay` | Leerer Container für das Popup; JS füllt ihn. `onclick` schließt bei Klick auf den Hintergrund |
-| `<footer>` | Links zu Datenschutz und Impressum |
+| `<head>` | Favicon, all stylesheets (order matters), all scripts with `defer` (order matters) |
+| `<body onload="initializePokedex()">` | Starts the app as soon as the page has loaded |
+| `<header>` | Logo, title and search field `#search-input` (`oninput="scheduleSearch()"`) |
+| `#pokedex` | The card grid; initially contains only the message `#pokedex-message`. JS inserts the cards |
+| `#load-buttons` | The two buttons. Initially `hidden`; `#load-all-label` is the label of "Show all" |
+| `#detail-overlay` | Empty container for the popup; JS fills it. `onclick` closes on a click on the background |
+| `<footer>` | Links to the privacy policy and the legal notice |
 
-IDs, die das JavaScript sucht: `search-input`, `pokedex`, `pokedex-message`,
-`load-buttons`, `load-all-label`, `detail-overlay`. Benennst du eine davon um, musst du
-`pokemon-list.js` bzw. `pokemon-detail.js` anpassen.
+IDs that the JavaScript looks up: `search-input`, `pokedex`, `pokedex-message`,
+`load-buttons`, `load-all-label`, `detail-overlay`. If you rename one of them, you have to
+adjust `pokemon-list.js` or `pokemon-detail.js`.
 
-### 9.2 `Impressum.html` und `datenschutzt.html`
+### 9.2 `legal-notice.html` and `privacy-policy.html`
 
-Reine Textseiten (Deutsch). Sie haben dieselbe Kopfzeile wie die App, aber ohne Suchfeld, und
-laden nur `base.css`, `layout.css` und `legal.css`. Kein JavaScript. Der Inhalt steht in
-`<section>`-Blöcken mit `<h2>`-Überschriften.
+Pure text pages (English). They have the same header as the app, but without the search field, and
+only load `base.css`, `layout.css` and `legal.css`. No JavaScript. The content is in
+`<section>` blocks with `<h2>` headings.
 
-Beide werden im Footer der App **in einem neuen Tab** geöffnet
+Both are opened **in a new tab** from the app's footer
 (`target="_blank" rel="noopener"`).
 
 ---
 
-## 10. Wichtige Konzepte erklärt
+## 10. Important concepts explained
 
-### 10.1 Promises und `async`/`await`
+### 10.1 Promises and `async`/`await`
 
-Netzwerkanfragen dauern. Ein **Promise** ist ein Versprechen auf ein späteres Ergebnis.
-`await` wartet darauf, ohne die Seite einzufrieren. Eine `async`-Funktion gibt immer ein
-Promise zurück. Deshalb kann ein Tab in `render` einfach `async function` sein: Das
-Popup erkennt das Promise und zeigt "Loading...", bis es fertig ist.
+Network requests take time. A **Promise** is a promise of a later result.
+`await` waits for it without freezing the page. An `async` function always returns a
+Promise. That is why a tab's `render` can simply be an `async function`: the
+popup recognizes the Promise and shows "Loading..." until it is done.
 
-`Promise.all([a, b, c])` startet mehrere Anfragen **gleichzeitig** und wartet auf alle. So
-lädt der About-Tab Species, Fundorte und Fähigkeiten parallel statt nacheinander.
+`Promise.all([a, b, c])` starts several requests **at the same time** and waits for all of them. This is how the
+About tab loads species, locations and abilities in parallel instead of one after another.
 
-### 10.2 Der Cache speichert Promises statt Ergebnisse
+### 10.2 The cache stores Promises instead of results
 
 ```js
 function fetchJsonWithCache(url) {
@@ -806,75 +806,75 @@ function fetchJsonWithCache(url) {
 }
 ```
 
-Gespeichert wird das **Promise**, nicht das fertige Ergebnis. Fragen zwei Stellen fast
-gleichzeitig dieselbe URL an (z. B. Untertitel und About-Tab die Species-Daten), teilen sie sich
-**eine** Netzwerkanfrage. Schlägt sie fehl, fliegt sie aus dem Cache, damit ein neuer Versuch
-möglich ist.
+What is stored is the **Promise**, not the finished result. If two places request the same URL
+almost simultaneously (e.g. the subtitle and the About tab the species data), they share
+**one** network request. If it fails, it is removed from the cache so that a new attempt
+is possible.
 
-### 10.3 Veraltete Anfragen verwerfen (Request-Nummern)
+### 10.3 Discarding outdated requests (request numbers)
 
-Problem: Der Nutzer klickt auf Pokémon A, dann schnell auf B. Antwortet A **nach** B,
-würde plötzlich A angezeigt. Lösung: Jede Anfrage bekommt eine Nummer.
+Problem: the user clicks on Pokémon A, then quickly on B. If A responds **after** B,
+A would suddenly be displayed. Solution: every request gets a number.
 
 ```js
-let thisRequestNumber = ++latestDetailRequestNumber;   // Nummer ziehen
-let pokemon = await fetchPokemonById(pokemonId);        // warten …
-if (requestNumber !== latestDetailRequestNumber) return; // inzwischen überholt → nichts tun
+let thisRequestNumber = ++latestDetailRequestNumber;   // take a number
+let pokemon = await fetchPokemonById(pokemonId);        // wait …
+if (requestNumber !== latestDetailRequestNumber) return; // overtaken in the meantime → do nothing
 ```
 
-Dasselbe Muster gibt es für die Liste (`latestListRequestNumber`). Auch das Schließen des
-Popups zählt hoch, damit eine noch laufende Anfrage es nicht wieder öffnet. Ähnlich prüfen
-Tabs mit `pokemon !== pokemonInDetailView`, ob es noch dasselbe Pokémon ist.
+The same pattern exists for the list (`latestListRequestNumber`). Closing the
+popup also increments the number so that a request that is still running does not reopen it. Similarly,
+tabs check with `pokemon !== pokemonInDetailView` whether it is still the same Pokémon.
 
-### 10.4 Entprellen der Suche (Debounce)
+### 10.4 Debouncing the search
 
-Nicht bei jedem Buchstaben suchen, sondern erst, wenn 250 ms Ruhe ist.
-`clearTimeout` bricht den alten Timer ab, `setTimeout` startet einen neuen.
+Do not search on every letter, but only once there has been 250 ms of quiet.
+`clearTimeout` cancels the old timer, `setTimeout` starts a new one.
 
-### 10.5 Nachladen erst bei Sichtbarkeit (`IntersectionObserver`)
+### 10.5 Loading only when visible (`IntersectionObserver`)
 
-Ein `IntersectionObserver` meldet, wenn ein Element in einen Bereich hineinkommt. Der
-Moves-Tab beobachtet jede Karte im Popup-Scrollbereich mit `rootMargin: "600px 0px"`, also
-**600 px bevor** sie sichtbar wird. So sieht man beim Scrollen kaum Platzhalter, es werden
-aber trotzdem nicht alle Attacken auf einmal geladen. `fillMoveCard` prüft mit
-`moveCard.isConnected`, ob die Karte noch auf der Seite ist.
+An `IntersectionObserver` reports when an element enters an area. The
+Moves tab observes every card in the popup's scroll area with `rootMargin: "600px 0px"`, i.e.
+**600 px before** it becomes visible. This way hardly any placeholders are seen while scrolling, but
+still not all moves are loaded at once. `fillMoveCard` uses
+`moveCard.isConnected` to check whether the card is still on the page.
 
-### 10.6 Platzhalter ohne Springen (`:empty`)
+### 10.6 Placeholders without jumping (`:empty`)
 
-Karten der Attacken haben schon vor dem Laden eine passende Höhe (`.move-body:empty { height: 92px }`),
-damit die Seite beim Nachladen nicht springt. Wichtig: Die leeren Elemente müssen **wirklich leer** sein
-(auch kein Leerzeichen oder Zeilenumbruch darin), sonst greift `:empty` nicht. Deshalb steht
-im Code der Hinweis in `moveCardHtml`.
+Move cards already have a suitable height before loading (`.move-body:empty { height: 92px }`),
+so that the page does not jump when the details load. Important: the empty elements must be **really empty**
+(no space or line break inside either), otherwise `:empty` does not apply. That is why there is a note
+in the code in `moveCardHtml`.
 
-### 10.7 Tab-Registrierung
+### 10.7 Tab registration
 
-Statt dass `pokemon-detail.js` die Tabs kennt, **melden sich die Tabs selbst an**
-(`registerTab`). Das Popup baut Knöpfe und Container aus der Liste `registeredTabs`. Ein neuer Tab
-ist darum nur eine neue Datei plus ein `<script>`-Tag (siehe [11.1](#111-einen-neuen-tab-hinzufügen)).
+Instead of `pokemon-detail.js` knowing the tabs, the **tabs register themselves**
+(`registerTab`). The popup builds buttons and containers from the list `registeredTabs`. A new tab
+is therefore just a new file plus a `<script>` tag (see [11.1](#111-adding-a-new-tab)).
 
-### 10.8 Barrierefreiheit (ARIA) und Tastatur
+### 10.8 Accessibility (ARIA) and keyboard
 
-- Popup: `role="dialog"`, `aria-modal="true"`, `aria-label` mit dem Namen.
+- Popup: `role="dialog"`, `aria-modal="true"`, `aria-label` with the name.
 - Tabs: `role="tablist"`, `role="tab"`, `role="tabpanel"`, `aria-selected`.
-- Shiny-Knopf: `aria-pressed`. Icon-Knöpfe haben `aria-label` und `title`.
-- Spiel-Auswahl: `aria-haspopup`, `aria-expanded`, `role="listbox"`/`"option"`, `aria-activedescendant`.
-- Dekorative SVGs haben `aria-hidden="true"`, das Radar hat `role="img"` mit `aria-label`.
-- Fokus-Rahmen: Regeln mit `:focus-visible`.
-- Tastatur: siehe [5.6](#56-blättern-schließen-tastatur) und die Spiel-Auswahl in [7.7](#77-jstabs--die-fünf-tabs).
+- Shiny button: `aria-pressed`. Icon buttons have `aria-label` and `title`.
+- Game selection: `aria-haspopup`, `aria-expanded`, `role="listbox"`/`"option"`, `aria-activedescendant`.
+- Decorative SVGs have `aria-hidden="true"`, the radar has `role="img"` with `aria-label`.
+- Focus ring: rules with `:focus-visible`.
+- Keyboard: see [5.6](#56-browsing-closing-keyboard) and the game selection in [7.7](#77-jstabs--the-five-tabs).
 
 ---
 
-## 11. Anleitungen: So erweiterst du das Projekt
+## 11. Guides: How to extend the project
 
-### 11.1 Einen neuen Tab hinzufügen
+### 11.1 Adding a new tab
 
-1. Neue Datei `js/tabs/mein-tab.js` anlegen:
+1. Create a new file `js/tabs/my-tab.js`:
 
    ```js
    registerTab({
-     tabId: "Team",          // eindeutig, wird als HTML-id benutzt (keine Leerzeichen)
-     label: "Team",          // Text im Tab-Knopf
-     icon: icons.about,      // vorhandenes Icon, oder ein neues in configuration.js anlegen
+     tabId: "Team",          // unique, used as the HTML id (no spaces)
+     label: "Team",          // text in the tab button
+     icon: icons.about,      // existing icon, or create a new one in configuration.js
      render: teamHtml,
    });
 
@@ -884,106 +884,106 @@ ist darum nur eine neue Datei plus ein `<script>`-Tag (siehe [11.1](#111-einen-n
    }
    ```
 
-2. In `index.html` das Skript **hinter den anderen Tabs** eintragen. Die Reihenfolge dort ist
-   die Reihenfolge der Tabs im Popup:
+2. In `index.html`, add the script **after the other tabs**. The order there is
+   the order of the tabs in the popup:
 
    ```html
-   <script defer src="js/tabs/mein-tab.js"></script>
+   <script defer src="js/tabs/my-tab.js"></script>
    ```
 
-3. Bei Bedarf eine eigene CSS-Datei anlegen und in `index.html` **vor** `utilities.css`
-   einbinden. Die Farben des Popups (`var(--text-color)`, `var(--accent-color)` …) kannst du
-   direkt benutzen.
+3. If needed, create a CSS file of your own and include it in `index.html` **before**
+   `utilities.css`. You can use the popup's colors (`var(--text-color)`, `var(--accent-color)` …)
+   directly.
 
-Gut zu wissen:
+Good to know:
 
-- Wirft `render` einen Fehler, zeigt das Popup automatisch "The details could not be loaded." und
-  versucht es beim nächsten Klick auf den Tab erneut.
-- Für Code, der erst laufen darf, wenn das HTML im Popup steht (Beobachter, Ereignisse),
-  gibt es `afterRender: (tabPanel) => { … }`.
-- Wiederverwendbare Bausteine: `barRowHtml`, `typeBadgeHtml`, `tabMessageHtml`, `tileHtml`,
+- If `render` throws an error, the popup automatically shows "The details could not be loaded." and
+  tries again on the next click on the tab.
+- For code that may only run once the HTML is in the popup (observers, events),
+  there is `afterRender: (tabPanel) => { … }`.
+- Reusable building blocks: `barRowHtml`, `typeBadgeHtml`, `tabMessageHtml`, `tileHtml`,
   `chipListHtml`.
-- Die `tabId` `"Matchups"` ist besonders: Die Typ-Knöpfe im Kopf springen dorthin.
+- The `tabId` `"Matchups"` is special: the type buttons in the header jump to it.
 
-### 11.2 Mehr oder weniger Pokémon pro Klick
+### 11.2 More or fewer Pokémon per click
 
-In `configuration.js`: `pokemonPerPage` (bei "Mehr fangen") und `pokemonPerLoadAllBatch`
-(Blockgröße bei "Alle anzeigen").
+In `configuration.js`: `pokemonPerPage` (for "Catch more") and `pokemonPerLoadAllBatch`
+(batch size for "Show all").
 
-### 11.3 Die Such-Wartezeit ändern
+### 11.3 Changing the search delay
 
 `searchDelayMilliseconds` in `configuration.js`.
 
-### 11.4 Die Farbe eines Typs ändern
+### 11.4 Changing a type's color
 
-In `configuration.js` beide Tabellen anpassen: `mainColorByTypeName` (Plakette und Beginn
-des Verlaufs) und `gradientEndColorByTypeName` (Ende des Verlaufs). Fügst du hier einen
-**neuen Typ** ein, taucht er automatisch auch im Matchups-Tab auf, weil `allTypeNames` aus
-den Schlüsseln von `mainColorByTypeName` gebildet wird.
+In `configuration.js`, adjust both tables: `mainColorByTypeName` (badge and start
+of the gradient) and `gradientEndColorByTypeName` (end of the gradient). If you add a
+**new type** here, it also automatically appears in the Matchups tab, because `allTypeNames` is built from
+the keys of `mainColorByTypeName`.
 
-### 11.5 Ein neues Spiel im Moves-Tab eintragen
+### 11.5 Adding a new game to the Moves tab
 
-In `moves.js` die Tabelle `knownGameVersionGroups` um `{ apiName, displayName, generation }`
-ergänzen, **an der Stelle, die dem Erscheinungsdatum entspricht** (die Position bestimmt die
-Sortierung). Den `apiName` (Namen der "version group") findest du im `/pokemon/<id>`-Ergebnis unter
-`moves[].version_group_details[].version_group.name`. Ohne Eintrag erscheint das Spiel trotzdem, mit dem formatierten API-Namen unter "Newer games".
+In `moves.js`, extend the table `knownGameVersionGroups` with `{ apiName, displayName, generation }`,
+**at the position that corresponds to the release date** (the position determines the
+sorting). You can find the `apiName` (name of the "version group") in the `/pokemon/<id>` result under
+`moves[].version_group_details[].version_group.name`. Without an entry the game still appears, with the formatted API name under "Newer games".
 
-### 11.6 Ein neues Icon hinzufügen
+### 11.6 Adding a new icon
 
-In `configuration.js` im Objekt `icons` einen neuen Eintrag anlegen, am einfachsten mit
-`strokeIconSvg("<line …></line>")` (24×24-Raster, Farbe vom Text). Benutzen mit `icons.meinIcon`.
+In `configuration.js`, create a new entry in the `icons` object, most simply with
+`strokeIconSvg("<line …></line>")` (24×24 grid, color from the text). Use it with `icons.myIcon`.
 
-### 11.7 Farben oder Schrift des Popups ändern
+### 11.7 Changing the popup's colors or font
 
-Farben: die Variablen in `.detail-card` (`pokemon-detail.css`). Schriften: die
-`--font-…`-Variablen in `base.css`. Neue Schrift: `.woff2`-Datei in `fonts/` legen und einen
-`@font-face`-Block in `base.css` ergänzen. Lade Schriften **lokal**, nicht von einem Fremdserver
-(die Datenschutzerklärung geht davon aus).
+Colors: the variables in `.detail-card` (`pokemon-detail.css`). Fonts: the
+`--font-…` variables in `base.css`. New font: put the `.woff2` file in `fonts/` and add an
+`@font-face` block in `base.css`. Load fonts **locally**, not from a third-party server
+(the privacy policy assumes this).
 
-### 11.8 Testen
+### 11.8 Testing
 
-Es gibt keine automatischen Tests. Prüfe von Hand: Karten laden, Suche, "Mehr fangen"/"Alle
-anzeigen", Popup mit allen fünf Tabs, Blättern, `Esc`. Sinnvolle **Sonderfälle** zum Testen:
+There are no automated tests. Check by hand: cards load, search, "Catch more"/"Show
+all", popup with all five tabs, browsing, `Esc`. Useful **special cases** to test:
 
-| Pokémon | Warum interessant |
+| Pokémon | Why it is interesting |
 | --- | --- |
-| Eevee (Evoli) | Viele Zweige in der Entwicklung (Raster-Layout) |
-| Tyrogue | Entwicklung abhängig von Angriff/Verteidigung |
-| Magnemite | Zwei Typen (Faktoren ×4/×¼ im Matchups-Tab) |
-| Ditto | Geschlechtslos, keine Entwicklung |
-| ein Pokémon mit hoher ID (10000+) | Sonderform: Blättern über die Position in der Liste |
-| ein Legendäres | Untertitel "★ Legendary" |
-| Landorus Incarnate | Langer Name, Umbruch im Kopf |
+| Eevee | Many branches in the evolution (grid layout) |
+| Tyrogue | Evolution depends on Attack/Defense |
+| Magnemite | Two types (factors ×4/×¼ in the Matchups tab) |
+| Ditto | Genderless, no evolution |
+| a Pokémon with a high ID (10000+) | Special form: browsing via the position in the list |
+| a legendary | Subtitle "★ Legendary" |
+| Landorus Incarnate | Long name, line break in the header |
 
 ---
 
-## 12. Deployment und Hilfsdateien
+## 12. Deployment and helper files
 
-### 12.1 Ablauf von der Änderung bis zur Live-Seite
+### 12.1 From change to live site
 
 ```text
-Änderung im Editor
-   │  ./up.sh "Nachricht"        (git pull, git add ., git commit, git push)
+Change in the editor
+   │  ./up.sh "message"          (git pull, git add ., git commit, git push)
    ▼
-Push auf main
+Push to main
    ▼
 GitHub Actions: .github/workflows/deploy.yml
-   ├─ prüft, dass index.html, css/ und js/ vorhanden sind
-   ├─ richtet SSH ein (Schlüssel aus den GitHub-Secrets)
-   ├─ lädt per rsync hoch (--delete: entfernt Dateien, die im Repo fehlen)
-   ├─ löscht den Schlüssel wieder
-   └─ prüft, dass die Seite antwortet (curl)
+   ├─ checks that index.html, css/ and js/ exist
+   ├─ sets up SSH (key from the GitHub secrets)
+   ├─ uploads via rsync (--delete: removes files that are missing in the repo)
+   ├─ deletes the key again
+   └─ checks that the site responds (curl)
 ```
 
-Es gibt **keinen Build-Schritt**: Der Ordnerinhalt wird so, wie er ist, hochgeladen.
+There is **no build step**: the folder content is uploaded as it is.
 
-**Nicht hochgeladen** werden (per `--exclude`): `.git/`, `.github/`, `.vscode/`,
-`.well-known/`, `.DS_Store`, `.gitignore`, `Dokumentation/`, `plan.drawio` und `up.sh`.
-Diese Doku liegt also nie auf dem Server.
+**Not uploaded** (via `--exclude`): `.git/`, `.github/`, `.vscode/`,
+`.well-known/`, `.DS_Store`, `.gitignore`, `Documentation/`, `plan.drawio` and `up.sh`.
+So this documentation is never on the server.
 
-Die Einrichtung (Schlüssel, Secrets, Server) steht in
-[deployment-einrichten.md](deployment-einrichten.md). Dort steht auch, **warum** das
-Repository keine Server-Daten enthält (es ist öffentlich).
+The setup (key, secrets, server) is described in
+[deployment-setup.md](deployment-setup.md). It also explains **why** the
+repository contains no server data (it is public).
 
 ### 12.2 `up.sh`
 
@@ -994,73 +994,71 @@ git commit -m "$*"
 git push
 ```
 
-Aufruf: `./up.sh Meine Nachricht` (alle Wörter werden zur Commit-Nachricht). Achtung:
-`git add .` nimmt **alles** mit, was nicht in `.gitignore` steht, und der Push auf `main`
-**startet sofort das Deployment**. Prüfe vorher mit `git status`, was mitgeht.
+Usage: `./up.sh My message` (all words become the commit message). Note:
+`git add .` includes **everything** that is not in `.gitignore`, and the push to `main`
+**starts the deployment immediately**. Check beforehand with `git status` what is included.
 
 ### 12.3 `.gitignore`
 
-Ignoriert `.DS_Store` und `.vscode/`. Außerdem Schlüssel und Zugangsdaten
-(`.env`, `*.pem`, `*.key`, `id_ed25519*`, `id_rsa*`, `*_deploy`, `*_deploy.pub`), damit
-sie nie versehentlich in das öffentliche Repository gelangen.
+Ignores `.DS_Store` and `.vscode/`. Also keys and credentials
+(`.env`, `*.pem`, `*.key`, `id_ed25519*`, `id_rsa*`, `*_deploy`, `*_deploy.pub`) so that
+they never accidentally end up in the public repository.
 
 ### 12.4 `.github/dependabot.yml`
 
-Prüft wöchentlich, ob es neuere Versionen der in `deploy.yml` verwendeten GitHub-Actions
-gibt, und schlägt sie als Pull Request vor. Die Actions sind in `deploy.yml` per
-Commit-SHA festgelegt (Schutz vor manipulierten Updates).
+Checks weekly whether there are newer versions of the GitHub Actions used in `deploy.yml`
+and proposes them as a pull request. The actions are pinned in `deploy.yml` by
+commit SHA (protection against tampered updates).
 
 ### 12.5 `plan.drawio`
 
-Eine frühe Skizze der Idee (für [draw.io](https://draw.io)). Sie gehört nicht zur
-Seite und wird nicht hochgeladen.
+An early sketch of the idea (for [draw.io](https://draw.io)). It is not part of the
+site and is not uploaded.
 
-### 12.6 `Dokumentation/`
+### 12.6 `Documentation/`
 
-- `code-erklaerung.md`: diese Datei.
-- `deployment-einrichten.md`: Einrichtung des automatischen Deployments.
-- `tailwind-einrichten.md`: Anleitung, Tailwind CSS nachzurüsten (aktuell **nicht** im Einsatz).
+- `code-explanation.md`: this file.
+- `deployment-setup.md`: setting up the automatic deployment.
+- `tailwind-setup.md`: guide to retrofitting Tailwind CSS (currently **not** in use).
 
 ---
 
-## 13. Auffälligkeiten im aktuellen Code
+## 13. Observations about the current code
 
-Das ist keine Fehlerliste zum Abarbeiten, sondern eine Sammlung von Stellen, die dir beim
-Lesen begegnen könnten. Ich habe nichts davon geändert.
+This is not a list of bugs to work through, but a collection of places you might
+come across while reading. I have not changed any of them.
 
-| Wo | Was auffällt | Mögliche Folge / Vorschlag |
+| Where | What stands out | Possible consequence / suggestion |
 | --- | --- | --- |
-| `css/buttons.css`, Zeile 14 | `--button-edge: var(--button-edge);` verweist auf **sich selbst**. Laut CSS-Regeln ist so ein Kreis ungültig. Der blaue Knopf ist nicht betroffen, weil `.load-all` einen eigenen Wert setzt | Der rote Knopf "Mehr fangen" hat wahrscheinlich keinen dunklen "Boden" (der `box-shadow` mit `var(--button-edge)` wird ungültig). Ich habe es nicht im Browser geprüft. Fix: dort eine echte Farbe eintragen (z. B. ein dunkles Rot) |
-| `css/pokemon-cards.css`, Zeile 60 | `.pokemon-card:hover::before` – aber die Karte hat kein `::before` | Die Regel bewirkt nichts und kann weg |
-| `css/base.css` | Die Schriften **Diplomata** und **Pacifico** (und `--font-diplomata`, `--font-pacifico`) werden nirgends benutzt | Browser laden ungenutzte Schriften nicht, aber die Dateien (ca. 60 KB) liegen im Repo. Können entfernt werden |
-| `datenschutzt.html` | Dateiname mit "t" am Ende. Außerdem heißt die andere Seite `Impressum.html` (großes I), alle anderen Dateien im Projekt sind kleingeschrieben | Funktioniert, weil der Footer-Link denselben Namen benutzt. Beim Umbenennen den Link in `index.html` mit anpassen |
-| `index.html` | `<html lang="en">`, aber Knöpfe sind deutsch ("Mehr fangen", "Alle anzeigen", "Lade 10 / 50"), der Rest englisch | Nur ein Stilbruch. Sprache für Screenreader ist ggf. nicht ganz passend |
-| `Dokumentation/tailwind-einrichten.md` | Nennt `style.css` und `script.js`, die es nicht mehr gibt (aufgeteilt in `css/` und `js/`) | Anleitung wäre vor einem Einsatz zu aktualisieren |
-| `up.sh` | `git add .` nimmt alles mit und der Push löst sofort das Deployment aus | Vorher `git status` prüfen |
-| ganzes Projekt | Keine Tests | Bei größeren Umbauten von Hand alle Tabs durchklicken |
+| `css/buttons.css`, line 14 | `--button-edge: var(--button-edge);` refers to **itself**. According to the CSS rules, such a cycle is invalid. The blue button is not affected because `.load-all` sets its own value | The red "Catch more" button probably has no dark "bottom edge" (the `box-shadow` with `var(--button-edge)` becomes invalid). I have not checked this in the browser. Fix: enter a real color there (e.g. a dark red) |
+| `css/pokemon-cards.css`, line 60 | `.pokemon-card:hover::before` – but the card has no `::before` | The rule has no effect and can be removed |
+| `css/base.css` | The fonts **Diplomata** and **Pacifico** (and `--font-diplomata`, `--font-pacifico`) are not used anywhere | Browsers do not load unused fonts, but the files (approx. 60 KB) sit in the repo. They can be removed |
+| `Documentation/tailwind-setup.md` | Mentions `style.css` and `script.js`, which no longer exist (split into `css/` and `js/`) | The guide would need updating before use |
+| `up.sh` | `git add .` includes everything and the push triggers the deployment immediately | Check `git status` beforehand |
+| whole project | No tests | For larger refactorings, click through all tabs by hand |
 
 ---
 
-## 14. Glossar
+## 14. Glossary
 
-| Begriff | Bedeutung |
+| Term | Meaning |
 | --- | --- |
-| **PokéAPI** | Kostenlose Web-Schnittstelle mit allen Pokémon-Daten (pokeapi.co) |
-| **Sprite** | Ein kleines Bild eines Pokémon |
-| **Shiny** | Seltene, andersfarbige Variante eines Pokémon |
-| **Species** | Die "Art" eines Pokémon. Enthält Beschreibung, Gattung, Generation, Ei-Gruppen und den Link zur Entwicklungskette |
-| **Version group** | Ein Spiel oder ein Spielpaar (z. B. "Red / Blue"), so nennt die API die Spiele |
-| **Learnset** | Alle Attacken, die ein Pokémon lernen kann |
-| **Lernart** | Wie eine Attacke gelernt wird: Level-up, TM/HM, Ei, Tutor, Sonstiges |
-| **TM / HM** | Technische/Versteckte Maschine, ein Gegenstand, der eine Attacke beibringt |
-| **PP (AP)** | Wie oft eine Attacke eingesetzt werden kann |
-| **Matchup** | Wie gut oder schlecht ein Typ gegen einen anderen ist |
-| **Overlay** | Die Ebene über der Seite, hier: das Popup mit dem dunklen Hintergrund |
-| **Tab-Panel** | Der Inhaltsbereich eines Tabs |
-| **DOM** | Die Baumstruktur der Seite im Browser, die JavaScript ändern kann |
-| **Debounce** | Eine Aktion erst ausführen, wenn eine Weile nichts passiert ist |
-| **Promise** | Ein Versprechen auf ein späteres Ergebnis (`async`/`await`) |
-| **Lazy Loading** | Erst laden, wenn es gebraucht wird (Bilder mit `loading="lazy"`, Attacken-Details) |
-| **ARIA** | Zusätzliche HTML-Attribute, damit Screenreader die Seite verstehen |
-| **CSS-Variable** | Ein Wert wie `--accent-color`, den viele Regeln mit `var(--accent-color)` benutzen |
-| **Rückfall (Fallback)** | Ersatzwert, falls das Erste fehlt (`a || b`) |
+| **PokéAPI** | Free web interface with all Pokémon data (pokeapi.co) |
+| **Sprite** | A small image of a Pokémon |
+| **Shiny** | Rare, differently colored variant of a Pokémon |
+| **Species** | A Pokémon's "kind". Contains description, genus, generation, egg groups and the link to the evolution chain |
+| **Version group** | A game or a pair of games (e.g. "Red / Blue"); this is what the API calls the games |
+| **Learnset** | All moves that a Pokémon can learn |
+| **Learn method** | How a move is learned: level-up, TM/HM, egg, tutor, other |
+| **TM / HM** | Technical/Hidden Machine, an item that teaches a move |
+| **PP** | Power Points: how often a move can be used |
+| **Matchup** | How good or bad one type is against another |
+| **Overlay** | The layer above the page, here: the popup with the dark background |
+| **Tab panel** | The content area of a tab |
+| **DOM** | The tree structure of the page in the browser, which JavaScript can change |
+| **Debounce** | Only performing an action once nothing has happened for a while |
+| **Promise** | A promise of a later result (`async`/`await`) |
+| **Lazy loading** | Only loading when needed (images with `loading="lazy"`, move details) |
+| **ARIA** | Additional HTML attributes so that screen readers understand the page |
+| **CSS variable** | A value like `--accent-color` that many rules use with `var(--accent-color)` |
+| **Fallback** | Replacement value in case the first one is missing (`a \|\| b`) |

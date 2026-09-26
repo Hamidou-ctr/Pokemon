@@ -1,7 +1,7 @@
-// HTML-Bausteine, die mehrere Tabs gemeinsam nutzen
+// HTML building blocks shared by several tabs
 
-// Der Balken selbst: eine Spur mit dem gefüllten Anteil. barColors sind zwei beliebige
-// CSS-Farben, der Balken läuft als Farbverlauf von startColor nach endColor.
+// The bar itself: a track with the filled portion. barColors are two arbitrary
+// CSS colors; the bar runs as a gradient from startColor to endColor.
 function barTrackHtml(value, maximumValue, barColors) {
   let filledPercent = Math.min(100, (value / maximumValue) * 100).toFixed(1);
   return /* html */ `
@@ -11,7 +11,7 @@ function barTrackHtml(value, maximumValue, barColors) {
   `;
 }
 
-// Die drei Zellen einer Balkenzeile: Beschriftung, Wert, Balken
+// The three cells of a bar row: label, value, bar
 function barCellsHtml(label, value, maximumValue, barColors) {
   return /* html */ `
     <span class="bar-label">${label}</span>
@@ -26,7 +26,7 @@ function barRowHtml(label, value, maximumValue, barColors) {
   `;
 }
 
-// Die zwei Farben, aus denen Karte und Popup ihren Farbverlauf zeichnen (als Wert für ein style-Attribut)
+// The two colors from which the card and popup draw their gradient (as a value for a style attribute)
 function pokemonColorStyle(pokemon) {
   return `--pokemon-main-color: ${getMainColorOfPokemon(pokemon)}; --pokemon-gradient-end-color: ${getGradientEndColorOfPokemon(pokemon)};`;
 }
@@ -36,7 +36,7 @@ function typeBadgeHtml(typeName) {
   return `<span class="type-badge" style="--type-color: ${typeColor};">${formatNameForDisplay(typeName)}</span>`;
 }
 
-// Statusmeldung ("Loading...", Fehler) für einen Tab
+// Status message ("Loading...", error) for a tab
 function tabMessageHtml(messageText) {
   return `<p class="tab-message">${messageText}</p>`;
 }

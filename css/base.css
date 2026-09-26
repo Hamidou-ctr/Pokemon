@@ -116,7 +116,7 @@ body {
 
   background: radial-gradient(circle at 20% 0%, #2b3a67 0%, #12182b 65%);
   background-attachment: fixed;
-  color: #f1f3f9; /* statt #212529, sonst ist Text auf Dunkel unlesbar */
+  color: #f1f3f9; /* instead of #212529, otherwise text is unreadable on dark */
 }
 
 h1 {

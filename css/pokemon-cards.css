@@ -28,7 +28,7 @@
     box-shadow 0.4s ease;
 }
 
-/* Glanz-Streifen, der beim Hover über die Karte läuft */
+/* Shine streak that runs across the card on hover */
 .pokemon-card::after {
   content: "";
   position: absolute;

@@ -7,7 +7,7 @@
 
     <link rel="icon" type="image/x-icon" href="images/pokemon.webp" />
 
-    <!-- Reihenfolge wichtig: spätere Regeln überschreiben frühere (utilities zuletzt) -->
+    <!-- Order matters: later rules override earlier ones (utilities last) -->
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/layout.css" />
     <link rel="stylesheet" href="css/buttons.css" />
@@ -20,8 +20,8 @@
     <link rel="stylesheet" href="css/moves.css" />
     <link rel="stylesheet" href="css/utilities.css" />
 
-    <!-- Reihenfolge wichtig: alles baut auf den Dateien darüber auf.
-         Die Tabs erscheinen im Popup in der Reihenfolge, in der sie hier stehen. -->
+    <!-- Order matters: everything builds on the files above it.
+         The tabs appear in the popup in the order they are listed here. -->
     <script defer src="js/configuration.js"></script>
     <script defer src="js/state.js"></script>
     <script defer src="js/text-and-image-helpers.js"></script>
@@ -40,7 +40,7 @@
   <body onload="initializePokedex()">
     <header>
       <div class="header-content">
-        <a class="header-brand" href="./" aria-label="Pokédex – Startseite">
+        <a class="header-brand" href="./" aria-label="Pokédex – Home">
           <img class="pokedex-logo" src="images/pokemon.webp" alt="" />
           <span class="header-title">Pokédex</span>
         </a>
@@ -62,7 +62,7 @@
     <div class="load-buttons hidden" id="load-buttons">
       <button type="button" class="load-more" onclick="loadNextPokemonPage()">
         <img class="load-more-icon" src="images/pokemon.webp" alt="" />
-        <span>Mehr fangen</span>
+        <span>Catch more</span>
       </button>
       <button
         type="button"
@@ -80,7 +80,7 @@
           <rect x="3" y="13.5" width="7.5" height="7.5" rx="2"></rect>
           <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"></rect>
         </svg>
-        <span id="load-all-label">Alle anzeigen</span>
+        <span id="load-all-label">Show all</span>
       </button>
     </div>
 
@@ -95,16 +95,16 @@
         target="_blank"
         rel="noopener"
         class="footer-link"
-        href="datenschutzt.html"
-        >Datenschutz</a
+        href="privacy-policy.html"
+        >Privacy Policy</a
       >
       &vert;
       <a
         target="_blank"
         rel="noopener"
         class="footer-link"
-        href="Impressum.html"
-        >Impressum</a
+        href="legal-notice.html"
+        >Legal Notice</a
       >
     </footer>
   </body>

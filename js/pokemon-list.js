@@ -1,6 +1,6 @@
-// Die Übersicht: Start, Suche, Karten und die Knöpfe "Mehr fangen" / "Alle anzeigen"
+// The overview: startup, search, cards, and the "Catch more" / "Show all" buttons
 
-// Feste Elemente aus dem HTML, die von Anfang an existieren
+// Fixed elements from the HTML that exist from the start
 const searchInput = document.getElementById("search-input");
 const pokedexElement = document.getElementById("pokedex");
 const pokedexMessageElement = document.getElementById("pokedex-message");
@@ -8,7 +8,7 @@ const loadButtonsContainer = document.getElementById("load-buttons");
 const loadAllButtonLabel = document.getElementById("load-all-label");
 const loadAllButtonDefaultText = loadAllButtonLabel.textContent;
 
-// ---------- Start ----------
+// ---------- Startup ----------
 
 async function initializePokedex() {
   try {
@@ -28,7 +28,7 @@ async function fetchAllPokemonNamesAndIds() {
   return fullListResponse.results.map(toPokemonNameAndId);
 }
 
-// Erst die Gesamtzahl abfragen, damit wirklich alle Pokémon geladen werden, egal wie viele es gibt
+// Query the total count first so that really all Pokémon are loaded, no matter how many there are
 async function fetchTotalPokemonCount() {
   let countResponse = await fetchJsonWithCache(`${pokeApiBaseUrl}/pokemon?limit=1&offset=0`);
   return countResponse.count;
@@ -38,15 +38,15 @@ function toPokemonNameAndId(listEntry) {
   return { pokemonId: extractIdFromUrl(listEntry.url), name: listEntry.name };
 }
 
-// ---------- Suche ----------
+// ---------- Search ----------
 
-// Sucht erst, wenn eine kurze Zeit lang nichts mehr getippt wurde
+// Only searches once nothing has been typed for a short while
 function scheduleSearch() {
   clearTimeout(searchDelayTimerId);
   searchDelayTimerId = setTimeout(runSearch, searchDelayMilliseconds);
 }
 
-// Leert die Übersicht und zeigt die erste Seite der Treffer
+// Clears the overview and shows the first page of results
 async function runSearch() {
   searchResults = findPokemonMatchingSearchText(searchInput.value);
   displayedPokemonCount = 0;
@@ -65,7 +65,7 @@ function removeAllPokemonCards() {
     .forEach((pokemonCard) => pokemonCard.remove());
 }
 
-// ---------- Nachladen: "Mehr fangen" und "Alle anzeigen" ----------
+// ---------- Loading more: "Catch more" and "Show all" ----------
 
 async function loadNextPokemonPage() {
   let thisRequestNumber = ++latestListRequestNumber;
@@ -73,15 +73,15 @@ async function loadNextPokemonPage() {
   await runListLoading(thisRequestNumber, () => appendNextPage(thisRequestNumber));
 }
 
-// Lädt alle noch fehlenden Treffer blockweise nach; jeder Block erscheint sofort, der Knopf zeigt den Fortschritt
+// Loads all remaining results in batches; each batch appears immediately, the button shows the progress
 async function loadAllRemainingPokemon() {
   let thisRequestNumber = ++latestListRequestNumber;
   setLoadButtonsDisabled(true);
   await runListLoading(thisRequestNumber, () => appendAllRemainingBatches(thisRequestNumber));
 }
 
-// Führt die Ladeschritte aus, meldet Fehler und aktualisiert danach die Knöpfe. Hat inzwischen eine
-// neuere Suche oder ein neuer Klick übernommen, passiert nichts mehr.
+// Runs the loading steps, reports errors and then updates the buttons. If a newer search
+// or a newer click has taken over in the meantime, nothing happens anymore.
 async function runListLoading(requestNumber, loadingSteps) {
   try {
     await loadingSteps();
@@ -114,7 +114,7 @@ async function appendAllRemainingBatches(requestNumber) {
   showPokedexMessage("");
 }
 
-// Lädt die nächsten Treffer und zeigt sie an. Gibt false zurück, wenn inzwischen eine neuere Anfrage übernommen hat
+// Loads the next results and displays them. Returns false if a newer request has taken over in the meantime
 async function appendNextBatch(batchSize, requestNumber) {
   let listEntriesToLoad = searchResults.slice(displayedPokemonCount, displayedPokemonCount + batchSize);
   let loadedPokemon = await fetchPokemonOfListEntries(listEntriesToLoad);
@@ -128,10 +128,10 @@ function fetchPokemonOfListEntries(listEntries) {
   return Promise.all(listEntries.map((listEntry) => fetchPokemonById(listEntry.pokemonId)));
 }
 
-// ---------- Anzeige von Meldung, Knöpfen und Karten ----------
+// ---------- Display of message, buttons and cards ----------
 
 function showLoadAllProgress() {
-  loadAllButtonLabel.textContent = `Lade ${displayedPokemonCount} / ${searchResults.length}`;
+  loadAllButtonLabel.textContent = `Loading ${displayedPokemonCount} / ${searchResults.length}`;
 }
 
 function setLoadButtonsDisabled(isDisabled) {
@@ -140,7 +140,7 @@ function setLoadButtonsDisabled(isDisabled) {
     .forEach((button) => (button.disabled = isDisabled));
 }
 
-// Die Meldung ist das letzte Element im Pokédex, die Karten kommen immer davor
+// The message is the last element in the Pokédex; the cards always come before it
 function appendPokemonCards(pokemonToShow) {
   pokedexMessageElement.insertAdjacentHTML(
     "beforebegin",
@@ -153,7 +153,7 @@ function showPokedexMessage(messageText) {
   pokedexMessageElement.classList.toggle("hidden", !messageText);
 }
 
-// Die Knöpfe sind nur sichtbar, solange es noch weitere Treffer gibt und kein Popup offen ist
+// The buttons are only visible while there are more results and no popup is open
 function updateLoadButtonsVisibility() {
   setLoadButtonsDisabled(false);
   loadAllButtonLabel.textContent = loadAllButtonDefaultText;
@@ -164,7 +164,7 @@ function updateLoadButtonsVisibility() {
   );
 }
 
-// ---------- Eine Karte der Übersicht ----------
+// ---------- A card in the overview ----------
 
 function pokemonCardHtml(pokemon) {
   return /* html */ `
@@ -199,7 +199,7 @@ function typeBadgesOfPokemonHtml(pokemon) {
   return pokemon.types.map((typeEntry) => typeBadgeHtml(typeEntry.type.name)).join("");
 }
 
-// Zwei übereinanderliegende Bilder: normal und shiny, beim Darüberfahren wird überblendet
+// Two stacked images: normal and shiny, crossfaded on hover
 function pokemonCardImageHtml(pokemon) {
   let displayName = formatNameForDisplay(pokemon.name);
   return /* html */ `

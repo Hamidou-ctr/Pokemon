@@ -6,9 +6,9 @@ registerTab({
   afterRender: observeMoveCards,
 });
 
-// Alle Spielversionen in der Reihenfolge ihres Erscheinens, mit Anzeigenamen und Generation (für die Gruppen der Liste). Die IDs der API taugen
-// dafür nicht (die japanischen Fassungen haben späte IDs). Unbekannte, neuere Einträge kommen ans Ende.
-// apiName ist der Name der "version group" in der PokéAPI, generation die römische Ziffer der Generation.
+// All game versions in order of release, with display names and generation (for the groups of the list). The API's IDs are
+// not suitable for this (the Japanese versions have late IDs). Unknown, newer entries go to the end.
+// apiName is the name of the "version group" in the PokéAPI, generation is the Roman numeral of the generation.
 const knownGameVersionGroups = [
   { apiName: "red-green-japan", displayName: "Red / Green (JP)", generation: "I" },
   { apiName: "blue-japan", displayName: "Blue (JP)", generation: "I" },
@@ -44,8 +44,8 @@ const knownGameVersionGroups = [
   { apiName: "champions", displayName: "Champions", generation: "IX" },
 ];
 
-// Wie ein Pokémon eine Attacke lernt, in der Reihenfolge der Filter. Alles Seltene (Sonderfälle einzelner
-// Spiele) steht unter "other". tagText liefert den Text der kleinen Pille am Anfang jeder Zeile.
+// How a Pokémon learns a move, in the order of the filters. Everything rare (special cases of individual
+// games) goes under "other". tagText returns the text of the small pill at the start of each row.
 const learnMethods = [
   { apiName: "level-up", label: "Level up", tagText: (move) => (move.levelLearnedAt ? `Lv ${move.levelLearnedAt}` : "Evo") },
   { apiName: "machine", label: "TM / HM", tagText: () => "TM" },
@@ -54,23 +54,23 @@ const learnMethods = [
   { apiName: "other", label: "Other", tagText: () => "Other" },
 ];
 
-// Obergrenzen der Balken in der Detailansicht (Power geht selten über 150)
+// Upper limits of the bars in the detail view (power rarely goes above 150)
 const maximumMovePower = 200;
 const maximumMoveAccuracy = 100;
-const maximumMovePowerPoints = 40; // "PP" in den Spielen: wie oft die Attacke eingesetzt werden kann
+const maximumMovePowerPoints = 40; // "PP" in the games: how often the move can be used
 
-// Die Balken leuchten in einem hellen Ton des Attacken-Typs; ist der noch nicht geladen, nehmen sie den Ton des Pokémon
+// The bars glow in a light shade of the move's type; if that isn't loaded yet, they use the Pokémon's shade
 const moveMeterColors = {
   startColor: "color-mix(in srgb, var(--move-color, var(--pokemon-main-color)) 60%, white)",
   endColor: "color-mix(in srgb, var(--move-color, var(--pokemon-main-color)) 30%, white)",
 };
 
-// Spielversionen des angezeigten Pokémon, neueste zuerst:
+// Game versions of the displayed Pokémon, newest first:
 // { versionGroupName, versionGroupId, movesByLearnMethod: { learnMethodApiName: [move] } }
-// mit move = { apiName, displayName, levelLearnedAt }
+// with move = { apiName, displayName, levelLearnedAt }
 let learnsetPerGame = [];
-let movesSelection = { versionGroupName: "", learnMethodApiName: "" }; // aktuelle Auswahl, wird bei jedem Pokémon neu gesetzt
-let moveCardVisibilityObserver; // lädt die Details einer Karte erst nach, wenn sie fast im Bild ist
+let movesSelection = { versionGroupName: "", learnMethodApiName: "" }; // current selection, reset for every Pokémon
+let moveCardVisibilityObserver; // only loads the details of a card once it is almost in view
 
 function movesHtml(pokemon) {
   learnsetPerGame = buildLearnsetPerGame(pokemon);
@@ -83,20 +83,20 @@ function movesHtml(pokemon) {
   `;
 }
 
-// Vorausgewählt ist das neueste Spiel, in dem es Attacken durch Level-up gibt: Kampfspiele
-// wie "Champions" kennen nur TMs, dort würde die wichtigste Liste fehlen
+// The newest game with level-up moves is preselected: battle games
+// like "Champions" only know TMs, so the most important list would be missing there
 function findNewestGameWithLevelUpMoves() {
   return learnsetPerGame.find((game) => game.movesByLearnMethod["level-up"]) || learnsetPerGame[0];
 }
 
-// ---------- Spiele: Namen und Reihenfolge ----------
+// ---------- Games: names and order ----------
 
 function getGameDisplayName(versionGroupName) {
   let knownGame = findKnownGame(versionGroupName);
   return knownGame ? knownGame.displayName : formatNameForDisplay(versionGroupName);
 }
 
-// "" bei Spielen, die noch nicht in der Tabelle stehen
+// "" for games that are not in the table yet
 function getGameGeneration(versionGroupName) {
   let knownGame = findKnownGame(versionGroupName);
   return knownGame ? knownGame.generation : "";
@@ -106,7 +106,7 @@ function findKnownGame(versionGroupName) {
   return knownGameVersionGroups.find((knownGame) => knownGame.apiName === versionGroupName);
 }
 
-// Bekannte Spiele nach ihrer Position in der Tabelle, unbekannte (neuere) dahinter nach ID
+// Known games by their position in the table, unknown (newer) ones after them by ID
 function getGameReleaseRank(game) {
   let positionInTable = knownGameVersionGroups.findIndex(
     (knownGame) => knownGame.apiName === game.versionGroupName,
@@ -118,9 +118,9 @@ function compareGamesNewestFirst(firstGame, secondGame) {
   return getGameReleaseRank(secondGame) - getGameReleaseRank(firstGame);
 }
 
-// ---------- Die Attacken eines Pokémon nach Spiel und Lernmethode ordnen ----------
+// ---------- Organizing a Pokémon's moves by game and learn method ----------
 
-// Neueste Version zuerst
+// Newest version first
 function buildLearnsetPerGame(pokemon) {
   let gamesByVersionGroupName = new Map();
   for (let moveEntry of pokemon.moves) {
@@ -153,7 +153,7 @@ function createGame(versionGroup) {
   };
 }
 
-// Seltene Lernmethoden werden unter "other" zusammengefasst
+// Rare learn methods are grouped under "other"
 function toKnownLearnMethodApiName(learnMethodApiName) {
   let isKnown = learnMethods.some((learnMethod) => learnMethod.apiName === learnMethodApiName);
   return isKnown ? learnMethodApiName : "other";
@@ -167,9 +167,9 @@ function createLearnedMove(move, versionGroupDetail) {
   };
 }
 
-// ---------- Filter und Liste für das gewählte Spiel ----------
+// ---------- Filters and list for the selected game ----------
 
-// Filter (mit Anzahl) und Liste für das gewählte Spiel
+// Filters (with counts) and list for the selected game
 function movesViewHtml() {
   let selectedGame = findSelectedGame();
   let learnMethodsWithMoves = learnMethods.filter((learnMethod) => selectedGame.movesByLearnMethod[learnMethod.apiName]);
@@ -185,7 +185,7 @@ function findSelectedGame() {
   return learnsetPerGame.find((game) => game.versionGroupName === movesSelection.versionGroupName);
 }
 
-// Hat das gewählte Spiel keine Attacken für die gewählte Lernmethode, gilt die erste vorhandene
+// If the selected game has no moves for the selected learn method, the first available one is used
 function ensureValidLearnMethodSelection(learnMethodsWithMoves) {
   let isSelectionAvailable = learnMethodsWithMoves.some(
     (learnMethod) => learnMethod.apiName === movesSelection.learnMethodApiName,
@@ -236,12 +236,12 @@ function renderMovesView() {
   observeMoveCards();
 }
 
-// ---------- Eine Attacken-Karte ----------
+// ---------- A move card ----------
 
-// Level (oder Lernart) und Name stehen sofort da. Alles Weitere (Typ, Kategorie, Werte, Beschreibung)
-// kommt aus dem Netz, sobald die Karte fast im Bild ist. Der Platzhalter hat schon ungefähr die Höhe
-// des fertigen Inhalts, damit beim Nachladen nichts springt. Die leeren Elemente müssen wirklich leer
-// sein (kein Leerraum darin), denn das CSS zeigt den Platzhalter mit :empty.
+// Level (or learn method) and name are there immediately. Everything else (type, category, values, description)
+// comes from the network once the card is almost in view. The placeholder already has roughly the height
+// of the finished content so that nothing jumps when it loads. The empty elements must really be empty
+// (no whitespace inside), because the CSS shows the placeholder with :empty.
 function moveCardHtml(move, learnMethod) {
   return /* html */ `
     <article class="move-card" data-move-api-name="${move.apiName}">
@@ -251,7 +251,7 @@ function moveCardHtml(move, learnMethod) {
   `;
 }
 
-// Kein <header>-Element für die Kopfzeile: layout.css gibt jedem <header> der Seite den Stil des roten Seitenkopfes
+// No <header> element for the heading row: layout.css gives every <header> on the page the style of the red page header
 function moveHeadingHtml(move, learnMethod) {
   return /* html */ `
     <div class="move-heading">
@@ -262,10 +262,10 @@ function moveHeadingHtml(move, learnMethod) {
   `;
 }
 
-// ---------- Details der Karten erst nachladen, wenn sie sichtbar werden ----------
+// ---------- Load card details only once they become visible ----------
 
-// Lädt die Details einer Karte erst, wenn sie fast im Bild ist: bei über hundert Attacken
-// wären das sonst über hundert Anfragen auf einmal.
+// Loads the details of a card only once it is almost in view: with over a hundred moves
+// that would otherwise be over a hundred requests at once.
 function observeMoveCards() {
   if (moveCardVisibilityObserver) moveCardVisibilityObserver.disconnect();
   moveCardVisibilityObserver = createMoveCardObserver();
@@ -274,7 +274,7 @@ function observeMoveCards() {
     .forEach((moveCard) => moveCardVisibilityObserver.observe(moveCard));
 }
 
-// Der Vorlauf ist großzügig, damit beim Scrollen kaum Platzhalter zu sehen sind
+// The lead distance is generous so that hardly any placeholders are visible while scrolling
 function createMoveCardObserver() {
   return new IntersectionObserver(fillMoveCardsThatBecameVisible, {
     root: document.querySelector(".detail-body"),
@@ -293,7 +293,7 @@ function fillMoveCardsThatBecameVisible(intersectionEntries) {
 async function fillMoveCard(moveCard) {
   try {
     let moveDetails = await fetchJsonWithCache(`${pokeApiBaseUrl}/move/${moveCard.dataset.moveApiName}`);
-    if (!moveCard.isConnected) return; // inzwischen ist eine andere Liste oder ein anderes Pokémon zu sehen
+    if (!moveCard.isConnected) return; // in the meantime a different list or a different Pokémon is being shown
     showMoveDetails(moveCard, moveDetails);
   } catch (error) {
     console.error(error);
@@ -301,7 +301,7 @@ async function fillMoveCard(moveCard) {
   }
 }
 
-// Die Karte färbt sich in der Farbe des Attacken-Typs
+// The card takes on the color of the move's type
 function showMoveDetails(moveCard, moveDetails) {
   moveCard.style.setProperty("--move-color", mainColorByTypeName[moveDetails.type.name] || fallbackTypeColor);
   moveCard.querySelector(".move-badges").innerHTML = moveBadgesHtml(moveDetails);
@@ -310,20 +310,20 @@ function showMoveDetails(moveCard, moveDetails) {
 }
 
 function showMoveDetailsError(moveCard) {
-  moveCard.classList.add("failed"); // nimmt die Platzhalter weg, Level und Name bleiben stehen
+  moveCard.classList.add("failed"); // removes the placeholders; level and name stay
   moveCard.querySelector(".move-body").innerHTML =
     `<p class="move-description">The details could not be loaded.</p>`;
 }
 
-// Typ und Kategorie (physisch, speziell, Status)
+// Type and category (physical, special, status)
 function moveBadgesHtml(moveDetails) {
   let damageClassName = moveDetails.damage_class.name;
   return `${typeBadgeHtml(moveDetails.type.name)}<span class="move-category move-category-${damageClassName}">${formatNameForDisplay(damageClassName)}</span>`;
 }
 
-// ---------- Werte und Beschreibung einer Attacke ----------
+// ---------- Values and description of a move ----------
 
-// Power, Genauigkeit und AP als drei Balken nebeneinander, darunter die Beschreibung
+// Power, accuracy and PP as three bars side by side, with the description below
 function moveBodyHtml(moveDetails) {
   return /* html */ `
     <div class="move-meters">
@@ -341,7 +341,7 @@ function moveEffectDescription(moveDetails) {
   return shortEffect || findLatestEnglishText(moveDetails.flavor_text_entries, "flavor_text") || noDescriptionText;
 }
 
-// Statusattacken haben keine Power, manche keine Genauigkeit (sie treffen immer): dann "–" und ein leerer Balken
+// Status moves have no power, some have no accuracy (they always hit): then "–" and an empty bar
 function moveMeterHtml(label, value, maximumValue, unitSuffix = "") {
   let hasValue = value !== null && value !== undefined;
   return /* html */ `

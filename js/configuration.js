@@ -1,14 +1,14 @@
 const pokeApiBaseUrl = "https://pokeapi.co/api/v2";
 const pokemonSpriteBaseUrl =
   "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon";
-const pokemonPerPage = 20; // so viele Pokémon kommen pro Klick auf "Mehr fangen" dazu
-const pokemonPerLoadAllBatch = 50; // "Alle anzeigen" holt die Pokémon in Blöcken dieser Größe, damit die Seite nach und nach wächst
-const searchDelayMilliseconds = 250; // erst suchen, wenn der Nutzer so lange nicht mehr getippt hat
-const fallbackTypeColor = "blue"; // Fallback, falls ein Typ mal nicht in den Farbtabellen steht
+const pokemonPerPage = 20; // this many Pokémon are added per click on "Catch more"
+const pokemonPerLoadAllBatch = 50; // "Show all" fetches the Pokémon in batches of this size so the page grows gradually
+const searchDelayMilliseconds = 250; // only search once the user has stopped typing for this long
+const fallbackTypeColor = "blue"; // fallback in case a type is ever missing from the color tables
 const pokemonCardWrapperClassName = "pokemon-card-wrapper";
 const noDescriptionText = "No description available.";
 
-// Kleine Strichsymbole (24x24), die Farbe kommt vom umgebenden Text
+// Small stroke icons (24x24); the color comes from the surrounding text
 function strokeIconSvg(shapesMarkup) {
   return /* html */ `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${shapesMarkup}</svg>`;
 }
@@ -26,11 +26,11 @@ const icons = {
   moves: strokeIconSvg(`<polygon points="13 2.5 4.5 13.5 11.5 13.5 10.5 21.5 19.5 10 12.5 10 13 2.5"></polygon>`),
   check: strokeIconSvg(`<polyline points="5 12.5 10 17.5 19 7"></polyline>`),
   chevronDown: strokeIconSvg(`<polyline points="6 9 12 15 18 9"></polyline>`),
-  // Wasserzeichen im Kopf des Popups: obere Hälfte gefüllt, Band und Knopf in der Mitte
+  // Watermark in the popup header: upper half filled, band and button in the middle
   pokeball: /* html */ `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5" aria-hidden="true"><path d="M4 50a46 46 0 0 1 92 0z" fill="currentColor" stroke="none" opacity="0.35"></path><circle cx="50" cy="50" r="46"></circle><path d="M4 50h30M66 50h30"></path><circle cx="50" cy="50" r="15"></circle><circle cx="50" cy="50" r="6" fill="currentColor" stroke="none"></circle></svg>`,
 };
 
-// Die Hauptfarbe jedes Typs: Farbe der Typ-Plakette und Beginn des Farbverlaufs von Karte und Popup
+// The main color of each type: color of the type badge and start of the card and popup gradient
 const mainColorByTypeName = {
   grass: "rgb(0, 102, 0)",
   fire: "rgb(241,79,14)",
@@ -52,7 +52,7 @@ const mainColorByTypeName = {
   dark: "rgb(78,68,69)",
 };
 
-// Das Ende des Farbverlaufs von Karte und Popup
+// The end of the card and popup gradient
 const gradientEndColorByTypeName = {
   grass: "rgb(14, 43, 14)",
   fire: "rgb(149, 46, 11)",

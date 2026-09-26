@@ -1,4 +1,4 @@
-/* ---------- Hintergrund hinter dem Popup ---------- */
+/* ---------- Background behind the popup ---------- */
 .detail-overlay {
   display: flex;
   justify-content: center;
@@ -15,7 +15,7 @@
   padding: 12px;
 }
 
-/* Das Einblenden läuft nur beim Öffnen (js/pokemon-detail.js setzt first-open), nicht beim Blättern */
+/* The fade-in only runs on opening (js/pokemon-detail.js sets first-open), not when browsing */
 .detail-overlay.first-open {
   animation: detail-fade 0.25s ease-out both;
 }
@@ -24,11 +24,11 @@
   animation: detail-card-in 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.12) both;
 }
 
-/* ---------- Die Karte ---------- */
-/* --pokemon-main-color und --pokemon-gradient-end-color setzt das JS je nach Typ des Pokémon, alles andere leitet sich davon ab.
-   Nur .detail-body scrollt, deshalb springt das Popup beim Tab-Wechsel nicht. */
+/* ---------- The card ---------- */
+/* --pokemon-main-color and --pokemon-gradient-end-color are set by the JS depending on the Pokémon's type; everything else derives from them.
+   Only .detail-body scrolls, which is why the popup doesn't jump when switching tabs. */
 .detail-card {
-  --name-available-width: 400px; /* Breite, die dem Namen im Kopf zur Verfügung steht */
+  --name-available-width: 400px; /* width available to the name in the header */
   --card-border-color: rgb(32, 199, 246);
   --accent-color: color-mix(in srgb, var(--pokemon-main-color) 55%, white);
   --panel-background-color: #151b31;
@@ -55,13 +55,13 @@
     0 0 80px -12px color-mix(in srgb, var(--pokemon-main-color) 55%, transparent);
 }
 
-/* Die Seite hat keinen globalen Button-Reset mehr. :where() gibt der Regel kein Gewicht, damit die
-   Schrift der einzelnen Knöpfe (z. B. .detail-tab) sie überschreiben darf. */
+/* The page no longer has a global button reset. :where() gives the rule no weight, so that the
+   font of individual buttons (e.g. .detail-tab) may override it. */
 :where(.detail-card button) {
   font-family: inherit;
 }
 
-/* ---------- Kopf: Farbverlauf des Typs ---------- */
+/* ---------- Header: type gradient ---------- */
 .detail-header {
   position: relative;
   isolation: isolate;
@@ -84,7 +84,7 @@
     linear-gradient(150deg, var(--pokemon-main-color) 0%, var(--pokemon-gradient-end-color) 100%);
 }
 
-/* Glanzstreifen, der beim Öffnen einmal über den Kopf läuft */
+/* Shine streak that runs once across the header on opening */
 .detail-overlay.first-open .detail-header::after {
   content: "";
   position: absolute;
@@ -101,7 +101,7 @@
   pointer-events: none;
 }
 
-/* Pokéball-Wasserzeichen hinter dem Bild */
+/* Pokéball watermark behind the image */
 .detail-pokeball-watermark {
   position: absolute;
   z-index: 0;
@@ -133,7 +133,7 @@
   gap: 8px;
 }
 
-/* Runde Glas-Knöpfe: Blättern, Shiny, Schrei, Schließen */
+/* Round glass buttons: browse, shiny, cry, close */
 .detail-round-button {
   display: inline-flex;
   align-items: center;
@@ -185,7 +185,7 @@ button.detail-type:focus-visible {
   outline-offset: 2px;
 }
 
-/* ---------- Name, Typen und Bild ---------- */
+/* ---------- Name, types and image ---------- */
 .detail-hero {
   position: relative;
   z-index: 1;
@@ -225,7 +225,7 @@ button.detail-type:focus-visible {
 .detail-title h1 {
   margin: 0;
   font-family: var(--font-elsie);
-  /* Elsie ist etwa 0,54 em breit pro Zeichen: so passt das längste Wort in die freie Breite neben dem Bild */
+  /* Elsie is about 0.54 em wide per character: this way the longest word fits into the free width next to the image */
   font-size: clamp(24px, calc(var(--name-available-width) / (var(--name-longest-word-length) * 0.54)), 56px);
   font-weight: 400;
   line-height: 1;
@@ -234,7 +234,7 @@ button.detail-type:focus-visible {
   overflow-wrap: anywhere;
 }
 
-/* "Seed Pokémon · Generation I": blendet ein, sobald die Daten da sind */
+/* "Seed Pokémon · Generation I": fades in as soon as the data is there */
 .detail-subtitle {
   min-height: 1.5em;
   margin: 0;
@@ -296,7 +296,7 @@ button.detail-type:hover {
   translate: 0 -2px;
 }
 
-/* Das Bild schwebt über einem Schatten am Boden, der im Takt kleiner und größer wird */
+/* The image floats above a shadow on the ground that shrinks and grows in rhythm */
 .detail-figure {
   position: relative;
   display: grid;
@@ -332,7 +332,7 @@ button.detail-type:hover {
   animation: detail-shadow 4.4s ease-in-out 0.7s infinite;
 }
 
-/* Aufblitzen beim Umschalten auf shiny */
+/* Flash when switching to shiny */
 .detail-figure::before {
   content: "";
   position: absolute;
@@ -352,7 +352,7 @@ button.detail-type:hover {
   animation: detail-flash 0.75s ease-out;
 }
 
-/* ---------- Tabs: Segment-Leiste am unteren Rand des Kopfes ---------- */
+/* ---------- Tabs: segmented bar at the bottom of the header ---------- */
 .detail-tab-bar {
   position: relative;
   z-index: 1;
@@ -406,14 +406,14 @@ button.detail-type:hover {
   background: rgba(255, 255, 255, 0.14);
 }
 
-/* Die aktive Tafel ist weiß mit dunkler Schrift, dadurch auf jedem Typ-Farbverlauf gut lesbar */
+/* The active tab is white with dark text, so it is easy to read on any type gradient */
 .detail-tab.active {
   color: #1a2040;
   background: white;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.32);
 }
 
-/* ---------- Inhalt: dunkles Panel, das mit runder Kante über den Kopf ragt ---------- */
+/* ---------- Content: dark panel that overlaps the header with a rounded edge ---------- */
 .detail-body {
   position: relative;
   flex: 1 1 auto;
@@ -434,7 +434,7 @@ button.detail-type:hover {
   mask-image: linear-gradient(180deg, #000 calc(100% - 22px), transparent);
 }
 
-/* Die Inhalte eines Tabs steigen nacheinander auf, sobald der Tab erscheint */
+/* The contents of a tab rise up one after another as soon as the tab appears */
 .tab-panel > * {
   animation: tab-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
@@ -459,7 +459,7 @@ button.detail-type:hover {
   animation-delay: 0.3s;
 }
 
-/* ---------- Animationen ---------- */
+/* ---------- Animations ---------- */
 @keyframes detail-fade {
   from {
     opacity: 0;
@@ -535,7 +535,7 @@ button.detail-type:hover {
   }
 }
 
-/* ---------- Schmale Bildschirme ---------- */
+/* ---------- Narrow screens ---------- */
 @media (max-width: 520px) {
   .detail-overlay {
     padding: 8px;
@@ -565,7 +565,7 @@ button.detail-type:hover {
     width: 240px;
   }
 
-  /* Nur der aktive Tab zeigt seinen Namen, die anderen nur das Symbol */
+  /* Only the active tab shows its name, the others only the icon */
   .detail-tab {
     padding: 9px 8px;
   }

@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Hält die per SHA gepinnten GitHub Actions aktuell (Pull Requests statt stiller Updates)
+  # Keeps the SHA-pinned GitHub Actions up to date (pull requests instead of silent updates)
   - package-ecosystem: github-actions
     directory: /
     schedule:

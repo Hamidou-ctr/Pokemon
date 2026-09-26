@@ -3,7 +3,7 @@
   padding: 24px 4px 12px;
 }
 
-/* max-content statt zentrieren: passt die Kette nicht in die Breite, lässt sie sich scrollen statt links abgeschnitten zu werden */
+/* max-content instead of centering: if the chain doesn't fit the width, it scrolls instead of being cut off on the left */
 .evolution-tree > .evolution-stage {
   width: max-content;
   margin: 0 auto;
@@ -25,7 +25,7 @@
   align-items: center;
 }
 
-/* Bedingung als Pille über einem leuchtenden Pfeil, z. B. "Level 16" */
+/* Condition as a pill above a glowing arrow, e.g. "Level 16" */
 .evolution-link {
   display: flex;
   flex-direction: column;
@@ -107,7 +107,7 @@
   letter-spacing: 0.08em;
 }
 
-/* Das Pokémon, dessen Popup gerade offen ist */
+/* The Pokémon whose popup is currently open */
 .evolution-node.current {
   cursor: default;
   border-color: var(--accent-color);
@@ -120,7 +120,7 @@
   translate: none;
 }
 
-/* Senkrecht bei vielen Zweigen (.wide, z. B. Evoli): die Zweige umbrechen als Raster unter dem Pokémon */
+/* Vertical for many branches (.wide, e.g. Eevee): the branches wrap as a grid below the Pokémon */
 .evolution-tree > .evolution-stage.wide {
   width: auto;
 }
@@ -140,8 +140,8 @@
   flex-direction: column;
 }
 
-/* Feste Höhe, damit alle Pokémon einer Reihe auf einer Linie stehen, egal wie lang die Bedingung ist.
-   Ein langer Text wächst nach oben, die Pille sitzt immer direkt über dem Pfeil. */
+/* Fixed height so that all Pokémon in a row line up, no matter how long the condition is.
+   A long text grows upward; the pill always sits directly above the arrow. */
 .evolution-stage.wide > .evolution-branches > .evolution-branch > .evolution-link {
   justify-content: flex-end;
   min-width: 0;
@@ -154,7 +154,7 @@
   content: "↓";
 }
 
-/* Auf schmalen Bildschirmen steht jede Kette senkrecht, sonst ist sie abgeschnitten */
+/* On narrow screens every chain is vertical, otherwise it would be cut off */
 @media (max-width: 520px) {
   .evolution-tree > .evolution-stage {
     width: auto;

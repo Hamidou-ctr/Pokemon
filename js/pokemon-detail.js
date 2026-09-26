@@ -1,21 +1,21 @@
-// Das Popup mit den Details eines Pokémon.
-// Der Inhalt kommt aus den Tabs in js/tabs/: jede Datei ruft registerTab() auf,
-// die Reihenfolge der <script>-Tags in index.html ist die Reihenfolge der Tabs.
+// The popup with the details of a Pokémon.
+// The content comes from the tabs in js/tabs/: each file calls registerTab(),
+// and the order of the <script> tags in index.html is the order of the tabs.
 
 const detailOverlay = document.getElementById("detail-overlay");
-const matchupsTabId = "Matchups"; // dorthin führt ein Klick auf einen Typ im Kopf des Popups
+const matchupsTabId = "Matchups"; // a click on a type in the popup header leads there
 
-// Ein Tab ist { tabId, label, icon, render(pokemon), afterRender(tabPanel) }. render liefert das HTML
-// als Text oder als Promise, wenn erst noch Daten nachgeladen werden müssen. afterRender ist
-// optional und läuft, sobald das HTML im Popup steht (z. B. um Beobachter zu starten).
-// tabId dient als id des Tab-Containers im Popup, icon ist ein SVG (siehe icons in configuration.js).
+// A tab is { tabId, label, icon, render(pokemon), afterRender(tabPanel) }. render returns the HTML
+// as text, or as a Promise if data still has to be loaded first. afterRender is
+// optional and runs as soon as the HTML is in the popup (e.g. to start observers).
+// tabId serves as the id of the tab container in the popup, icon is an SVG (see icons in configuration.js).
 const registeredTabs = [];
 
 function registerTab(tab) {
   registeredTabs.push(tab);
 }
 
-// ---------- Öffnen, Blättern und Schließen ----------
+// ---------- Opening, browsing and closing ----------
 
 async function openPokemonDetail(pokemonId) {
   let thisRequestNumber = ++latestDetailRequestNumber;
@@ -28,7 +28,7 @@ async function openPokemonDetail(pokemonId) {
 
 async function displayPokemonIfStillLatest(pokemonId, requestNumber) {
   let pokemon = await fetchPokemonById(pokemonId);
-  if (requestNumber !== latestDetailRequestNumber) return; // inzwischen wurde ein anderes Pokémon angeklickt oder alles geschlossen
+  if (requestNumber !== latestDetailRequestNumber) return; // in the meantime another Pokémon was clicked or everything was closed
   displayPokemonDetail(pokemon);
   preloadNeighbourPokemon(pokemonId);
 }
@@ -37,25 +37,25 @@ function displayPokemonDetail(pokemon) {
   let isFirstOpening = detailOverlay.classList.contains("hidden");
   pokemonInDetailView = pokemon;
   detailOverlay.innerHTML = pokemonDetailHtml(pokemon);
-  // Das Einblenden läuft nur beim Öffnen, beim Blättern von Pokémon zu Pokémon soll nichts aufpoppen
+  // The fade-in only runs on opening; nothing should pop up when browsing from Pokémon to Pokémon
   detailOverlay.classList.toggle("first-open", isFirstOpening);
   showDetailOverlay();
   showTab(registeredTabs[0].tabId);
   showSpeciesSummary(pokemon);
 }
 
-// Nachbarn schon laden, damit ein Klick auf die Pfeile sofort reagiert
+// Preload the neighbors so that a click on the arrows responds immediately
 function preloadNeighbourPokemon(pokemonId) {
   for (let stepDirection of [-1, 1]) {
     fetchPokemonById(getNeighbourPokemonId(pokemonId, stepDirection)).catch(() => {});
   }
 }
 
-// stepDirection ist -1 (vorheriges Pokémon) oder 1 (nächstes Pokémon).
-// Vor dem ersten und nach dem letzten Pokémon geht es wieder von vorne los.
-// Läuft über die Position in der Liste statt über die ID selbst, weil die IDs
-// ab den Alternativformen/Mega-Entwicklungen auf 10001+ springen und somit
-// nicht lückenlos von 1 bis allPokemonNamesAndIds.length durchnummeriert sind.
+// stepDirection is -1 (previous Pokémon) or 1 (next Pokémon).
+// Before the first and after the last Pokémon it wraps around to the other end.
+// Works via the position in the list instead of the ID itself, because the IDs
+// jump to 10001+ from the alternate forms/mega evolutions onward and are therefore
+// not numbered continuously from 1 to allPokemonNamesAndIds.length.
 function getNeighbourPokemonId(pokemonId, stepDirection) {
   let totalPokemonCount = allPokemonNamesAndIds.length;
   let positionInList = allPokemonNamesAndIds.findIndex((listEntry) => listEntry.pokemonId === pokemonId);
@@ -70,7 +70,7 @@ function showDetailOverlay() {
 }
 
 function closePokemonDetail() {
-  latestDetailRequestNumber++; // eine noch laufende Anfrage darf die Ansicht nicht wieder öffnen
+  latestDetailRequestNumber++; // a request that is still running must not reopen the view
   pokemonInDetailView = null;
   detailOverlay.innerHTML = "";
   detailOverlay.classList.add("hidden");
@@ -78,15 +78,15 @@ function closePokemonDetail() {
   updateLoadButtonsVisibility();
 }
 
-// schließt nur, wenn der Klick den Hintergrund trifft und nicht die Pokémon-Karte selbst
+// only closes if the click hits the background and not the Pokémon card itself
 function closeDetailIfOverlayClicked(clickEvent) {
   if (clickEvent.target === clickEvent.currentTarget) closePokemonDetail();
 }
 
-// ---------- Aufbau des Popups: Karte, Kopf, Werkzeugleiste, Name, Bild ----------
+// ---------- Popup structure: card, header, toolbar, name, image ----------
 
-// Kopf (Farbverlauf des Typs) mit Werkzeugleiste, Name, Typen, Bild und Tab-Leiste;
-// darunter der scrollbare Inhalt, der mit abgerundeter Kante über den Kopf ragt
+// Header (type gradient) with toolbar, name, types, image and tab bar;
+// below it the scrollable content, which overlaps the header with a rounded edge
 function pokemonDetailHtml(pokemon) {
   return /* html */ `
     <div class="detail-card" role="dialog" aria-modal="true" aria-label="${formatNameForDisplay(pokemon.name)}" style="${pokemonColorStyle(pokemon)}">
@@ -125,7 +125,7 @@ function detailNavigationHtml(pokemon) {
   `;
 }
 
-// Nicht jedes Pokémon hat ein Shiny-Bild oder einen Schrei
+// Not every Pokémon has a shiny image or a cry
 function detailActionsHtml(pokemon) {
   return /* html */ `
     <div class="detail-actions">
@@ -140,7 +140,7 @@ function hasCrySound(pokemon) {
   return Boolean(pokemon.cries && pokemon.cries.latest);
 }
 
-// Runde Glas-Knöpfe im Kopf: Blättern, Shiny, Schrei, Schließen
+// Round glass buttons in the header: browse, shiny, cry, close
 function detailRoundButtonHtml({ onclick, label, title, icon, extraAttributes = "" }) {
   return `<button type="button" class="detail-round-button" ${extraAttributes} onclick="${onclick}" aria-label="${label}" title="${title}">${icon}</button>`;
 }
@@ -197,8 +197,8 @@ function detailTitleHtml(pokemon) {
   `;
 }
 
-// Wie viele Zeichen das längste Wort hat: danach richtet sich die Schriftgröße des Namens
-// (ein Wort soll nie mitten im Wort umbrechen, "Landorus Incarnate" darf aber in zwei Zeilen stehen)
+// How many characters the longest word has: the font size of the name depends on it
+// (a word should never break in the middle, but "Landorus Incarnate" may span two lines)
 function getLongestWordLength(displayName) {
   return Math.max(...displayName.split(" ").map((word) => word.length));
 }
@@ -211,7 +211,7 @@ function detailFigureHtml(pokemon) {
   `;
 }
 
-// Ein Klick auf den Typ zeigt die Schwächen und Stärken, sofern es den Matchups-Tab gibt
+// A click on the type shows the weaknesses and strengths, provided the Matchups tab exists
 function detailHeaderTypeHtml(typeName) {
   let typeLabel = formatNameForDisplay(typeName);
   if (!registeredTabs.some((tab) => tab.tabId === matchupsTabId)) {
@@ -222,7 +222,7 @@ function detailHeaderTypeHtml(typeName) {
 
 // ---------- Tabs ----------
 
-// Auf schmalen Bildschirmen zeigt nur der aktive Tab seine Beschriftung, die anderen nur das Symbol
+// On narrow screens only the active tab shows its label, the others only the icon
 function tabButtonHtml(tab) {
   return /* html */ `<button type="button" class="detail-tab" role="tab" data-tab-id="${tab.tabId}" aria-label="${tab.label}" title="${tab.label}" onclick="showTab('${tab.tabId}')">${tab.icon || ""}<span class="detail-tab-label">${tab.label}</span></button>`;
 }
@@ -231,12 +231,12 @@ function tabPanelHtml(tab) {
   return /* html */ `<div class="tab-panel hidden" id="${tab.tabId}" role="tabpanel"></div>`;
 }
 
-// Zeigt den Tab und baut seinen Inhalt beim ersten Öffnen auf
+// Shows the tab and builds its content on first opening
 async function showTab(tabId) {
   registeredTabs.forEach((tab) => setTabActive(tab, tab.tabId === tabId));
   document.querySelector(".detail-body").scrollTop = 0;
   let tabPanel = document.getElementById(tabId);
-  if (tabPanel.dataset.rendered) return; // pro Pokémon wird jeder Tab nur einmal gebaut
+  if (tabPanel.dataset.rendered) return; // each tab is only built once per Pokémon
   tabPanel.dataset.rendered = "true";
   await fillTabPanel(tabPanel, tabId);
 }
@@ -265,7 +265,7 @@ async function renderTabContent(tabPanel, tab, pokemon) {
     tabPanel.innerHTML = tabMessageHtml("Loading...");
     tabContent = await tabContent;
   }
-  if (pokemon !== pokemonInDetailView) return; // nur, wenn es noch dasselbe Pokémon ist
+  if (pokemon !== pokemonInDetailView) return; // only if it is still the same Pokémon
   showTabContent(tabPanel, tab, tabContent);
 }
 
@@ -276,14 +276,14 @@ function showTabContent(tabPanel, tab, tabContent) {
 
 function showTabLoadError(tabPanel, pokemonOfThisRequest) {
   if (pokemonOfThisRequest !== pokemonInDetailView) return;
-  delete tabPanel.dataset.rendered; // ein erneuter Klick auf den Tab versucht es noch einmal
+  delete tabPanel.dataset.rendered; // clicking the tab again tries once more
   tabPanel.innerHTML = tabMessageHtml("The details could not be loaded.");
 }
 
-// ---------- Zeile unter dem Namen ----------
+// ---------- Line below the name ----------
 
-// "Seed Pokémon · Generation I". Kommt aus den Species-Daten, die der About-Tab ohnehin lädt,
-// und erscheint, sobald sie da sind
+// "Seed Pokémon · Generation I". Comes from the species data that the About tab loads anyway,
+// and appears as soon as it is available
 async function showSpeciesSummary(pokemon) {
   try {
     let species = await fetchJsonWithCache(pokemon.species.url);
@@ -313,9 +313,9 @@ function getSpecialStatusText(species) {
   return "";
 }
 
-// ---------- Shiny und Schrei ----------
+// ---------- Shiny and cry ----------
 
-// Wechselt das Bild zwischen normal und shiny, mit einem kurzen Aufblitzen
+// Switches the image between normal and shiny, with a short flash
 function toggleShinyImage() {
   let shinyButton = document.getElementById("detail-shiny-button");
   let showShiny = shinyButton.getAttribute("aria-pressed") !== "true";
@@ -333,19 +333,19 @@ function showDetailImage(showShiny) {
 function flashDetailFigure() {
   let figureElement = document.getElementById("detail-figure");
   figureElement.classList.remove("flash");
-  void figureElement.offsetWidth; // erzwingt, dass die Animation beim erneuten Setzen der Klasse neu startet
+  void figureElement.offsetWidth; // forces the animation to restart when the class is set again
   figureElement.classList.add("flash");
 }
 
 function playPokemonCry() {
   let cryAudio = new Audio(pokemonInDetailView.cries.latest);
   cryAudio.volume = 0.5;
-  cryAudio.play().catch(() => {}); // der Browser darf das Abspielen ablehnen, dann bleibt es still
+  cryAudio.play().catch(() => {}); // the browser may refuse playback, in which case it stays silent
 }
 
-// ---------- Tastatur ----------
+// ---------- Keyboard ----------
 
-// Tastatur bei geöffnetem Popup: Esc schließt, Pfeil links/rechts blättert
+// Keyboard while the popup is open: Esc closes, left/right arrow browses
 function handleDetailKeyDown(keyEvent) {
   if (pokemonInDetailView === null) return;
   if (keyEvent.altKey || keyEvent.ctrlKey || keyEvent.metaKey) return;
@@ -354,7 +354,7 @@ function handleDetailKeyDown(keyEvent) {
 }
 
 function stepWithArrowKey(keyEvent) {
-  if (keyEvent.target.closest?.("input, textarea, select")) return; // dort bewegen die Pfeile den Cursor
+  if (keyEvent.target.closest?.("input, textarea, select")) return; // there the arrows move the cursor
   keyEvent.preventDefault();
   let stepDirection = keyEvent.key === "ArrowLeft" ? -1 : 1;
   openPokemonDetail(getNeighbourPokemonId(pokemonInDetailView.id, stepDirection));

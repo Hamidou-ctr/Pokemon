@@ -1,25 +1,25 @@
 name: Deploy
 
-# Jeder Push auf main lädt die Seite per rsync auf den Server.
-# Einrichtung (Key, Environment, Secrets): Dokumentation/deployment-einrichten.md
+# Every push to main uploads the site to the server via rsync.
+# Setup (key, environment, secrets): Documentation/deployment-setup.md
 #
-# Sicherheitsregeln für diese Datei (das Repo ist öffentlich):
-#  - Kein pull_request / pull_request_target-Trigger, sonst könnten Forks Code mit Zugriff
-#    auf die Secrets ausführen.
-#  - Keine Zugangsdaten oder Server-Details im Klartext, alles kommt aus dem Environment "production".
-#  - Actions nur mit voller Commit-SHA pinnen (Dependabot hält sie aktuell).
-#  - Nie ${{ github.event.* }} oder andere fremde Eingaben direkt in "run:" einsetzen.
+# Security rules for this file (the repo is public):
+#  - No pull_request / pull_request_target trigger, otherwise forks could run code with access
+#    to the secrets.
+#  - No credentials or server details in plain text; everything comes from the "production" environment.
+#  - Pin actions only to a full commit SHA (Dependabot keeps them up to date).
+#  - Never insert ${{ github.event.* }} or other foreign input directly into "run:".
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-# Nie zwei Deployments gleichzeitig
+# Never two deployments at the same time
 concurrency:
   group: deploy
   cancel-in-progress: false
 
-# Standard: keine Rechte. Der Job fordert unten nur das Nötigste an.
+# Default: no permissions. The job below only requests what is strictly necessary.
 permissions: {}
 
 env:
@@ -29,7 +29,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # Secrets liegen im Environment "production", das nur für den Branch main freigegeben ist.
+    # Secrets live in the "production" environment, which is only released for the main branch.
     environment: production
     permissions:
       contents: read
@@ -38,11 +38,11 @@ jobs:
         with:
           persist-credentials: false
 
-      # Schutz vor einem leeren Checkout: --delete würde sonst die Live-Seite leeren.
-      - name: Vollständigkeit prüfen
+      # Protection against an empty checkout: --delete would otherwise empty the live site.
+      - name: Check completeness
         run: test -f index.html && test -d css && test -d js
 
-      - name: SSH einrichten
+      - name: Set up SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
@@ -52,11 +52,11 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
-      # Das Ziel ist "/", weil der Key serverseitig per rrsync auf das Web-Verzeichnis
-      # eingeschränkt ist (siehe Doku). Der Pfad steht bewusst nicht in diesem Repo.
-      # --delete entfernt Dateien, die im Repo nicht mehr existieren. Excludes bleiben dabei
-      # unangetastet: .well-known/ (Let's Encrypt) wird nicht gelöscht.
-      - name: Dateien hochladen
+      # The target is "/" because the key is restricted server-side to the web directory
+      # via rrsync (see docs). The path is deliberately not stored in this repo.
+      # --delete removes files that no longer exist in the repo. Excluded paths are left
+      # untouched: .well-known/ (Let's Encrypt) is not deleted.
+      - name: Upload files
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
@@ -69,15 +69,15 @@ jobs:
             --exclude='.well-known/' \
             --exclude='.DS_Store' \
             --exclude='.gitignore' \
-            --exclude='Dokumentation/' \
+            --exclude='Documentation/' \
             --exclude='plan.drawio' \
             --exclude='up.sh' \
             -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes" \
             ./ "$SSH_USER@$SSH_HOST:/"
 
-      - name: SSH-Key entfernen
+      - name: Remove SSH key
         if: always()
         run: rm -f ~/.ssh/deploy_key
 
-      - name: Seite prüfen
+      - name: Check site
         run: curl --fail --silent --show-error --retry 3 --retry-delay 5 --output /dev/null "$SITE_URL"

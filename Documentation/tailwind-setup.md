@@ -1,87 +1,87 @@
-# Tailwind CSS in dieses Projekt einbauen
+# Adding Tailwind CSS to This Project
 
-Dieses Projekt ist aktuell eine reine HTML/CSS/JS-Seite (`index.html`, `style.css`,
-`script.js`) ohne Build-Tools und ohne `package.json`. Es gibt zwei Wege, Tailwind
-hinzuzufügen: einen schnellen (CDN, ohne Installation) und einen sauberen (CLI-Build,
-empfohlen). Beide sind unten beschrieben.
+This project is currently a plain HTML/CSS/JS site (`index.html`, `style.css`,
+`script.js`) without build tools and without a `package.json`. There are two ways to add
+Tailwind: a quick one (CDN, no installation) and a clean one (CLI build,
+recommended). Both are described below.
 
 ---
 
-## Option A — Schnellstart über CDN (kein Node.js nötig)
+## Option A — Quick start via CDN (no Node.js needed)
 
-Ideal zum Ausprobieren, **nicht** für die fertige/produktive Seite gedacht (Tailwind
-warnt selbst davor, das CDN-Skript in Produktion zu nutzen — es ist langsamer und lädt
-das komplette Framework im Browser).
+Ideal for trying things out, **not** meant for the finished/production site (Tailwind
+itself warns against using the CDN script in production — it is slower and loads
+the entire framework in the browser).
 
-1. Öffne `index.html`.
-2. Füge im `<head>`, **vor** deinem eigenen `<link rel="stylesheet" href="style.css">`,
-   folgende Zeile ein:
+1. Open `index.html`.
+2. In the `<head>`, **before** your own `<link rel="stylesheet" href="style.css">`,
+   add the following line:
 
    ```html
    <script src="https://cdn.tailwindcss.com"></script>
    ```
 
-3. Fertig. Ab jetzt kannst du in jedem HTML-Element Tailwind-Klassen benutzen, z. B.:
+3. Done. From now on you can use Tailwind classes on any HTML element, e.g.:
 
    ```html
    <button class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-     Mehr Pokémon
+     More Pokémon
    </button>
    ```
 
-   Deine bestehende `style.css` bleibt zusätzlich aktiv — beide Systeme können
-   parallel existieren, solange Klassennamen sich nicht widersprechen.
+   Your existing `style.css` stays active as well — both systems can
+   coexist as long as class names don't conflict.
 
-**Nachteile:** kein Tree-Shaking (die ganze Bibliothek wird im Browser generiert),
-keine Möglichkeit eigene Tailwind-Konfiguration (Farben, Fonts) sauber zu verwalten,
-nicht empfohlen für die Live-Version auf GitHub Pages.
+**Drawbacks:** no tree-shaking (the whole library is generated in the browser),
+no clean way to manage your own Tailwind configuration (colors, fonts),
+not recommended for the live version on GitHub Pages.
 
 ---
 
-## Option B — Richtige Installation mit Tailwind CLI (empfohlen)
+## Option B — Proper installation with the Tailwind CLI (recommended)
 
-Damit bekommst du eine einzige, kleine, optimierte CSS-Datei, die du wie deine
-`style.css` per `<link>` einbindest. Node.js ist auf diesem Rechner bereits installiert
-(`node -v` → v24), du brauchst also nichts zusätzlich zu installieren.
+This gives you a single, small, optimized CSS file that you include via `<link>` just like
+your `style.css`. Node.js is already installed on this machine
+(`node -v` → v24), so you don't need to install anything extra.
 
-### 1. Projekt als npm-Projekt initialisieren
+### 1. Initialize the project as an npm project
 
-Im Terminal, im Projektordner `Pokemon/`:
+In the terminal, in the project folder `Pokemon/`:
 
 ```bash
 npm init -y
 ```
 
-Das erstellt eine `package.json` (verwaltet die Abhängigkeiten des Projekts).
+This creates a `package.json` (which manages the project's dependencies).
 
-### 2. Tailwind installieren
+### 2. Install Tailwind
 
 ```bash
 npm install tailwindcss @tailwindcss/cli
 ```
 
-### 3. Input-CSS-Datei anlegen
+### 3. Create the input CSS file
 
-Tailwind braucht eine eigene "Quelldatei", aus der es die finale CSS-Datei baut.
-Lege dafür `src/input.css` an mit folgendem Inhalt:
+Tailwind needs its own "source file" from which it builds the final CSS file.
+Create `src/input.css` with the following content:
 
 ```css
 @import "tailwindcss";
 ```
 
-> Tipp: Deinen bestehenden Code aus `style.css` kannst du entweder komplett in
-> Tailwind-Klassen im HTML umwandeln, oder du importierst deine alte `style.css`
-> zusätzlich in `src/input.css`:
+> Tip: You can either convert your existing code from `style.css` entirely into
+> Tailwind classes in the HTML, or you can additionally import your old `style.css`
+> into `src/input.css`:
 > ```css
 > @import "tailwindcss";
 > @import "../style.css";
 > ```
-> So verlierst du nichts von deinem bisherigen Design und kannst nach und nach auf
-> Tailwind-Klassen umstellen.
+> That way you lose nothing of your previous design and can gradually switch to
+> Tailwind classes.
 
-### 4. Build-Skript in `package.json` einrichten
+### 4. Set up build scripts in `package.json`
 
-Öffne die generierte `package.json` und ergänze im Bereich `"scripts"`:
+Open the generated `package.json` and add the following in the `"scripts"` section:
 
 ```json
 "scripts": {
@@ -90,29 +90,29 @@ Lege dafür `src/input.css` an mit folgendem Inhalt:
 }
 ```
 
-* `build:css` erzeugt einmalig die fertige, minimierte `style.css`.
-* `watch:css` beobachtet deine Dateien und baut automatisch neu, während du
-  entwickelst.
+* `build:css` generates the finished, minified `style.css` once.
+* `watch:css` watches your files and rebuilds automatically while you
+  develop.
 
-### 5. Tailwind beim Entwickeln laufen lassen
+### 5. Run Tailwind during development
 
 ```bash
 npm run watch:css
 ```
 
-Das Terminal offen lassen, während du an `index.html` / `script.js` arbeitest.
-Jede gespeicherte Änderung wird automatisch in `style.css` übernommen.
+Keep the terminal open while you work on `index.html` / `script.js`.
+Every saved change is automatically picked up in `style.css`.
 
-### 6. Tailwind-Klassen im HTML benutzen
+### 6. Use Tailwind classes in the HTML
 
-`style.css` bleibt wie gewohnt über den vorhandenen Link eingebunden — daran musst
-du nichts ändern:
+`style.css` stays included via the existing link as usual — you don't
+have to change anything there:
 
 ```html
 <link rel="stylesheet" href="style.css">
 ```
 
-Jetzt einfach Tailwind-Klassen in `index.html` verwenden, z. B.:
+Now simply use Tailwind classes in `index.html`, e.g.:
 
 ```html
 <header class="flex items-center justify-between gap-4 bg-gray-900 p-4">
@@ -124,45 +124,45 @@ Jetzt einfach Tailwind-Klassen in `index.html` verwenden, z. B.:
 </header>
 ```
 
-### 7. Vor dem Veröffentlichen (Build für Produktion)
+### 7. Before publishing (production build)
 
-Bevor du mit `up.sh` (dein bestehendes Deploy-Skript) pushst, einmal den
-Produktions-Build erzeugen:
+Before you push with `up.sh` (your existing deploy script), generate the
+production build once:
 
 ```bash
 npm run build:css
 ```
 
-Da dieses Projekt **kein** CI/Build-System hat (die Seite wird vermutlich direkt als
-statische Datei über GitHub Pages ausgeliefert), muss die gebaute `style.css` mit
-committed und gepusht werden — nicht in `.gitignore` aufnehmen.
+Since this project has **no** CI/build system (the site is presumably served directly as a
+static file via GitHub Pages), the built `style.css` has to be
+committed and pushed as well — do not add it to `.gitignore`.
 
-### 8. `.gitignore` ergänzen
+### 8. Extend `.gitignore`
 
-Der `node_modules`-Ordner sollte **nicht** ins Git-Repo:
+The `node_modules` folder should **not** go into the Git repo:
 
 ```
 node_modules/
 ```
 
-Lege dafür eine Datei `.gitignore` im Projekt-Root an (falls noch nicht vorhanden)
-und trage die Zeile ein.
+Create a `.gitignore` file in the project root (if it doesn't exist yet)
+and add the line.
 
 ---
 
-## Kurzüberblick: Welche Option wählen?
+## Quick overview: Which option to choose?
 
 | | Option A (CDN) | Option B (CLI) |
 |---|---|---|
-| Setup-Aufwand | 1 Zeile HTML | npm-Projekt + Build-Skript |
-| Geeignet für | Schnelles Ausprobieren | Fertige/produktive Seite |
-| Performance | Schlechter (volles Framework im Browser) | Gut (nur genutzte Klassen im CSS) |
-| Eigene Konfiguration (Farben, Fonts) | Eingeschränkt | Voll möglich |
-| Empfehlung für dieses Projekt | Zum Testen | ✅ Für die finale Version |
+| Setup effort | 1 line of HTML | npm project + build script |
+| Suited for | Quick experiments | Finished/production site |
+| Performance | Worse (full framework in the browser) | Good (only used classes in the CSS) |
+| Custom configuration (colors, fonts) | Limited | Fully possible |
+| Recommendation for this project | For testing | ✅ For the final version |
 
 ---
 
-## Nützliche Links
+## Useful links
 
-* Offizielle Doku: https://tailwindcss.com/docs/installation
-* Klassen-Referenz ("Utility Classes"): https://tailwindcss.com/docs/styling-with-utility-classes
+* Official docs: https://tailwindcss.com/docs/installation
+* Class reference ("Utility Classes"): https://tailwindcss.com/docs/styling-with-utility-classes

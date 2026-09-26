@@ -1,4 +1,4 @@
-const responseCacheByUrl = new Map(); // url -> Promise mit der Antwort, jede URL wird nur einmal geladen
+const responseCacheByUrl = new Map(); // url -> Promise with the response; each URL is only loaded once
 
 function fetchJsonWithCache(url) {
   if (!responseCacheByUrl.has(url)) {
@@ -7,7 +7,7 @@ function fetchJsonWithCache(url) {
   return responseCacheByUrl.get(url);
 }
 
-// Fehlgeschlagene Anfragen werden aus dem Cache entfernt, damit sie erneut versucht werden dürfen
+// Failed requests are removed from the cache so they can be retried
 function fetchJsonAndForgetFailure(url) {
   let responsePromise = fetchJsonFromNetwork(url);
   responsePromise.catch(() => responseCacheByUrl.delete(url));

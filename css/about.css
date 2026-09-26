@@ -1,4 +1,4 @@
-/* Beschreibungstext aus den Spielen, mit großem Anführungszeichen */
+/* Description text from the games, with a large quotation mark */
 .about-quote {
   position: relative;
   margin: 0 0 18px;
@@ -29,7 +29,7 @@
   line-height: 1.1;
 }
 
-/* Kacheln mit Größe, Gewicht usw. */
+/* Tiles with height, weight, etc. */
 .about-tiles {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
@@ -72,7 +72,7 @@
   line-height: 1.2;
 }
 
-/* Geschlechterverhältnis: blau für männlich, rosa für weiblich */
+/* Gender ratio: blue for male, pink for female */
 .gender-bar {
   display: flex;
   height: 10px;
@@ -105,7 +105,7 @@
   color: #ff9bc9;
 }
 
-/* Kleine Pillen, z. B. für Ei-Gruppen und Fundorte */
+/* Small pills, e.g. for egg groups and locations */
 .chip-list {
   display: flex;
   flex-wrap: wrap;
@@ -132,7 +132,7 @@
   border-radius: 999px;
 }
 
-/* Überschrift mit Linie dahinter */
+/* Heading with a line behind it */
 .detail-section-title {
   display: flex;
   align-items: center;
@@ -183,7 +183,7 @@
   }
 }
 
-/* Karten-Listen (Fähigkeiten, Attacken) */
+/* Card lists (abilities, moves) */
 .card-list {
   display: grid;
   gap: 8px;

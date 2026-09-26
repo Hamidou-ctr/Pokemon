@@ -1,4 +1,4 @@
-/* Balken: Verlauf von --bar-start-color nach --bar-end-color (setzt das JS), mit Leuchten und Aufwachsen */
+/* Bars: gradient from --bar-start-color to --bar-end-color (set by the JS), with glow and grow-in */
 .bar-list {
   display: grid;
   align-content: start;
@@ -47,7 +47,7 @@
   }
 }
 
-/* Stats-Tab: Radar-Diagramm links, Balken rechts */
+/* Stats tab: radar chart on the left, bars on the right */
 .stats-layout {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
