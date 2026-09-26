@@ -78,7 +78,10 @@ function movesHtml(pokemon) {
   let preselectedGame = findNewestGameWithLevelUpMoves();
   movesSelection = { versionGroupName: preselectedGame.versionGroupName, learnMethodApiName: "" };
   return /* html */ `
-    <div class="moves-header">${gameSelectHtml(preselectedGame)}</div>
+    <div class="moves-header">
+      ${gameSelectHtml(preselectedGame)}
+      ${movesHelpHtml()}
+    </div>
     <div id="moves-view">${movesViewHtml()}</div>
   `;
 }

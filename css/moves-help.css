@@ -1,0 +1,235 @@
+/* ---------- Help: short guide in English, German and French (js/tabs/moves-help.js) ---------- */
+.moves-help-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 6px 13px 6px 10px;
+  color: var(--muted-text-color);
+  font-family: var(--font-raleway);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.moves-help-toggle svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+.moves-help-toggle:hover {
+  color: var(--text-color);
+  background: var(--surface-color);
+}
+
+.moves-help-toggle:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* While the help is open, the button glows in the light shade of the type, like the active filter */
+.moves-help-toggle[aria-expanded="true"] {
+  color: #1a2040;
+  background: var(--accent-color);
+  border-color: transparent;
+}
+
+.moves-help {
+  margin-top: 10px;
+  padding: 14px 16px 6px;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  animation: moves-help-in 0.2s ease-out;
+}
+
+.moves-help-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.moves-help-title {
+  margin: 0;
+  font-family: var(--font-raleway);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.moves-help-languages {
+  display: flex;
+  gap: 6px;
+}
+
+.moves-help-language {
+  padding: 5px 11px;
+  color: var(--muted-text-color);
+  font-family: var(--font-raleway);
+  font-size: 12px;
+  font-weight: 800;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.moves-help-language:hover {
+  color: var(--text-color);
+  background: var(--surface-strong-color);
+}
+
+.moves-help-language:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.moves-help-language[aria-pressed="true"] {
+  color: #1a2040;
+  background: var(--accent-color);
+  border-color: transparent;
+}
+
+.moves-help-intro {
+  margin: 0 0 6px;
+  color: #c9d1ea;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+/* One section per step: the heading is the button that opens and closes it */
+.moves-help-section {
+  border-top: 1px solid var(--border-color);
+}
+
+.moves-help-section summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 2px;
+  font-family: var(--font-raleway);
+  font-size: 14px;
+  font-weight: 800;
+  list-style: none;
+  cursor: pointer;
+}
+
+.moves-help-section summary::-webkit-details-marker {
+  display: none;
+}
+
+.moves-help-section summary:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.moves-help-section summary svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  color: var(--muted-text-color);
+  transition: transform 0.2s ease;
+}
+
+.moves-help-section[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.moves-help-step {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: var(--accent-color);
+  font-size: 12px;
+  background: color-mix(in srgb, var(--accent-color) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-color) 38%, transparent);
+  border-radius: 50%;
+}
+
+.moves-help-section-body {
+  padding: 0 2px 12px 32px;
+}
+
+.moves-help-section-body p {
+  margin: 0 0 10px;
+  color: #c9d1ea;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.moves-help-section-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* The terms are the labels of the app itself, so they look like small labels */
+.moves-help-terms {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 10px;
+}
+
+.moves-help-terms:last-child {
+  margin-bottom: 0;
+}
+
+.moves-help-terms dt {
+  color: var(--accent-color);
+  font-family: var(--font-raleway);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.moves-help-terms dd {
+  margin: 2px 0 0;
+  color: #c9d1ea;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+@keyframes moves-help-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@media (max-width: 520px) {
+  .moves-help {
+    padding-inline: 14px;
+  }
+
+  .moves-help-section-body {
+    padding-left: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moves-help {
+    animation: none;
+  }
+
+  .moves-help-toggle,
+  .moves-help-language,
+  .moves-help-section summary svg {
+    transition: none;
+  }
+}

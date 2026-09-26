@@ -99,6 +99,7 @@ Pokemon/
 │   ├── evolution.css           Evolution tab
 │   ├── matchups.css            Matchups tab
 │   ├── moves.css               Moves tab (game selection, filters, move cards)
+│   ├── moves-help.css          Help guide in the Moves tab
 │   ├── legal.css               Legal notice and privacy policy
 │   └── utilities.css           Only the .hidden class (must be loaded last)
 │
@@ -116,7 +117,8 @@ Pokemon/
 │       ├── evolution.js
 │       ├── matchups.js
 │       ├── moves.js
-│       └── moves-game-select.js   The game selection of the Moves tab
+│       ├── moves-game-select.js   The game selection of the Moves tab
+│       └── moves-help.js          The help guide of the Moves tab (EN/DE/FR)
 │
 ├── fonts/                      Font files (.woff2), included locally
 ├── images/
@@ -138,7 +140,7 @@ Pokemon/
 2. `data-loading.js` → `components.js` (fetching data, building blocks)
 3. `pokemon-list.js` (the overview)
 4. `pokemon-detail.js` (the popup and the tab system)
-5. `tabs/about.js` → `stats.js` → `matchups.js` → `evolution.js` → `moves.js` → `moves-game-select.js`
+5. `tabs/about.js` → `stats.js` → `matchups.js` → `evolution.js` → `moves.js` → `moves-game-select.js` → `moves-help.js`
 
 ---
 
@@ -181,6 +183,7 @@ has been fully read, and **in the order of the tags**. That is why
 | 11 | `tabs/matchups.js` | 1–7 | registers "Matchups" |
 | 12 | `tabs/moves.js` | 1–7 | registers "Moves" |
 | 13 | `tabs/moves-game-select.js` | 12 | game selection (uses variables from `moves.js`) |
+| 14 | `tabs/moves-help.js` | 1, 12 | help guide in the Moves tab (`movesHelpHtml`, used by `moves.js`) |
 
 The **order of the tabs in the popup** is the order of the tab scripts in `index.html`
 (items 8 to 12). More on this in [section 7.7](#77-jstabs--the-five-tabs).
@@ -350,8 +353,9 @@ the number and not the type.
    (`buildLearnsetPerGame`). The result goes into `learnsetPerGame`, newest game first.
 2. The newest game that has level-up moves is preselected
    (`findNewestGameWithLevelUpMoves`).
-3. The tab shows the **game selection** at the top (`moves-game-select.js`), below it the filters
-   (Level up, TM/HM, Egg, Tutor, Other, each with a count) and the list as cards.
+3. The tab shows the **game selection** at the top (`moves-game-select.js`) with a **help button** below it
+   (`moves-help.js`), then the filters (Level up, TM/HM, Egg, Tutor, Other, each with a count) and the
+   list as cards.
 4. Each card immediately shows level and name. Type, category, power, accuracy, PP and
    description are **only loaded once the card is almost visible**
    (`IntersectionObserver`). With over 100 moves, that would otherwise be over 100 requests at once.
@@ -685,6 +689,23 @@ the Pokémon).
 The height of the opened list adapts to the free space in the popup but stays
 between `minimumGameListHeight` (180 px) and `maximumGameListHeight` (340 px).
 
+#### `tabs/moves-help.js` – the help guide
+
+A button below the game selection ("Help · Hilfe · Aide") opens a short guide that explains what
+"Game" means, how the learn methods work, how to read a move card and how to use the moves in battle.
+`movesHtml` calls `movesHelpHtml()` and puts the result into `.moves-header`, so the help is not rebuilt
+when the game or the filter changes.
+
+- **Three languages:** the texts of English, German and French are in `movesHelpTexts`. The terms
+  that appear in the app itself (Level up, TM / HM, Power, PP …) stay in English in every language.
+  To add a language, add an entry to `movesHelpLanguages` and a block to `movesHelpTexts`.
+- **Start language:** `pickMovesHelpLanguageOfBrowser` takes the browser's language if the help has it,
+  otherwise English. The chosen language is only kept in a variable, **nothing is stored in the browser**
+  (see the privacy policy), so it starts again from the browser's language after a reload.
+- **Sections:** each section is a native `<details>` element, so it opens and closes without any
+  JavaScript. `showMovesHelpLanguage` rebuilds the text and keeps the open sections open
+  (`findOpenMovesHelpSectionIndexes`).
+
 ---
 
 ## 8. CSS: file by file
@@ -711,6 +732,7 @@ The legal pages only load `base.css`, `layout.css` and `legal.css`.
 | `evolution.css` | Tree of tiles and arrows, wide variant `.wide`, vertical layout on phones |
 | `matchups.css` | Group rows with a colored left border (red = weak, green = resistant, gray = immune) |
 | `moves.css` | Game selection and its list, learn method filters (stick to the top while scrolling), move cards, placeholders with shimmer animation, value bars |
+| `moves-help.css` | The help button, the help panel with its language buttons and the collapsible sections (`js/tabs/moves-help.js`) |
 | `legal.css` | Readable text column for the legal notice and privacy policy |
 | `utilities.css` | `.hidden` |
 
